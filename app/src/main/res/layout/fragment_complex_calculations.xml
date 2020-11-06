@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/calculationsTwoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
+        android:text="@string/calculations_2"
+        app:layout_constraintBottom_toTopOf="@+id/calculationsFactorInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/internetLauncherTitleLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/complex_calculations"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/calculationsOneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="159dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="164dp"
+        android:text="@string/calculations_1"
+        app:layout_constraintBottom_toTopOf="@+id/calculationsFactorLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/internetLauncherTitleLabel" />
+
+    <EditText
+        android:id="@+id/calculationsFactorInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/request_interval_in_seconds"
+        android:inputType="numberDecimal"
+        app:layout_constraintBottom_toTopOf="@+id/calculationsFactorLabel"
+        app:layout_constraintEnd_toEndOf="@+id/calculationsTwoButton"
+        app:layout_constraintStart_toStartOf="@+id/calculationsTwoButton" />
+
+    <TextView
+        android:id="@+id/calculationsFactorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/factor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/calculationsFactorInput"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsOneButton" />
+</androidx.constraintlayout.widget.ConstraintLayout>

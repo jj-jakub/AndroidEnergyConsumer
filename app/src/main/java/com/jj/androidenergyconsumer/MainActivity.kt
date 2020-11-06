@@ -1,7 +1,7 @@
 package com.jj.androidenergyconsumer
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 
 class MainActivity : AppCompatActivity() {
@@ -14,13 +14,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun setCurrentFragment(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
-            val fragment = ChooseLauncherFragment()
+            val fragment = ChooseLauncherFragment.newInstance()
             switchFragment(fragment)
         }
     }
 
-    private fun switchFragment(fragment: Fragment) {
+    fun switchFragment(fragment: Fragment) {
         val tag: String = fragment::class.java.simpleName
-        supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, fragment, tag).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.mainFragmentContainer, fragment, tag)
+            .addToBackStack(null).commit()
+    }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            super.onBackPressed()
+        } else {
+            supportFragmentManager.popBackStack()
+        }
     }
 }
