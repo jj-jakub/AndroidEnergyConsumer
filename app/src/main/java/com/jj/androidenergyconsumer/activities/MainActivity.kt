@@ -1,8 +1,10 @@
-package com.jj.androidenergyconsumer
+package com.jj.androidenergyconsumer.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.fragments.ChooseLauncherFragment
 
 class MainActivity : AppCompatActivity() {
 
