@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AndroidEnergyConsumer</string>
+    <string name="gps_module_launcher">GPS Module launcher</string>
+    <string name="internet_module_launcher">Internet module launcher</string>
+    <string name="sensors_launcher">Sensors launcher</string>
+    <string name="complex_calculations_launcher">Complex calculations launcher</string>
 </resources>
