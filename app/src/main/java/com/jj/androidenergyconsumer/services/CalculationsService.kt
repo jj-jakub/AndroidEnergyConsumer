@@ -21,7 +21,7 @@ import java.util.*
 class CalculationsService : Service() {
 
     private val blockLock = Any()
-    private val handlerThreadName = "name"
+    private val handlerThreadName = "HThread"
     private var handlerThreads: List<HandlerThread>? = null
     private var loopers: List<Looper>? = null
     private var stoppableHandlers: List<StoppableHandler>? = null
@@ -32,9 +32,19 @@ class CalculationsService : Service() {
     companion object : ServiceStarter {
         private const val START_CALCULATIONS_ACTION = "START_CALCULATIONS_ACTION"
         private const val STOP_CALCULATIONS_ACTION = "STOP_CALCULATIONS_ACTION"
+        private const val NUMBER_OF_HANDLERS_EXTRA = "NUMBER_OF_HANDLERS_EXTRA"
+        const val DEFAULT_NUMBER_OF_HANDLERS = 4
 
         override fun getServiceClass() = CalculationsService::class.java
-        fun startCalculations(context: Context) = start(context, START_CALCULATIONS_ACTION)
+
+        fun startCalculations(context: Context, numberOfHandlers: Int = DEFAULT_NUMBER_OF_HANDLERS) {
+            val intent = getServiceIntent(context).apply {
+                action = START_CALCULATIONS_ACTION
+                putExtra(NUMBER_OF_HANDLERS_EXTRA, numberOfHandlers)
+            }
+            start(context, intent)
+        }
+
         fun stopCalculations(context: Context) = start(context, STOP_CALCULATIONS_ACTION)
     }
 
@@ -54,15 +64,18 @@ class CalculationsService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         logAndPingServer("onStartCommand")
         when (intent?.action) {
-            START_CALCULATIONS_ACTION -> restartCalculationsOne()
+            START_CALCULATIONS_ACTION -> {
+                val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
+                restartCalculationsOne(amountOfHandlers)
+            }
             STOP_CALCULATIONS_ACTION -> stopSelf()
         }
         return START_NOT_STICKY
     }
 
-    private fun restartCalculationsOne() {
+    private fun restartCalculationsOne(amountOfHandlers: Int) {
         disposeHandlers()
-        initHandlers()
+        initHandlers(amountOfHandlers)
         launchCalculationsOne()
         logAndPingServer("After restartCalculations")
     }
@@ -79,9 +92,9 @@ class CalculationsService : Service() {
         }
     }
 
-    private fun initHandlers() {
+    private fun initHandlers(amountOfHandlers: Int) {
         synchronized(blockLock) {
-            handlerThreads = createListOfHandlerThreads()
+            handlerThreads = createListOfHandlerThreads(amountOfHandlers)
             handlerThreads?.forEach { it.start() }
             stoppableHandlers = createListOfHandlers()
             logAndPingServer("After initHandler")
@@ -125,6 +138,14 @@ class CalculationsService : Service() {
         logAndPingServer("handlerId: $handlerId, variable = $variable")
     }
 
+    private fun createListOfHandlerThreads(amountOfHandlers: Int): List<HandlerThread> {
+        val handlersList = mutableListOf<HandlerThread>()
+        for (i in 0 until amountOfHandlers) {
+            handlersList.add(HandlerThread("$handlerThreadName $i"))
+        }
+        return handlersList.toList()
+    }
+
     private fun createListOfHandlers(): List<StoppableHandler>? {
         val mutableListOfHandlers = mutableListOf<StoppableHandler>()
         handlerThreads?.forEach {
@@ -132,10 +153,6 @@ class CalculationsService : Service() {
         }
         return mutableListOfHandlers.toList()
     }
-
-    private fun createListOfHandlerThreads() =
-        listOf(HandlerThread(handlerThreadName + "1"), HandlerThread(handlerThreadName + "2"),
-                HandlerThread(handlerThreadName + "3"), HandlerThread(handlerThreadName + "4"))
 
     private fun logAndPingServer(message: String) {
         Log.d(tag, message)

@@ -10,6 +10,8 @@ interface ServiceStarter {
     fun start(context: Context, action: String? = null) =
         startService(context, getServiceIntent(context).also { intent -> action?.run { intent.action = action } })
 
+    fun start(context: Context, intent: Intent) = startService(context, intent)
+
     fun getServiceIntent(context: Context): Intent = Intent(context, getServiceClass())
 
     fun getServiceClass(): Class<out Service>

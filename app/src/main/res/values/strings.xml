@@ -11,8 +11,9 @@
     <string name="constant_internet_work">Constant internet work</string>
     <string name="request_periodic_gps_updates">Request periodic GPS updates</string>
     <string name="request_periodic_internet_calls">Request periodic internet calls</string>
-    <string name="factor">Factor</string>
     <string name="complex_calculations">Complex calculations</string>
     <string name="calculations_1">Calculations 1</string>
     <string name="calculations_2">Calculations 2</string>
+    <string name="number_of_handlers">Number of handlers</string>
+    <string name="handlers">Handlers</string>
 </resources>
