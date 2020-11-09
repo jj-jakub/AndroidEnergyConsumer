@@ -9,7 +9,13 @@ import android.os.Looper
 import android.util.Log
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
+import com.jj.androidenergyconsumer.rest.DefaultCallback
+import com.jj.androidenergyconsumer.rest.PingDataCall
 import com.jj.androidenergyconsumer.utils.tag
+import com.jj.universallprotocollibrary.PingData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class CalculationsService : Service() {
@@ -27,14 +33,14 @@ class CalculationsService : Service() {
     }
 
     override fun onCreate() {
-        Log.d(tag, "onCreate")
+        logAndPingServer("onCreate")
         super.onCreate()
         val notification = notificationManagerBuilder.getServiceNotification("CalculationsService notification")
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(tag, "onStartCommand")
+        logAndPingServer("onStartCommand")
         restartCalculations()
         return START_STICKY
     }
@@ -43,7 +49,7 @@ class CalculationsService : Service() {
         disposeHandler()
         initHandler()
         launchCalculationsOne()
-        Log.d(tag, "After restartCalculations")
+        logAndPingServer("After restartCalculations")
     }
 
     private fun disposeHandler() {
@@ -52,7 +58,7 @@ class CalculationsService : Service() {
             handlerThread = null
             looper = null
             handler = null
-            Log.d(tag, "After disposeHandler")
+            logAndPingServer("After disposeHandler")
         }
     }
 
@@ -61,19 +67,19 @@ class CalculationsService : Service() {
             handlerThread = HandlerThread(handlerThreadName)
             handlerThread?.start()
             handlerThread?.looper?.let { handler = Handler(it) }
-            Log.d(tag, "After initHandler")
+            logAndPingServer("After initHandler")
         }
     }
 
     private fun launchCalculationsOne() {
         synchronized(blockLock) {
             handler?.post(infiniteAdditionLoop)
-            Log.d(tag, "After launchCalculationsOne")
+            logAndPingServer("After launchCalculationsOne")
         }
     }
 
     override fun onDestroy() {
-        Log.d(tag, "onDestroy")
+        logAndPingServer("onDestroy")
         abortCalculationsOne()
         disposeHandler()
         super.onDestroy()
@@ -82,7 +88,7 @@ class CalculationsService : Service() {
     private fun abortCalculationsOne() {
         synchronized(blockLock) {
             handlerThread?.quit()
-            Log.d(tag, "After abortCalculationsOne")
+            logAndPingServer("After abortCalculationsOne")
         }
     }
 
@@ -93,8 +99,15 @@ class CalculationsService : Service() {
             if (a % 1000000000 == 0) {
                 notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
                         "${Date()} - a = $a")
-                Log.d("ABAB", "a = $a")
+                logAndPingServer("a = $a")
             }
+        }
+    }
+
+    private fun logAndPingServer(message: String) {
+        Log.d(tag, message)
+        CoroutineScope(Dispatchers.IO).launch {
+            PingDataCall.postSensorsData(PingData(Date(), message), DefaultCallback())
         }
     }
 }
