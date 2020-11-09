@@ -1,6 +1,5 @@
 package com.jj.androidenergyconsumer.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.services.CalculationsService
-import com.jj.androidenergyconsumer.utils.startService
 import kotlinx.android.synthetic.main.fragment_complex_calculations.*
 
 class ComplexCalculationsFragment : Fragment() {
@@ -26,10 +24,19 @@ class ComplexCalculationsFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        calculationsOneButton?.setOnClickListener {
-            context?.let { context ->
-                startService(context, Intent(context, CalculationsService::class.java))
-            }
+        calculationsOneButton?.setOnClickListener { startCalculationsService() }
+        abortCalculationsOneButton?.setOnClickListener { abortCalculationsService() }
+    }
+
+    private fun startCalculationsService() {
+        context?.let { context ->
+            CalculationsService.startCalculations(context)
+        }
+    }
+
+    private fun abortCalculationsService() {
+        context?.let { context ->
+            CalculationsService.stopCalculations(context)
         }
     }
 }
