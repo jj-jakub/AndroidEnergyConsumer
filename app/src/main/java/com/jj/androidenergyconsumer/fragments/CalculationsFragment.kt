@@ -11,16 +11,16 @@ import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.services.CalculationsService
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
-import kotlinx.android.synthetic.main.fragment_complex_calculations.*
+import kotlinx.android.synthetic.main.fragment_calculations_launcher.*
 
-class ComplexCalculationsFragment : Fragment() {
+class CalculationsFragment : Fragment() {
 
     companion object {
-        fun newInstance(): ComplexCalculationsFragment = ComplexCalculationsFragment()
+        fun newInstance(): CalculationsFragment = CalculationsFragment()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_complex_calculations, container, false)
+        inflater.inflate(R.layout.fragment_calculations_launcher, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -28,12 +28,8 @@ class ComplexCalculationsFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        performAdditionCalculationsButton?.setOnClickListener {
-            startCalculationsService(CalculationsType.ADDITION)
-        }
-        performMultiplicationCalculationsButton?.setOnClickListener {
-            startCalculationsService(CalculationsType.MULTIPLICATION)
-        }
+        performAdditionsButton?.setOnClickListener { startCalculationsService(CalculationsType.ADDITION) }
+        performMultiplicationsButton?.setOnClickListener { startCalculationsService(CalculationsType.MULTIPLICATION) }
         abortCalculationsButton?.setOnClickListener { abortCalculationsService() }
     }
 
@@ -49,11 +45,8 @@ class ComplexCalculationsFragment : Fragment() {
 
     private fun getAmountOfHandlersFromInput() = try {
         calculationsHandlersNOInput.text.toString().toInt().apply {
-            if (this > 0) {
-                return this
-            } else {
-                DEFAULT_NUMBER_OF_HANDLERS
-            }
+            if (this > 0) return this
+            else DEFAULT_NUMBER_OF_HANDLERS
         }
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
@@ -61,9 +54,7 @@ class ComplexCalculationsFragment : Fragment() {
     }
 
     private fun getFactorFromInput() = try {
-        calculationsFactorInput.text.toString().toInt().apply {
-            DEFAULT_CALCULATIONS_FACTOR
-        }
+        calculationsFactorInput.text.toString().toInt()
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
         DEFAULT_CALCULATIONS_FACTOR

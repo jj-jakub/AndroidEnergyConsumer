@@ -6,15 +6,36 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/internetLauncherTitleLabel"
+        android:id="@+id/calculationsLauncherTitleLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="@string/complex_calculations"
+        android:text="@string/calculations"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/performAdditionsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/perform_addition_calculations"
+        app:layout_constraintBottom_toTopOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsLauncherTitleLabel" />
+
+    <Button
+        android:id="@+id/performMultiplicationsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/perform_multiplication_calculations"
+        app:layout_constraintEnd_toEndOf="@+id/performAdditionsButton"
+        app:layout_constraintStart_toStartOf="@+id/performAdditionsButton"
+        app:layout_constraintTop_toBottomOf="@+id/performAdditionsButton" />
 
     <EditText
         android:id="@+id/calculationsHandlersNOInput"
@@ -28,7 +49,7 @@
         app:layout_constraintBottom_toTopOf="@+id/calculationsStatusInfoLabel"
         app:layout_constraintEnd_toStartOf="@+id/calculationsFactorInput"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/performAdditionCalculationsButton" />
+        app:layout_constraintTop_toBottomOf="@+id/performAdditionsButton" />
 
     <EditText
         android:id="@+id/calculationsFactorInput"
@@ -60,37 +81,6 @@
         app:layout_constraintStart_toEndOf="@+id/calculationsHandlersNOInput"
         app:layout_constraintTop_toBottomOf="@+id/calculationsFactorInput" />
 
-    <Button
-        android:id="@+id/performAdditionCalculationsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/perform_addition_calculations"
-        app:layout_constraintBottom_toTopOf="@+id/calculationsHandlersNOInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/internetLauncherTitleLabel" />
-
-    <Button
-        android:id="@+id/performMultiplicationCalculationsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/perform_multiplication_calculations"
-        app:layout_constraintEnd_toEndOf="@+id/performAdditionCalculationsButton"
-        app:layout_constraintStart_toStartOf="@+id/performAdditionCalculationsButton"
-        app:layout_constraintTop_toBottomOf="@+id/performAdditionCalculationsButton" />
-
-    <Button
-        android:id="@+id/abortCalculationsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/abort_calculations"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calculationsStatusInfoLabel" />
-
     <TextView
         android:id="@+id/calculationsStatusInfoLabel"
         android:layout_width="wrap_content"
@@ -113,4 +103,14 @@
         app:layout_constraintStart_toEndOf="@+id/calculationsStatusInfoLabel"
         app:layout_constraintTop_toTopOf="@+id/calculationsStatusInfoLabel"
         tools:text="status" />
+
+    <Button
+        android:id="@+id/abortCalculationsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/abort_calculations"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsStatusInfoLabel" />
 </androidx.constraintlayout.widget.ConstraintLayout>

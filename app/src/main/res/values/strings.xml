@@ -3,7 +3,7 @@
     <string name="gps_module_launcher">GPS Module launcher</string>
     <string name="internet_module_launcher">Internet module launcher</string>
     <string name="sensors_launcher">Sensors launcher</string>
-    <string name="complex_calculations_launcher">Complex calculations launcher</string>
+    <string name="calculations_launcher">Calculations launcher</string>
     <string name="gps_launcher">GPS launcher</string>
     <string name="constant_gps_work">Constant GPS work</string>
     <string name="request_interval_in_seconds">Request interval in seconds</string>
@@ -11,7 +11,7 @@
     <string name="constant_internet_work">Constant internet work</string>
     <string name="request_periodic_gps_updates">Request periodic GPS updates</string>
     <string name="request_periodic_internet_calls">Request periodic internet calls</string>
-    <string name="complex_calculations">Complex calculations</string>
+    <string name="calculations">Calculations</string>
     <string name="calculations_1">Calculations 1</string>
     <string name="calculations_2">Calculations 2</string>
     <string name="number_of_handlers">Number of handlers</string>
