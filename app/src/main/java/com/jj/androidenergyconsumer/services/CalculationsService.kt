@@ -3,8 +3,11 @@ package com.jj.androidenergyconsumer.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.*
+import android.os.Build
+import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
+import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
 import com.jj.androidenergyconsumer.handlers.StoppableHandler
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
@@ -20,11 +23,7 @@ import java.util.*
 
 class CalculationsService : Service() {
 
-    private val blockLock = Any()
-    private val handlerThreadName = "HThread"
-    private var handlerThreads: List<HandlerThread>? = null
-    private var loopers: List<Looper>? = null
-    private var stoppableHandlers: List<StoppableHandler>? = null
+    private val handlersOrchestrator = HandlersOrchestrator()
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -65,6 +64,7 @@ class CalculationsService : Service() {
         logAndPingServer("onStartCommand")
         when (intent?.action) {
             START_CALCULATIONS_ACTION -> {
+                wakeLock.acquire()
                 val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
                 restartCalculationsOne(amountOfHandlers)
             }
@@ -81,41 +81,18 @@ class CalculationsService : Service() {
     }
 
     private fun disposeHandlers() {
-        synchronized(blockLock) {
-            stoppableHandlers?.forEach { it.quitHandler() }
-            stoppableHandlers = null
-            loopers?.forEach { it.quit() }
-            loopers = null
-            handlerThreads?.forEach { it.quit() }
-            handlerThreads = null
-            logAndPingServer("After disposeHandler")
-        }
+        handlersOrchestrator.disposeHandlers()
+        logAndPingServer("After disposeHandlers")
     }
 
     private fun initHandlers(amountOfHandlers: Int) {
-        synchronized(blockLock) {
-            handlerThreads = createListOfHandlerThreads(amountOfHandlers)
-            handlerThreads?.forEach { it.start() }
-            stoppableHandlers = createListOfHandlers()
-            logAndPingServer("After initHandler")
-        }
-    }
-
-    override fun onDestroy() {
-        logAndPingServer("onDestroy")
-        disposeHandlers()
-        notificationManagerBuilder.cancelServiceNotification(this)
-        super.onDestroy()
+        handlersOrchestrator.initHandlers(amountOfHandlers)
+        logAndPingServer("After initHandlers")
     }
 
     private fun launchCalculationsOne() {
-        synchronized(blockLock) {
-            wakeLock.acquire()
-            stoppableHandlers?.forEachIndexed { index, stoppableHandler ->
-                stoppableHandler.executeInInfiniteLoop { handlerInfiniteAdditionLoop(index, stoppableHandler) }
-            }
-            logAndPingServer("After launchCalculationsOne")
-        }
+        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(::handlerInfiniteAdditionLoop)
+        logAndPingServer("After launchCalculationsOne")
     }
 
     private fun handlerInfiniteAdditionLoop(handlerId: Int, stoppableHandler: StoppableHandler) {
@@ -123,35 +100,20 @@ class CalculationsService : Service() {
         while (true) {
             a += 2
             if (a % 100000000 == 0) {
-                Log.d("ABAB", "handlerId: $handlerId variable: $a")
-                if (stoppableHandler.isHandlerStopped().not()) {
-                    onThresholdAchieved(a, handlerId)
-                }
+                onThresholdAchieved(a, handlerId, stoppableHandler)
                 break
             }
         }
     }
 
-    private fun onThresholdAchieved(variable: Int, handlerId: Int) {
-        notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
-                "handlerId: $handlerId ${Date()} - variable = $variable")
-        logAndPingServer("handlerId: $handlerId, variable = $variable")
-    }
+    private fun onThresholdAchieved(variable: Int, handlerId: Int, stoppableHandler: StoppableHandler) {
+        Log.d("ABAB", "handlerId: $handlerId variable: $variable")
+        if (stoppableHandler.isHandlerStopped().not()) {
 
-    private fun createListOfHandlerThreads(amountOfHandlers: Int): List<HandlerThread> {
-        val handlersList = mutableListOf<HandlerThread>()
-        for (i in 0 until amountOfHandlers) {
-            handlersList.add(HandlerThread("$handlerThreadName $i"))
+            notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
+                    "handlerId: $handlerId ${Date()} - variable = $variable")
+            logAndPingServer("handlerId: $handlerId, variable = $variable")
         }
-        return handlersList.toList()
-    }
-
-    private fun createListOfHandlers(): List<StoppableHandler>? {
-        val mutableListOfHandlers = mutableListOf<StoppableHandler>()
-        handlerThreads?.forEach {
-            it.looper?.let { looper -> mutableListOfHandlers.add(StoppableHandler(looper)) }
-        }
-        return mutableListOfHandlers.toList()
     }
 
     private fun logAndPingServer(message: String) {
@@ -159,5 +121,13 @@ class CalculationsService : Service() {
         CoroutineScope(Dispatchers.IO).launch {
             PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
         }
+    }
+
+    override fun onDestroy() {
+        logAndPingServer("onDestroy")
+        disposeHandlers()
+        notificationManagerBuilder.cancelServiceNotification(this)
+        wakeLock.release()
+        super.onDestroy()
     }
 }
