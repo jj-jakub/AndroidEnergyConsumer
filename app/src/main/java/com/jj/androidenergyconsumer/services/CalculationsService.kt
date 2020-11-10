@@ -82,9 +82,14 @@ class CalculationsService : Service() {
         logAndPingServer("onStartCommand")
         when (intent?.action) {
             START_CALCULATIONS_ACTION -> onStartCalculationsAction(intent)
-            STOP_CALCULATIONS_ACTION -> stopSelf()
+            STOP_CALCULATIONS_ACTION -> onStopCalculationsAction()
         }
         return START_NOT_STICKY
+    }
+
+    private fun onStopCalculationsAction() {
+        // TODO update fragment label
+        stopSelf()
     }
 
     private fun onStartCalculationsAction(intent: Intent) {
@@ -96,6 +101,7 @@ class CalculationsService : Service() {
         val calculationsProvider =
             CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback, factor)
         restartCalculations(amountOfHandlers, calculationsProvider)
+        // TODO update fragment label
     }
 
     private fun restartCalculations(amountOfHandlers: Int, calculationsProvider: CalculationsProvider) {
