@@ -1,5 +1,6 @@
 package com.jj.androidenergyconsumer.services
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -8,7 +9,6 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
-import com.jj.androidenergyconsumer.calculations.CalculationsProvider
 import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
@@ -92,6 +92,7 @@ class CalculationsService : Service() {
         stopSelf()
     }
 
+    @SuppressLint("WakelockTimeout")
     private fun onStartCalculationsAction(intent: Intent) {
         wakeLock.acquire()
         val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
@@ -100,30 +101,9 @@ class CalculationsService : Service() {
         val factor = intent.getIntExtra(CALCULATIONS_FACTOR_EXTRA, DEFAULT_CALCULATIONS_FACTOR)
         val calculationsProvider =
             CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback, factor)
-        restartCalculations(amountOfHandlers, calculationsProvider)
+        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
+        logAndPingServer("After launchCalculations")
         // TODO update fragment label
-    }
-
-    private fun restartCalculations(amountOfHandlers: Int, calculationsProvider: CalculationsProvider) {
-        disposeHandlers()
-        initHandlers(amountOfHandlers)
-        launchCalculations(calculationsProvider)
-        logAndPingServer("After restartCalculations")
-    }
-
-    private fun disposeHandlers() {
-        handlersOrchestrator.disposeHandlers()
-        logAndPingServer("After disposeHandlers")
-    }
-
-    private fun initHandlers(amountOfHandlers: Int) {
-        handlersOrchestrator.initHandlers(amountOfHandlers)
-        logAndPingServer("After initHandlers")
-    }
-
-    private fun launchCalculations(calculationsProvider: CalculationsProvider) {
-        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(calculationsProvider)
-        logAndPingServer("After launchCalculationsOne")
     }
 
     private fun logAndPingServer(message: String) {
@@ -135,7 +115,7 @@ class CalculationsService : Service() {
 
     override fun onDestroy() {
         logAndPingServer("onDestroy")
-        disposeHandlers()
+        handlersOrchestrator.abortHandlers()
         notificationManagerBuilder.cancelServiceNotification(this)
         wakeLock.release()
         super.onDestroy()

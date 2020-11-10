@@ -1,7 +1,6 @@
 package com.jj.androidenergyconsumer.handlers
 
 import android.os.HandlerThread
-import android.os.Looper
 import com.jj.androidenergyconsumer.calculations.CalculationsProvider
 
 class HandlersOrchestrator {
@@ -9,13 +8,13 @@ class HandlersOrchestrator {
     private val blockLock = Any()
 
     private val handlerThreadName = "HThread"
-    private var handlerThreads: List<HandlerThread>? = null
-    private var loopers: List<Looper>? = null
-    private var stoppableHandlers: List<StoppableHandler>? = null
+    private var handlerThreads: List<HandlerThread> = listOf()
+    private var stoppableHandlers: List<StoppableHandler> = listOf()
 
-    fun launchInEveryHandlerInInfiniteLoop(calculationsProvider: CalculationsProvider) {
+    fun launchInEveryHandlerInInfiniteLoop(amountOfHandlers: Int, calculationsProvider: CalculationsProvider) {
+        restartHandlers(amountOfHandlers)
         synchronized(blockLock) {
-            stoppableHandlers?.forEachIndexed { index, stoppableHandler ->
+            stoppableHandlers.forEachIndexed { index, stoppableHandler ->
                 stoppableHandler.executeInInfiniteLoop {
                     calculationsProvider.calculationsTask(index, stoppableHandler)
                 }
@@ -23,23 +22,29 @@ class HandlersOrchestrator {
         }
     }
 
-    fun initHandlers(amountOfHandlers: Int) {
+    private fun restartHandlers(amountOfHandlers: Int) {
+        disposeHandlers()
+        initHandlers(amountOfHandlers)
+    }
+
+    private fun disposeHandlers() {
+        synchronized(blockLock) {
+            stoppableHandlers.forEach { it.quitHandler() }
+            handlerThreads.forEach { handlerThread ->
+                handlerThread.looper.quit()
+                handlerThread.quit()
+            }
+            stoppableHandlers = listOf()
+            handlerThreads = listOf()
+        }
+    }
+
+    private fun initHandlers(amountOfHandlers: Int) {
         synchronized(blockLock) {
             handlerThreads = createListOfHandlerThreads(amountOfHandlers, handlerThreadName).apply {
                 forEach { it.start() }
                 stoppableHandlers = createListOfHandlers(this)
             }
-        }
-    }
-
-    fun disposeHandlers() {
-        synchronized(blockLock) {
-            stoppableHandlers?.forEach { it.quitHandler() }
-            stoppableHandlers = null
-            loopers?.forEach { it.quit() }
-            loopers = null
-            handlerThreads?.forEach { it.quit() }
-            handlerThreads = null
         }
     }
 
@@ -52,11 +57,15 @@ class HandlersOrchestrator {
         return handlersList.toList()
     }
 
-    private fun createListOfHandlers(handlerThreadsList: List<HandlerThread>): List<StoppableHandler>? {
+    private fun createListOfHandlers(handlerThreadsList: List<HandlerThread>): List<StoppableHandler> {
         val mutableListOfHandlers = mutableListOf<StoppableHandler>()
         handlerThreadsList.forEach { handlerThread ->
-            handlerThread.looper?.let { looper -> mutableListOfHandlers.add(StoppableHandler(looper)) }
+            handlerThread.looper.let { looper -> mutableListOfHandlers.add(StoppableHandler(looper)) }
         }
         return mutableListOfHandlers.toList()
+    }
+
+    fun abortHandlers() {
+        disposeHandlers()
     }
 }
