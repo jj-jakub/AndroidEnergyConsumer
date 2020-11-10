@@ -27,7 +27,6 @@
         android:inputType="number"
         app:layout_constraintBottom_toTopOf="@+id/calculationsStatusInfoLabel"
         app:layout_constraintEnd_toStartOf="@+id/calculationsFactorInput"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/performAdditionCalculationsButton" />
 
@@ -38,11 +37,10 @@
         android:layout_marginEnd="8dp"
         android:autofillHints=""
         android:ems="10"
-        android:hint="@string/handlers"
+        android:hint="@string/factor"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="@+id/calculationsHandlersNOInput"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/calculationsHandlersNOInput"
         app:layout_constraintTop_toTopOf="@+id/calculationsHandlersNOInput" />
 
@@ -67,10 +65,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Perform addition calculations"
+        android:text="@string/perform_addition_calculations"
         app:layout_constraintBottom_toTopOf="@+id/calculationsHandlersNOInput"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/internetLauncherTitleLabel" />
 
@@ -79,9 +76,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Perform multiplication calculations"
+        android:text="@string/perform_multiplication_calculations"
         app:layout_constraintEnd_toEndOf="@+id/performAdditionCalculationsButton"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/performAdditionCalculationsButton"
         app:layout_constraintTop_toBottomOf="@+id/performAdditionCalculationsButton" />
 
@@ -89,10 +85,9 @@
         android:id="@+id/abortCalculationsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Abort calculations"
+        android:text="@string/abort_calculations"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/calculationsStatusInfoLabel" />
 
@@ -102,10 +97,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
-        android:text="Calculations status:"
+        android:text="@string/calculations_status"
         app:layout_constraintBottom_toTopOf="@+id/abortCalculationsButton"
         app:layout_constraintEnd_toStartOf="@+id/calculationsStatusValueLabel"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/calculationsHandlersNOInput" />
@@ -114,10 +108,9 @@
         android:id="@+id/calculationsStatusValueLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="status"
         app:layout_constraintBottom_toBottomOf="@+id/calculationsStatusInfoLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/calculationsStatusInfoLabel"
-        app:layout_constraintTop_toTopOf="@+id/calculationsStatusInfoLabel" />
+        app:layout_constraintTop_toTopOf="@+id/calculationsStatusInfoLabel"
+        tools:text="status" />
 </androidx.constraintlayout.widget.ConstraintLayout>

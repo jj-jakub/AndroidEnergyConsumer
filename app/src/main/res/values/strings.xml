@@ -17,4 +17,8 @@
     <string name="number_of_handlers">Number of handlers</string>
     <string name="handlers">Handlers</string>
     <string name="factor">Factor</string>
+    <string name="perform_addition_calculations">Perform addition calculations</string>
+    <string name="perform_multiplication_calculations">Perform multiplication calculations</string>
+    <string name="abort_calculations">Abort calculations</string>
+    <string name="calculations_status">Calculations status:</string>
 </resources>

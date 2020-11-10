@@ -6,10 +6,11 @@ enum class CalculationsType {
 
 class CalculationsProviderFactory {
     companion object {
-        fun createCalculationsProvider(type: CalculationsType, callback: CalculationsCallback): CalculationsProvider {
+        fun createCalculationsProvider(type: CalculationsType, callback: CalculationsCallback,
+                                       factor: Int): CalculationsProvider {
             return when (type) {
-                CalculationsType.ADDITION -> AdditionCalculationsProvider(callback)
-                CalculationsType.MULTIPLICATION -> MultiplicationCalculationsProvider(callback)
+                CalculationsType.ADDITION -> AdditionCalculationsProvider(callback, factor)
+                CalculationsType.MULTIPLICATION -> MultiplicationCalculationsProvider(callback, factor)
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.services.CalculationsService
+import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import kotlinx.android.synthetic.main.fragment_complex_calculations.*
 
@@ -28,16 +29,18 @@ class ComplexCalculationsFragment : Fragment() {
 
     private fun setButtonsListeners() {
         performAdditionCalculationsButton?.setOnClickListener {
-            startCalculationsService(CalculationsType.ADDITION, getAmountOfHandlersFromInput())
+            startCalculationsService(CalculationsType.ADDITION)
         }
         performMultiplicationCalculationsButton?.setOnClickListener {
-            startCalculationsService(CalculationsType.MULTIPLICATION, getAmountOfHandlersFromInput())
+            startCalculationsService(CalculationsType.MULTIPLICATION)
         }
         abortCalculationsButton?.setOnClickListener { abortCalculationsService() }
     }
 
-    private fun startCalculationsService(type: CalculationsType, amountOfHandlers: Int) {
-        context?.let { context -> CalculationsService.startCalculations(context, type, amountOfHandlers) }
+    private fun startCalculationsService(type: CalculationsType) {
+        val amountOfHandlers = getAmountOfHandlersFromInput()
+        val factor = getFactorFromInput()
+        context?.let { context -> CalculationsService.startCalculations(context, type, amountOfHandlers, factor) }
     }
 
     private fun abortCalculationsService() {
@@ -55,5 +58,14 @@ class ComplexCalculationsFragment : Fragment() {
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
         DEFAULT_NUMBER_OF_HANDLERS
+    }
+
+    private fun getFactorFromInput() = try {
+        calculationsFactorInput.text.toString().toInt().apply {
+            DEFAULT_CALCULATIONS_FACTOR
+        }
+    } catch (nfe: NumberFormatException) {
+        Log.e(tag, "Exception when converting input string to int", nfe)
+        DEFAULT_CALCULATIONS_FACTOR
     }
 }

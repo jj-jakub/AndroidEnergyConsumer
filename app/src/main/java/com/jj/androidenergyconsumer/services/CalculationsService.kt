@@ -44,17 +44,20 @@ class CalculationsService : Service() {
         private const val NUMBER_OF_HANDLERS_EXTRA = "NUMBER_OF_HANDLERS_EXTRA"
         const val DEFAULT_NUMBER_OF_HANDLERS = 4
 
-        private const val CALCULATIONS_TYPE = "CALCULATIONS_TYPE"
+        private const val CALCULATIONS_TYPE_EXTRA = "CALCULATIONS_TYPE"
         private val DEFAULT_CALCULATIONS_TYPE = CalculationsType.ADDITION
+
+        private const val CALCULATIONS_FACTOR_EXTRA = "CALCULATIONS_FACTOR"
+        const val DEFAULT_CALCULATIONS_FACTOR = 2
 
         override fun getServiceClass() = CalculationsService::class.java
 
-        fun startCalculations(context: Context, calculationsType: CalculationsType,
-                              numberOfHandlers: Int = DEFAULT_NUMBER_OF_HANDLERS) {
+        fun startCalculations(context: Context, type: CalculationsType, numberOfHandlers: Int, factor: Int) {
             val intent = getServiceIntent(context).apply {
                 action = START_CALCULATIONS_ACTION
-                putExtra(CALCULATIONS_TYPE, calculationsType)
+                putExtra(CALCULATIONS_TYPE_EXTRA, type)
                 putExtra(NUMBER_OF_HANDLERS_EXTRA, numberOfHandlers)
+                putExtra(CALCULATIONS_FACTOR_EXTRA, factor)
             }
             start(context, intent)
         }
@@ -88,9 +91,10 @@ class CalculationsService : Service() {
         wakeLock.acquire()
         val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
         val calculationsType =
-            (intent.getSerializableExtra(CALCULATIONS_TYPE) ?: DEFAULT_CALCULATIONS_TYPE) as CalculationsType
+            (intent.getSerializableExtra(CALCULATIONS_TYPE_EXTRA) ?: DEFAULT_CALCULATIONS_TYPE) as CalculationsType
+        val factor = intent.getIntExtra(CALCULATIONS_FACTOR_EXTRA, DEFAULT_CALCULATIONS_FACTOR)
         val calculationsProvider =
-            CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback)
+            CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback, factor)
         restartCalculations(amountOfHandlers, calculationsProvider)
     }
 
