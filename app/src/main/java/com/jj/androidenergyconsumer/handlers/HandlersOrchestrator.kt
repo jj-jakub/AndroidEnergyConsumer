@@ -2,6 +2,7 @@ package com.jj.androidenergyconsumer.handlers
 
 import android.os.HandlerThread
 import android.os.Looper
+import com.jj.androidenergyconsumer.calculations.CalculationsProvider
 
 class HandlersOrchestrator {
 
@@ -12,10 +13,12 @@ class HandlersOrchestrator {
     private var loopers: List<Looper>? = null
     private var stoppableHandlers: List<StoppableHandler>? = null
 
-    fun launchInEveryHandlerInInfiniteLoop(task: (Int, StoppableHandler) -> Unit) {
+    fun launchInEveryHandlerInInfiniteLoop(calculationsProvider: CalculationsProvider) {
         synchronized(blockLock) {
             stoppableHandlers?.forEachIndexed { index, stoppableHandler ->
-                stoppableHandler.executeInInfiniteLoop { task.invoke(index, stoppableHandler) }
+                stoppableHandler.executeInInfiniteLoop {
+                    calculationsProvider.calculationsTask(index, stoppableHandler)
+                }
             }
         }
     }

@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <Button
-        android:id="@+id/calculationsTwoButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="7dp"
-        android:text="@string/calculations_2"
-        app:layout_constraintBottom_toTopOf="@+id/calculationsVariableInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/internetLauncherTitleLabel"
@@ -25,56 +16,108 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/calculationsOneButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="159dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="164dp"
-        android:text="@string/calculations_1"
-        app:layout_constraintBottom_toTopOf="@+id/calculationsVariableLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/internetLauncherTitleLabel" />
-
     <EditText
-        android:id="@+id/calculationsVariableInput"
+        android:id="@+id/calculationsHandlersNOInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/handlers"
         android:inputType="number"
-        app:layout_constraintBottom_toTopOf="@+id/calculationsVariableLabel"
-        app:layout_constraintEnd_toEndOf="@+id/calculationsTwoButton"
-        app:layout_constraintStart_toStartOf="@+id/calculationsTwoButton" />
+        app:layout_constraintBottom_toTopOf="@+id/calculationsStatusInfoLabel"
+        app:layout_constraintEnd_toStartOf="@+id/calculationsFactorInput"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/performAdditionCalculationsButton" />
+
+    <EditText
+        android:id="@+id/calculationsFactorInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/handlers"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintTop_toTopOf="@+id/calculationsHandlersNOInput" />
 
     <TextView
-        android:id="@+id/calculationsVariableLabel"
+        android:id="@+id/calculationsHandlersNOLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/number_of_handlers"
+        app:layout_constraintStart_toStartOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsHandlersNOInput" />
+
+    <TextView
+        android:id="@+id/calculationsFactorLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/factor"
+        app:layout_constraintStart_toEndOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsFactorInput" />
+
+    <Button
+        android:id="@+id/performAdditionCalculationsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Perform addition calculations"
+        app:layout_constraintBottom_toTopOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/internetLauncherTitleLabel" />
+
+    <Button
+        android:id="@+id/performMultiplicationCalculationsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Perform multiplication calculations"
+        app:layout_constraintEnd_toEndOf="@+id/performAdditionCalculationsButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/performAdditionCalculationsButton"
+        app:layout_constraintTop_toBottomOf="@+id/performAdditionCalculationsButton" />
+
+    <Button
+        android:id="@+id/abortCalculationsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Abort calculations"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/calculationsVariableInput"
-        app:layout_constraintTop_toBottomOf="@+id/calculationsOneButton" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsStatusInfoLabel" />
 
-    <Button
-        android:id="@+id/abortCalculationsOneButton"
+    <TextView
+        android:id="@+id/calculationsStatusInfoLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Abort calc 1"
-        app:layout_constraintEnd_toEndOf="@+id/calculationsOneButton"
-        app:layout_constraintStart_toStartOf="@+id/calculationsOneButton"
-        app:layout_constraintTop_toBottomOf="@+id/calculationsOneButton" />
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Calculations status:"
+        app:layout_constraintBottom_toTopOf="@+id/abortCalculationsButton"
+        app:layout_constraintEnd_toStartOf="@+id/calculationsStatusValueLabel"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsHandlersNOInput" />
 
-    <Button
-        android:id="@+id/abortCalculationsTwoButton"
+    <TextView
+        android:id="@+id/calculationsStatusValueLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Abort calc 2"
-        app:layout_constraintEnd_toEndOf="@+id/calculationsVariableInput"
-        app:layout_constraintStart_toStartOf="@+id/calculationsVariableInput"
-        app:layout_constraintTop_toBottomOf="@+id/calculationsVariableLabel" />
+        android:text="status"
+        app:layout_constraintBottom_toBottomOf="@+id/calculationsStatusInfoLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/calculationsStatusInfoLabel"
+        app:layout_constraintTop_toTopOf="@+id/calculationsStatusInfoLabel" />
 </androidx.constraintlayout.widget.ConstraintLayout>

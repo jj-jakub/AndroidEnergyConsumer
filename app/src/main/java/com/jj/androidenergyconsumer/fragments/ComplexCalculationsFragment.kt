@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.services.CalculationsService
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import kotlinx.android.synthetic.main.fragment_complex_calculations.*
@@ -26,26 +27,25 @@ class ComplexCalculationsFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        calculationsOneButton?.setOnClickListener { startCalculationsService() }
-        abortCalculationsOneButton?.setOnClickListener { abortCalculationsService() }
-        calculationsTwoButton?.setOnClickListener { startCalculationsService(getAmountOfHandlersFromInput()) }
-        abortCalculationsTwoButton?.setOnClickListener { abortCalculationsService() }
+        performAdditionCalculationsButton?.setOnClickListener {
+            startCalculationsService(CalculationsType.ADDITION, getAmountOfHandlersFromInput())
+        }
+        performMultiplicationCalculationsButton?.setOnClickListener {
+            startCalculationsService(CalculationsType.MULTIPLICATION, getAmountOfHandlersFromInput())
+        }
+        abortCalculationsButton?.setOnClickListener { abortCalculationsService() }
     }
 
-    private fun startCalculationsService(amountOfHandlers: Int = DEFAULT_NUMBER_OF_HANDLERS) {
-        context?.let { context ->
-            CalculationsService.startCalculations(context, amountOfHandlers)
-        }
+    private fun startCalculationsService(type: CalculationsType, amountOfHandlers: Int) {
+        context?.let { context -> CalculationsService.startCalculations(context, type, amountOfHandlers) }
     }
 
     private fun abortCalculationsService() {
-        context?.let { context ->
-            CalculationsService.stopCalculations(context)
-        }
+        context?.let { context -> CalculationsService.stopCalculations(context) }
     }
 
     private fun getAmountOfHandlersFromInput() = try {
-        calculationsVariableInput.text.toString().toInt().apply {
+        calculationsHandlersNOInput.text.toString().toInt().apply {
             if (this > 0) {
                 return this
             } else {

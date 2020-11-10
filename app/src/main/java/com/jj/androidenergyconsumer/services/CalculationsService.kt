@@ -7,8 +7,11 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import com.jj.androidenergyconsumer.calculations.CalculationsCallback
+import com.jj.androidenergyconsumer.calculations.CalculationsProvider
+import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
+import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
-import com.jj.androidenergyconsumer.handlers.StoppableHandler
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.rest.DefaultCallback
@@ -20,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-
 class CalculationsService : Service() {
 
     private val handlersOrchestrator = HandlersOrchestrator()
@@ -28,17 +30,30 @@ class CalculationsService : Service() {
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private lateinit var wakeLock: PowerManager.WakeLock
 
+    private val calculationsCallback = object : CalculationsCallback {
+        override fun onThresholdAchieved(variable: Int, handlerId: Int) {
+            notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
+                    "handlerId: $handlerId ${Date()} - variable = $variable")
+            logAndPingServer("handlerId: $handlerId, variable = $variable")
+        }
+    }
+
     companion object : ServiceStarter {
         private const val START_CALCULATIONS_ACTION = "START_CALCULATIONS_ACTION"
         private const val STOP_CALCULATIONS_ACTION = "STOP_CALCULATIONS_ACTION"
         private const val NUMBER_OF_HANDLERS_EXTRA = "NUMBER_OF_HANDLERS_EXTRA"
         const val DEFAULT_NUMBER_OF_HANDLERS = 4
 
+        private const val CALCULATIONS_TYPE = "CALCULATIONS_TYPE"
+        private val DEFAULT_CALCULATIONS_TYPE = CalculationsType.ADDITION
+
         override fun getServiceClass() = CalculationsService::class.java
 
-        fun startCalculations(context: Context, numberOfHandlers: Int = DEFAULT_NUMBER_OF_HANDLERS) {
+        fun startCalculations(context: Context, calculationsType: CalculationsType,
+                              numberOfHandlers: Int = DEFAULT_NUMBER_OF_HANDLERS) {
             val intent = getServiceIntent(context).apply {
                 action = START_CALCULATIONS_ACTION
+                putExtra(CALCULATIONS_TYPE, calculationsType)
                 putExtra(NUMBER_OF_HANDLERS_EXTRA, numberOfHandlers)
             }
             start(context, intent)
@@ -63,20 +78,26 @@ class CalculationsService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         logAndPingServer("onStartCommand")
         when (intent?.action) {
-            START_CALCULATIONS_ACTION -> {
-                wakeLock.acquire()
-                val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
-                restartCalculationsOne(amountOfHandlers)
-            }
+            START_CALCULATIONS_ACTION -> onStartCalculationsAction(intent)
             STOP_CALCULATIONS_ACTION -> stopSelf()
         }
         return START_NOT_STICKY
     }
 
-    private fun restartCalculationsOne(amountOfHandlers: Int) {
+    private fun onStartCalculationsAction(intent: Intent) {
+        wakeLock.acquire()
+        val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
+        val calculationsType =
+            (intent.getSerializableExtra(CALCULATIONS_TYPE) ?: DEFAULT_CALCULATIONS_TYPE) as CalculationsType
+        val calculationsProvider =
+            CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback)
+        restartCalculations(amountOfHandlers, calculationsProvider)
+    }
+
+    private fun restartCalculations(amountOfHandlers: Int, calculationsProvider: CalculationsProvider) {
         disposeHandlers()
         initHandlers(amountOfHandlers)
-        launchCalculationsOne()
+        launchCalculations(calculationsProvider)
         logAndPingServer("After restartCalculations")
     }
 
@@ -90,30 +111,9 @@ class CalculationsService : Service() {
         logAndPingServer("After initHandlers")
     }
 
-    private fun launchCalculationsOne() {
-        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(::handlerInfiniteAdditionLoop)
+    private fun launchCalculations(calculationsProvider: CalculationsProvider) {
+        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(calculationsProvider)
         logAndPingServer("After launchCalculationsOne")
-    }
-
-    private fun handlerInfiniteAdditionLoop(handlerId: Int, stoppableHandler: StoppableHandler) {
-        var a = 0
-        while (true) {
-            a += 2
-            if (a % 100000000 == 0) {
-                onThresholdAchieved(a, handlerId, stoppableHandler)
-                break
-            }
-        }
-    }
-
-    private fun onThresholdAchieved(variable: Int, handlerId: Int, stoppableHandler: StoppableHandler) {
-        Log.d("ABAB", "handlerId: $handlerId variable: $variable")
-        if (stoppableHandler.isHandlerStopped().not()) {
-
-            notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
-                    "handlerId: $handlerId ${Date()} - variable = $variable")
-            logAndPingServer("handlerId: $handlerId, variable = $variable")
-        }
     }
 
     private fun logAndPingServer(message: String) {
