@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
 import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.calculations.CalculationsType
@@ -29,6 +31,8 @@ class CalculationsService : Service() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private lateinit var wakeLock: PowerManager.WakeLock
+
+    val areCalculationsRunning = MutableLiveData(false)
 
     private val calculationsCallback = object : CalculationsCallback {
         override fun onThresholdAchieved(variable: Int, handlerId: Int) {
@@ -66,7 +70,7 @@ class CalculationsService : Service() {
     }
 
     override fun onBind(p0: Intent?): IBinder? {
-        return null
+        return MyBinder(this)
     }
 
     override fun onCreate() {
@@ -88,12 +92,12 @@ class CalculationsService : Service() {
     }
 
     private fun onStopCalculationsAction() {
-        // TODO update fragment label
         stopSelf()
     }
 
     @SuppressLint("WakelockTimeout")
     private fun onStartCalculationsAction(intent: Intent) {
+        areCalculationsRunning.value = true
         wakeLock.acquire()
         val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
         val calculationsType =
@@ -103,7 +107,6 @@ class CalculationsService : Service() {
             CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback, factor)
         handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
         logAndPingServer("After launchCalculations")
-        // TODO update fragment label
     }
 
     private fun logAndPingServer(message: String) {
@@ -117,7 +120,10 @@ class CalculationsService : Service() {
         logAndPingServer("onDestroy")
         handlersOrchestrator.abortHandlers()
         notificationManagerBuilder.cancelServiceNotification(this)
-        wakeLock.release()
+        if (wakeLock.isHeld) {
+            wakeLock.release()
+        }
+        areCalculationsRunning.value = false
         super.onDestroy()
     }
 }

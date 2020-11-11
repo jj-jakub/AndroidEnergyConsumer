@@ -21,4 +21,6 @@
     <string name="perform_multiplication_calculations">Perform multiplication calculations</string>
     <string name="abort_calculations">Abort calculations</string>
     <string name="calculations_status">Calculations status:</string>
+    <string name="not_running">Not running</string>
+    <string name="running">Running</string>
 </resources>
