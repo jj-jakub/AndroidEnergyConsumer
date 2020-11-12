@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
 import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
@@ -45,13 +44,13 @@ class CalculationsService : Service() {
     companion object : ServiceStarter {
         private const val START_CALCULATIONS_ACTION = "START_CALCULATIONS_ACTION"
         private const val STOP_CALCULATIONS_ACTION = "STOP_CALCULATIONS_ACTION"
-        private const val NUMBER_OF_HANDLERS_EXTRA = "NUMBER_OF_HANDLERS_EXTRA"
+        const val NUMBER_OF_HANDLERS_EXTRA = "NUMBER_OF_HANDLERS_EXTRA"
         const val DEFAULT_NUMBER_OF_HANDLERS = 4
 
-        private const val CALCULATIONS_TYPE_EXTRA = "CALCULATIONS_TYPE"
-        private val DEFAULT_CALCULATIONS_TYPE = CalculationsType.ADDITION
+        const val CALCULATIONS_TYPE_EXTRA = "CALCULATIONS_TYPE"
+        val DEFAULT_CALCULATIONS_TYPE = CalculationsType.ADDITION
 
-        private const val CALCULATIONS_FACTOR_EXTRA = "CALCULATIONS_FACTOR"
+        const val CALCULATIONS_FACTOR_EXTRA = "CALCULATIONS_FACTOR"
         const val DEFAULT_CALCULATIONS_FACTOR = 2
 
         override fun getServiceClass() = CalculationsService::class.java
@@ -99,15 +98,14 @@ class CalculationsService : Service() {
     private fun onStartCalculationsAction(intent: Intent) {
         areCalculationsRunning.value = true
         wakeLock.acquire()
-        val amountOfHandlers = intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
-        val calculationsType =
-            (intent.getSerializableExtra(CALCULATIONS_TYPE_EXTRA) ?: DEFAULT_CALCULATIONS_TYPE) as CalculationsType
-        val factor = intent.getIntExtra(CALCULATIONS_FACTOR_EXTRA, DEFAULT_CALCULATIONS_FACTOR)
-        val calculationsProvider =
-            CalculationsProviderFactory.createCalculationsProvider(calculationsType, calculationsCallback, factor)
+        val amountOfHandlers = getAmountOfHandlers(intent)
+        val calculationsProvider = CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
         handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
         logAndPingServer("After launchCalculations")
     }
+
+    private fun getAmountOfHandlers(intent: Intent): Int =
+        intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
 
     private fun logAndPingServer(message: String) {
         Log.d(tag, message)
