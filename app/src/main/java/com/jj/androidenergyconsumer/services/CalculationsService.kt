@@ -1,7 +1,6 @@
 package com.jj.androidenergyconsumer.services
 
 import android.annotation.SuppressLint
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
@@ -17,7 +16,7 @@ import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import java.util.*
 
-class CalculationsService : Service() {
+class CalculationsService : BaseService() {
 
     private val handlersOrchestrator = HandlersOrchestrator()
 
@@ -61,7 +60,7 @@ class CalculationsService : Service() {
         fun stopCalculations(context: Context) = start(context, STOP_CALCULATIONS_ACTION)
     }
 
-    override fun onBind(p0: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder? {
         return MyBinder(this)
     }
 
@@ -94,7 +93,7 @@ class CalculationsService : Service() {
         val amountOfHandlers = getAmountOfHandlers(intent)
         val calculationsProvider = CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
         handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
-        logAndPingServer("After launchCalculations", tag)
+        logAndPingServer("After onStartCalculationsAction", tag)
     }
 
     private fun getAmountOfHandlers(intent: Intent): Int =

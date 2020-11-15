@@ -26,6 +26,7 @@
             </intent-filter>
         </activity>
         <service android:name=".services.CalculationsService" />
+        <service android:name=".services.BluetoothService" />
     </application>
 
 </manifest>

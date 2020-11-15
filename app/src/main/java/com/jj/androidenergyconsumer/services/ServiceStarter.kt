@@ -3,9 +3,16 @@ package com.jj.androidenergyconsumer.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import com.jj.androidenergyconsumer.utils.startService
+import com.jj.androidenergyconsumer.utils.isAndroid8OrHigher
 
 interface ServiceStarter {
+
+    fun startService(context: Context, intent: Intent) {
+        when {
+            isAndroid8OrHigher() -> context.startForegroundService(intent)
+            else -> context.startService(intent)
+        }
+    }
 
     fun start(context: Context, action: String? = null) =
         startService(context, getServiceIntent(context).also { intent -> action?.run { intent.action = action } })
