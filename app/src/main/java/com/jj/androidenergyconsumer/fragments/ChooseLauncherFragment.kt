@@ -27,6 +27,7 @@ class ChooseLauncherFragment : Fragment() {
         gpsModuleLauncherButton?.setOnClickListener { switchFragment(GPSLauncherFragment.newInstance()) }
         internetModuleLauncherButton?.setOnClickListener { switchFragment(InternetLauncherFragment.newInstance()) }
         calculationsButton?.setOnClickListener { switchFragment(CalculationsFragment.newInstance()) }
+        bluetoothModuleLauncherButton?.setOnClickListener { switchFragment(BluetoothLauncherFragment.newInstance()) }
     }
 
     private fun switchFragment(fragment: Fragment) = (activity as MainActivity?)?.switchFragment(fragment)

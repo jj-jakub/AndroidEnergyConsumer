@@ -13,15 +13,19 @@ import com.jj.androidenergyconsumer.utils.tag
 
 class BluetoothBroadcastReceiver(private val context: Context) : CustomBroadcastReceiver() {
 
+    private var scanningCallback: ScanningCallback? = null
+
     override fun onReceive(context: Context?, intent: Intent?) {
         logAndPingServer("Received action: ${intent?.action}", tag)
         if (intent?.action == BluetoothDevice.ACTION_FOUND) {
             val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
             logAndPingServer("Discovered device: ${device?.name}, address: ${device?.address}", tag)
+            scanningCallback?.onDeviceDiscovered(device)
         }
     }
 
-    override fun register() {
+    override fun register(callback: ScanningCallback) {
+        scanningCallback = callback
         context.registerReceiver(this, intentFilter)
     }
 

@@ -23,4 +23,8 @@
     <string name="calculations_status">Calculations status:</string>
     <string name="not_running">Not running</string>
     <string name="running">Running</string>
+    <string name="start_bluetooth_scan">Start bluetooth scan</string>
+    <string name="bluetooth_scanning_status">Bluetooth scanning status:</string>
+    <string name="stop_bluetooth_scan">Stop bluetooth scan</string>
+    <string name="bluetooth_module_launcher">Bluetooth module launcher</string>
 </resources>

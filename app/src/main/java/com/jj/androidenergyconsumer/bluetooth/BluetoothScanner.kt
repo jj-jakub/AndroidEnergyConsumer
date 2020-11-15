@@ -8,8 +8,8 @@ class BluetoothScanner(context: Context) : IScanner {
     private val bluetoothBroadcastReceiver = BluetoothBroadcastReceiver(context)
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-    override fun startScanning() {
-        bluetoothBroadcastReceiver.register()
+    override fun startScanning(scanningCallback: ScanningCallback) {
+        bluetoothBroadcastReceiver.register(scanningCallback)
         bluetoothAdapter.startDiscovery()
     }
 
