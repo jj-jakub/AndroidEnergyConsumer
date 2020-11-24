@@ -1,39 +1,34 @@
 package com.jj.androidenergyconsumer.services
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
-import com.jj.androidenergyconsumer.bluetooth.ScanningCallback
+import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
-import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
-class BluetoothService: BaseService() {
+class BluetoothService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private lateinit var wakeLock: PowerManager.WakeLock
     private val bluetoothScanner = BluetoothScanner(this)
+    private val shouldRestartScanning = AtomicBoolean(true)
 
     val isScanning = MutableLiveData(false)
 
-    private val scanningCallback = object : ScanningCallback {
-        override fun onDeviceDiscovered(device: BluetoothDevice?) {
-            notificationManagerBuilder.notifyServiceNotification("BluetoothService notification",
-                    "${Date()} device: ${device?.name} - ${device?.bluetoothClass?.deviceClass}")
-            logAndPingServer("device: ${device?.name} - ${device?.bluetoothClass?.deviceClass}", tag)
-        }
-    }
+    private val scanningCallback =
+        BluetoothServiceScanningCallback(notificationManagerBuilder) { onScanningFinished() }
 
     companion object : ServiceStarter {
         private const val START_SCANNING_ACTION = "START_SCANNING_ACTION"
-        private const val STOP_SCANNING_ACTION = "STOP_SCANNING_ACTION"
+        private const val STOP_SCANNING_SERVICE = "STOP_SCANNING_SERVICE"
 
         override fun getServiceClass() = BluetoothService::class.java
 
@@ -44,7 +39,7 @@ class BluetoothService: BaseService() {
             start(context, intent)
         }
 
-        fun stopScanning(context: Context) = start(context, STOP_SCANNING_ACTION)
+        fun stopScanning(context: Context) = start(context, STOP_SCANNING_SERVICE)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -63,32 +58,48 @@ class BluetoothService: BaseService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         logAndPingServer("onStartCommand", tag)
         when (intent?.action) {
-            START_SCANNING_ACTION -> onStartScanningAction()
-            STOP_SCANNING_ACTION -> onStopScanningAction()
+            START_SCANNING_ACTION -> startScanning()
+            STOP_SCANNING_SERVICE -> stopService()
         }
         return START_NOT_STICKY
     }
 
     @SuppressLint("WakelockTimeout")
-    private fun onStartScanningAction() {
+    private fun startScanning() {
+        shouldRestartScanning.set(true)
         isScanning.value = true
         wakeLock.acquire()
         bluetoothScanner.startScanning(scanningCallback)
-        logAndPingServer("After onStartScanningAction", tag)
+        logAndPingServer("After startScanning", tag)
     }
 
-    private fun onStopScanningAction() {
+    private fun stopService() {
         stopSelf()
+    }
+
+    private fun onScanningFinished() {
+        releaseWakeLock()
+        isScanning.value = false
+        logAndPingServer("After onScanningFinished", tag)
+
+        if (shouldRestartScanning.get()) {
+            startScanning()
+        }
     }
 
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
+        shouldRestartScanning.set(false)
         bluetoothScanner.stopScanning()
         notificationManagerBuilder.cancelServiceNotification(this)
+        releaseWakeLock()
+        isScanning.value = false
+        super.onDestroy()
+    }
+
+    private fun releaseWakeLock() {
         if (wakeLock.isHeld) {
             wakeLock.release()
         }
-        isScanning.value = false
-        super.onDestroy()
     }
 }

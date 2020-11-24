@@ -22,6 +22,9 @@ class BluetoothBroadcastReceiver(private val context: Context) : CustomBroadcast
             logAndPingServer("Discovered device: ${device?.name}, address: ${device?.address}", tag)
             scanningCallback?.onDeviceDiscovered(device)
         }
+        if (intent?.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
+            scanningCallback?.onScanningFinished()
+        }
     }
 
     override fun register(callback: ScanningCallback) {
