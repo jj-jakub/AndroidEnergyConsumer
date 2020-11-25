@@ -1,13 +1,10 @@
 package com.jj.androidenergyconsumer.services
 
 import android.annotation.SuppressLint
-import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
 import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
@@ -15,16 +12,11 @@ import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
-import com.jj.androidenergyconsumer.rest.DefaultCallback
-import com.jj.androidenergyconsumer.rest.PingDataCall
+import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
-import com.jj.universallprotocollibrary.PingData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 
-class CalculationsService : Service() {
+class CalculationsService : BaseService() {
 
     private val handlersOrchestrator = HandlersOrchestrator()
 
@@ -37,7 +29,7 @@ class CalculationsService : Service() {
         override fun onThresholdAchieved(variable: Int, handlerId: Int) {
             notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
                     "handlerId: $handlerId ${Date()} - variable = $variable")
-            logAndPingServer("handlerId: $handlerId, variable = $variable")
+            logAndPingServer("handlerId: $handlerId, variable = $variable", tag)
         }
     }
 
@@ -68,12 +60,12 @@ class CalculationsService : Service() {
         fun stopCalculations(context: Context) = start(context, STOP_CALCULATIONS_ACTION)
     }
 
-    override fun onBind(p0: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder? {
         return MyBinder(this)
     }
 
     override fun onCreate() {
-        logAndPingServer("onCreate")
+        logAndPingServer("onCreate", tag)
         super.onCreate()
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AEC:MyWakeLock")
@@ -82,7 +74,7 @@ class CalculationsService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        logAndPingServer("onStartCommand")
+        logAndPingServer("onStartCommand", tag)
         when (intent?.action) {
             START_CALCULATIONS_ACTION -> onStartCalculationsAction(intent)
             STOP_CALCULATIONS_ACTION -> onStopCalculationsAction()
@@ -101,21 +93,14 @@ class CalculationsService : Service() {
         val amountOfHandlers = getAmountOfHandlers(intent)
         val calculationsProvider = CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
         handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
-        logAndPingServer("After launchCalculations")
+        logAndPingServer("After onStartCalculationsAction", tag)
     }
 
     private fun getAmountOfHandlers(intent: Intent): Int =
         intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
 
-    private fun logAndPingServer(message: String) {
-        Log.d(tag, message)
-        CoroutineScope(Dispatchers.IO).launch {
-            PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
-        }
-    }
-
     override fun onDestroy() {
-        logAndPingServer("onDestroy")
+        logAndPingServer("onDestroy", tag)
         handlersOrchestrator.abortHandlers()
         notificationManagerBuilder.cancelServiceNotification(this)
         if (wakeLock.isHeld) {

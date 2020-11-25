@@ -87,9 +87,10 @@ class CalculationsFragment : Fragment() {
     }
 
     private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
+        override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
-            calculationsService = (binder as MyBinder?)?.getCalculationsService()
+            val binder = iBinder as MyBinder?
+            calculationsService = (binder?.getService() as CalculationsService?)
             serviceBound.set(true)
             calculationsService?.areCalculationsRunning?.observe(this@CalculationsFragment, {
                 onCalculationsStatusChanged(it)

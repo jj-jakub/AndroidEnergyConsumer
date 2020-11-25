@@ -2,9 +2,9 @@ package com.jj.androidenergyconsumer.services
 
 import android.os.Binder
 
-class MyBinder(service: CalculationsService): Binder() {
+class MyBinder(service: BaseService): Binder() {
 
-    private val calculationsService: CalculationsService = service
+    private val baseService: BaseService = service
 
-    fun getCalculationsService() = calculationsService
+    fun getService() = baseService
 }
