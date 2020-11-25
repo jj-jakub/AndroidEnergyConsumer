@@ -14,6 +14,9 @@ class RetrofitClientFactory {
     fun createRetrofit(): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(createHttpClient())
         .addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
 
+    fun createRetrofitToUrl(url: String): Retrofit = Retrofit.Builder().baseUrl(url).client(createHttpClient())
+        .addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
+
     private fun createHttpClient() = OkHttpClient.Builder().apply {
         retryOnConnectionFailure(true)
         readTimeout(1, TimeUnit.MINUTES)

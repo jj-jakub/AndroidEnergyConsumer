@@ -3,30 +3,31 @@ package com.jj.androidenergyconsumer.handlers
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.core.os.postDelayed
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
-class StoppableHandler(looper: Looper) : Handler(looper) {
+class StoppableLoopedHandler(looper: Looper) : Handler(looper) {
 
     private val handlerStopped = AtomicBoolean(false)
 
     fun isHandlerStopped() = handlerStopped.get()
 
-    fun executeInInfiniteLoop(runnable: () -> Unit) {
+    fun executeInInfiniteLoop(runnable: () -> Unit, delayMs: Long = 0) {
         handlerStopped.set(false)
-        firstExecution(runnable)
+        firstExecution(runnable, delayMs)
     }
 
-    private fun firstExecution(runnable: () -> Unit) {
+    private fun firstExecution(runnable: () -> Unit, delayMs: Long) {
         if (handlerStopped.get().not()) {
-            post { executeAndPost(runnable) }
+            post { executeAndPostDelayed(runnable, delayMs) }
         }
     }
 
-    private fun executeAndPost(runnable: () -> Unit) {
+    private fun executeAndPostDelayed(runnable: () -> Unit, delayMs: Long) {
         if (handlerStopped.get().not()) {
             runnable.invoke()
-            post { executeAndPost(runnable) }
+            postDelayed(delayMs) { executeAndPostDelayed(runnable, delayMs) }
         }
     }
 

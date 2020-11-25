@@ -9,15 +9,15 @@ class HandlersOrchestrator {
 
     private val handlerThreadName = "HThread"
     private var handlerThreads: List<HandlerThread> = listOf()
-    private var stoppableHandlers: List<StoppableHandler> = listOf()
+    private var stoppableHandlers: List<StoppableLoopedHandler> = listOf()
 
     fun launchInEveryHandlerInInfiniteLoop(amountOfHandlers: Int, calculationsProvider: CalculationsProvider) {
         restartHandlers(amountOfHandlers)
         synchronized(blockLock) {
             stoppableHandlers.forEachIndexed { index, stoppableHandler ->
-                stoppableHandler.executeInInfiniteLoop {
+                stoppableHandler.executeInInfiniteLoop({
                     calculationsProvider.calculationsTask(index, stoppableHandler)
-                }
+                })
             }
         }
     }
@@ -57,10 +57,10 @@ class HandlersOrchestrator {
         return handlersList.toList()
     }
 
-    private fun createListOfHandlers(handlerThreadsList: List<HandlerThread>): List<StoppableHandler> {
-        val mutableListOfHandlers = mutableListOf<StoppableHandler>()
+    private fun createListOfHandlers(handlerThreadsList: List<HandlerThread>): List<StoppableLoopedHandler> {
+        val mutableListOfHandlers = mutableListOf<StoppableLoopedHandler>()
         handlerThreadsList.forEach { handlerThread ->
-            handlerThread.looper.let { looper -> mutableListOfHandlers.add(StoppableHandler(looper)) }
+            handlerThread.looper.let { looper -> mutableListOfHandlers.add(StoppableLoopedHandler(looper)) }
         }
         return mutableListOfHandlers.toList()
     }

@@ -1,12 +1,12 @@
 package com.jj.androidenergyconsumer.calculations
 
 import android.util.Log
-import com.jj.androidenergyconsumer.handlers.StoppableHandler
+import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
 
 class AdditionCalculationsProvider(private val calculationsCallback: CalculationsCallback, private val factor: Int) :
     CalculationsProvider {
 
-    override fun calculationsTask(handlerId: Int, stoppableHandler: StoppableHandler) {
+    override fun calculationsTask(handlerId: Int, stoppableHandler: StoppableLoopedHandler) {
         var variable = 0
         while (true) {
             variable += factor

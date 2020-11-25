@@ -30,6 +30,7 @@
         <service android:name=".services.CalculationsService" />
         <service android:name=".services.BluetoothService" />
         <service android:name=".services.GPSService" />
+        <service android:name=".services.InternetService" />
     </application>
 
 </manifest>

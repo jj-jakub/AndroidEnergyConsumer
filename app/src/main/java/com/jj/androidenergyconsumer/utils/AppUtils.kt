@@ -1,10 +1,8 @@
 package com.jj.androidenergyconsumer.utils
 
-import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.util.Log
-import com.jj.androidenergyconsumer.rest.DefaultCallback
+import com.jj.androidenergyconsumer.internet.DefaultCallback
 import com.jj.androidenergyconsumer.rest.PingDataCall
 import com.jj.universallprotocollibrary.PingData
 import kotlinx.coroutines.CoroutineScope

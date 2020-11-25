@@ -1,4 +1,4 @@
-package com.jj.androidenergyconsumer.rest
+package com.jj.androidenergyconsumer.internet
 
 import android.util.Log
 import com.jj.androidenergyconsumer.utils.tag
