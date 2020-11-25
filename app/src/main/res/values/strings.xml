@@ -6,7 +6,7 @@
     <string name="calculations_launcher">Calculations launcher</string>
     <string name="gps_launcher">GPS launcher</string>
     <string name="constant_gps_work">Constant GPS work</string>
-    <string name="request_interval_in_seconds">Request interval in seconds</string>
+    <string name="request_interval_in_milliseconds">Request interval in milliseconds</string>
     <string name="internet_launcher">Internet launcher</string>
     <string name="constant_internet_work">Constant internet work</string>
     <string name="request_periodic_gps_updates">Request periodic GPS updates</string>
@@ -27,4 +27,6 @@
     <string name="bluetooth_scanning_status">Bluetooth scanning status:</string>
     <string name="stop_bluetooth_scan">Stop bluetooth scan</string>
     <string name="bluetooth_module_launcher">Bluetooth module launcher</string>
+    <string name="gps_working_status">GPS working status:</string>
+    <string name="permission_not_granted">Permission not granted</string>
 </resources>

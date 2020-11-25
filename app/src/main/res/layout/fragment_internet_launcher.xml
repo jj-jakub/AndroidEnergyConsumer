@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:autofillHints=""
         android:ems="10"
-        android:hint="@string/request_interval_in_seconds"
+        android:hint="@string/request_interval_in_milliseconds"
         android:inputType="numberDecimal"
         app:layout_constraintBottom_toTopOf="@+id/internetIntervalLabel"
         app:layout_constraintEnd_toEndOf="@+id/periodicInternetWorkButton"
@@ -54,7 +54,7 @@
         android:id="@+id/internetIntervalLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/request_interval_in_seconds"
+        android:text="@string/request_interval_in_milliseconds"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/internetIntervalInput"
         app:layout_constraintTop_toBottomOf="@+id/constantInternetWorkButton" />
