@@ -10,16 +10,13 @@ import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.util.*
 
 class InternetService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private lateinit var wakeLock: PowerManager.WakeLock
-    private val internetCallCreator = InternetCallCreator(InternetCallCreator.GOOGLE_URL)
+    private lateinit var internetCallCreator: InternetCallCreator
 
     val isWorking = MutableLiveData(false)
 
@@ -55,6 +52,7 @@ class InternetService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
+        internetCallCreator = InternetCallCreator(InternetCallCreator.GOOGLE_URL)
         wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AEC:InternetServiceWakeLock")
         val notification = notificationManagerBuilder.getServiceNotification("InternetService notification")
@@ -81,18 +79,8 @@ class InternetService : BaseService() {
     private fun startOneAfterAnotherPings() {
         isWorking.value = true
         logAndPingServer("startOneAfterAnotherPings", tag)
-        internetCallCreator.ping(loopCallCallback)
-    }
-
-    private val loopCallCallback: Callback<ResponseBody> = object : Callback<ResponseBody> {
-        override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-            logAndPingServer("onFailure", tag)
-            startOneAfterAnotherPings()
-        }
-
-        override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-            logAndPingServer("onResponse", tag)
-            startOneAfterAnotherPings()
+        internetCallCreator.startOneAfterAnotherPings { result ->
+            notificationManagerBuilder.notifyServiceNotification("InternetService notification", "${Date()} $result")
         }
     }
 

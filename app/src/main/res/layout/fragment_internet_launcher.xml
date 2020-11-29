@@ -8,11 +8,11 @@
         android:id="@+id/periodicInternetWorkButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="7dp"
         android:text="@string/request_periodic_internet_calls"
-        app:layout_constraintBottom_toTopOf="@+id/internetIntervalInput"
+        app:layout_constraintBottom_toTopOf="@+id/internetIntervalLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constantInternetWorkButton" />
 
     <TextView
         android:id="@+id/internetLauncherTitleLabel"
@@ -29,11 +29,8 @@
         android:id="@+id/constantInternetWorkButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="159dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="164dp"
         android:text="@string/constant_internet_work"
-        app:layout_constraintBottom_toTopOf="@+id/internetIntervalLabel"
+        app:layout_constraintBottom_toTopOf="@+id/periodicInternetWorkButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/internetLauncherTitleLabel" />
@@ -50,12 +47,47 @@
         app:layout_constraintEnd_toEndOf="@+id/periodicInternetWorkButton"
         app:layout_constraintStart_toStartOf="@+id/periodicInternetWorkButton" />
 
+
     <TextView
         android:id="@+id/internetIntervalLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/request_interval_in_milliseconds"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/internetWorkingStatusInfoLabel"
         app:layout_constraintStart_toStartOf="@+id/internetIntervalInput"
-        app:layout_constraintTop_toBottomOf="@+id/constantInternetWorkButton" />
+        app:layout_constraintTop_toBottomOf="@+id/periodicInternetWorkButton" />
+
+    <TextView
+        android:id="@+id/internetWorkingStatusInfoLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/internet_working_status"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/stopInternetCallsButton"
+        app:layout_constraintEnd_toStartOf="@+id/internetWorkingStatusValueLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/internetIntervalLabel" />
+
+    <TextView
+        android:id="@+id/internetWorkingStatusValueLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/not_running"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintTop_toTopOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <Button
+        android:id="@+id/stopInternetCallsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_internet_calls"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/internetWorkingStatusInfoLabel" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

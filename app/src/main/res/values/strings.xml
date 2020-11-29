@@ -29,4 +29,6 @@
     <string name="bluetooth_module_launcher">Bluetooth module launcher</string>
     <string name="gps_working_status">GPS working status:</string>
     <string name="permission_not_granted">Permission not granted</string>
+    <string name="internet_working_status">Internet working status:</string>
+    <string name="stop_internet_calls">Stop internet calls</string>
 </resources>
