@@ -43,16 +43,20 @@ class InternetLauncherFragment : Fragment() {
 
     private fun startPeriodicInternetWork() {
         context?.let { context ->
+            resetUrlLabelText()
             val millisIntervalFromInput = getMillisFromInput()
+            val urlToPing = getUrlFromInput()
             bindToInternetService(context)
-            InternetService.startPeriodicPings(context, millisIntervalFromInput)
+            InternetService.startPeriodicPings(context, millisIntervalFromInput, urlToPing)
         }
     }
 
     private fun startConstantInternetWork() {
         context?.let { context ->
+            resetUrlLabelText()
+            val urlToPing = getUrlFromInput()
             bindToInternetService(context)
-            InternetService.startOneAfterAnotherPings(context)
+            InternetService.startOneAfterAnotherPings(context, urlToPing)
         }
     }
 
@@ -73,6 +77,19 @@ class InternetLauncherFragment : Fragment() {
             0
         }
 
+    private fun getUrlFromInput(): String =
+        try {
+            urlInput.text.toString()
+        } catch (e: Exception) {
+            Log.e(tag, "Exception while converting input url", e)
+            onWrongUrlInput()
+            ""
+        }
+
+    private fun onWrongUrlInput() {
+        urlToPingLabel.text = getString(R.string.url_conversion_error)
+    }
+
     private fun bindToInternetService(context: Context) {
         val serviceIntent = InternetService.getServiceIntent(context)
         context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
@@ -86,6 +103,9 @@ class InternetLauncherFragment : Fragment() {
             serviceBound.set(true)
             internetService?.isWorking?.observe(this@InternetLauncherFragment, {
                 onScanningStatusChanged(it)
+            })
+            internetService?.errorMessage?.observe(this@InternetLauncherFragment, {
+                onErrorMessageChanged(it)
             })
         }
 
@@ -106,6 +126,19 @@ class InternetLauncherFragment : Fragment() {
             Log.d(tag, "onNullBinding")
             super.onNullBinding(componentName)
         }
+    }
+
+    private fun onErrorMessageChanged(errorMessage: String?) {
+        if (errorMessage != null) {
+            urlToPingLabel.text = errorMessage
+            urlToPingLabel.setTextColor(Color.RED)
+        }
+        else resetUrlLabelText()
+    }
+
+    private fun resetUrlLabelText() {
+        urlToPingLabel.text = getString(R.string.url_to_ping)
+        urlToPingLabel.setTextColor(Color.GRAY)
     }
 
     private fun onScanningStatusChanged(scanningStatus: Boolean) {

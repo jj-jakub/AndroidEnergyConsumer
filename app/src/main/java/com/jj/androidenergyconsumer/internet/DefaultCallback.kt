@@ -9,7 +9,7 @@ import retrofit2.Response
 
 class DefaultCallback : Callback<ResponseBody> {
     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-        Log.e(tag, "Sending units to server failed", t)
+        Log.e(tag, "Sending to server failed", t)
     }
 
     override fun onResponse(call: Call<ResponseBody>,
