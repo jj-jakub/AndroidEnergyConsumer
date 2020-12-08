@@ -23,6 +23,6 @@ infix fun String.ifNotEmpty(value: () -> Unit) {
 fun logAndPingServer(message: String, tag: String) {
     Log.d(tag, message)
     CoroutineScope(Dispatchers.IO).launch {
-        PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
+//        PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
     }
 }
