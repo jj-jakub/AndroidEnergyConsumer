@@ -54,9 +54,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/request_interval_in_milliseconds"
-        app:layout_constraintBottom_toTopOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintBottom_toTopOf="@+id/callResponseInfoLabel"
         app:layout_constraintStart_toStartOf="@+id/internetIntervalInput"
         app:layout_constraintTop_toBottomOf="@+id/periodicInternetWorkButton" />
+
+    <TextView
+        android:id="@+id/callResponseInfoLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="@string/call_response"
+        android:visibility="invisible"
+        android:gravity="end"
+        app:layout_constraintBottom_toTopOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintEnd_toStartOf="@+id/callResponseInfoValue"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/internetIntervalLabel"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/callResponseInfoValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/callResponseInfoLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/callResponseInfoLabel"
+        app:layout_constraintTop_toTopOf="@+id/callResponseInfoLabel"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Response" />
 
     <TextView
         android:id="@+id/internetWorkingStatusInfoLabel"
@@ -65,12 +91,12 @@
         android:text="@string/internet_working_status"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/stopInternetCallsButton"
-        app:layout_constraintEnd_toStartOf="@+id/internetWorkingStatusValueLabel"
+        app:layout_constraintEnd_toStartOf="@+id/internetWorkingStatusValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/internetIntervalLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/callResponseInfoLabel" />
 
     <TextView
-        android:id="@+id/internetWorkingStatusValueLabel"
+        android:id="@+id/internetWorkingStatusValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/not_running"

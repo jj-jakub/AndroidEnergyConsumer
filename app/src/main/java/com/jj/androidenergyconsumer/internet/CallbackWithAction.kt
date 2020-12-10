@@ -9,12 +9,14 @@ import retrofit2.Response
 
 class CallbackWithAction(private val onCallFinished: (result: String) -> Unit) : Callback<ResponseBody> {
     override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-        logAndPingServer("onFailure", tag)
-        onCallFinished("onFailure")
+        val message = "onFailure, ${t.localizedMessage}"
+        logAndPingServer(message, tag)
+        onCallFinished(message)
     }
 
     override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-        logAndPingServer("onResponse", tag)
-        onCallFinished("onResponse")
+        val message = "onResponse, ${response.code()}"
+        logAndPingServer(message, tag)
+        onCallFinished(message)
     }
 }

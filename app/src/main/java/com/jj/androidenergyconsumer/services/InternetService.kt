@@ -9,9 +9,9 @@ import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.internet.InternetCallCreator
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
+import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
-import java.util.*
 
 class InternetService : BaseService() {
 
@@ -20,7 +20,8 @@ class InternetService : BaseService() {
     private var internetCallCreator: InternetCallCreator? = null
 
     val isWorking = MutableLiveData(false)
-    val errorMessage = MutableLiveData<String>(null)
+    val inputErrorMessage = MutableLiveData<String?>(null)
+    val callResponse = MutableLiveData<String?>(null)
 
     companion object : ServiceStarter {
         private const val START_PERIODIC_PINGS = "START_PERIODIC_PINGS"
@@ -93,7 +94,7 @@ class InternetService : BaseService() {
     }
 
     private fun onUrlExtraNull() {
-        onError("Url extra is null")
+        onInputError("Url extra is null")
     }
 
     private fun onStartOneAfterAnotherPingsCommand(intent: Intent) {
@@ -115,23 +116,29 @@ class InternetService : BaseService() {
     }
 
     private val onCallFinished: (result: String) -> Unit = { result ->
-        notificationManagerBuilder.notifyServiceNotification("InternetService notification",
-                "${Date()} $result")
+        if (isWorking.value == true) {
+            notifyNotification("${getDateStringWithMillis()} $result")
+            callResponse.value = result
+        }
     }
+
+    private fun notifyNotification(content: String) =
+        notificationManagerBuilder.notifyServiceNotification("InternetService notification", content)
 
     private fun createInternetCallCreator(urlToPing: String) {
         try {
-            errorMessage.value = null
+            inputErrorMessage.value = null
+            callResponse.value = null
             internetCallCreator?.stopWorking()
             internetCallCreator = InternetCallCreator(urlToPing)
         } catch (iae: IllegalArgumentException) {
             Log.e(tag, "Exception while creating InternetCallCreator", iae)
-            onError(iae.message)
+            onInputError(iae.message)
         }
     }
 
-    private fun onError(message: String?) {
-        errorMessage.value = message
+    private fun onInputError(message: String?) {
+        inputErrorMessage.value = message
     }
 
     private fun stopService() {
@@ -140,6 +147,7 @@ class InternetService : BaseService() {
 
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
+        callResponse.value = null
         internetCallCreator?.stopWorking()
         notificationManagerBuilder.cancelServiceNotification(this)
         releaseWakeLock()

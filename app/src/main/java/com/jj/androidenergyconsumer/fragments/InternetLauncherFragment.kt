@@ -10,10 +10,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
+import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import kotlinx.android.synthetic.main.fragment_internet_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -104,8 +106,11 @@ class InternetLauncherFragment : Fragment() {
             internetService?.isWorking?.observe(this@InternetLauncherFragment, {
                 onScanningStatusChanged(it)
             })
-            internetService?.errorMessage?.observe(this@InternetLauncherFragment, {
+            internetService?.inputErrorMessage?.observe(this@InternetLauncherFragment, {
                 onErrorMessageChanged(it)
+            })
+            internetService?.callResponse?.observe(this@InternetLauncherFragment, {
+                onCallResponseChanged(it)
             })
         }
 
@@ -141,13 +146,27 @@ class InternetLauncherFragment : Fragment() {
         urlToPingLabel.setTextColor(Color.GRAY)
     }
 
-    private fun onScanningStatusChanged(scanningStatus: Boolean) {
-        if (scanningStatus) {
-            internetWorkingStatusValueLabel.text = getString(R.string.running)
-            internetWorkingStatusValueLabel.setTextColor(Color.RED)
+    private fun onCallResponseChanged(callResponse: String?) {
+        if (callResponse != null) {
+            callResponseInfoLabel.visibility = View.VISIBLE
+            val responseText = "${getDateStringWithMillis()}; $callResponse"
+            callResponseInfoValue.text = responseText
+        }
+        else resetCallResponseLabelAndValue()
+    }
+
+    private fun resetCallResponseLabelAndValue() {
+        callResponseInfoLabel.visibility = View.INVISIBLE
+        callResponseInfoValue.text = ""
+    }
+
+    private fun onScanningStatusChanged(scanningStatus: Boolean?) {
+        if (scanningStatus == true) {
+            internetWorkingStatusValue.text = getString(R.string.running)
+            internetWorkingStatusValue.setTextColor(Color.RED)
         } else {
-            internetWorkingStatusValueLabel.text = getString(R.string.not_running)
-            internetWorkingStatusValueLabel.setTextColor(Color.GREEN)
+            internetWorkingStatusValue.text = getString(R.string.not_running)
+            internetWorkingStatusValue.setTextColor(Color.GREEN)
         }
     }
 }

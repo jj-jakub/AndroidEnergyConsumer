@@ -12,9 +12,9 @@ import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
 import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
+import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
-import java.util.*
 
 class CalculationsService : BaseService() {
 
@@ -28,7 +28,7 @@ class CalculationsService : BaseService() {
     private val calculationsCallback = object : CalculationsCallback {
         override fun onThresholdAchieved(variable: Int, handlerId: Int) {
             notificationManagerBuilder.notifyServiceNotification("CalculationsService notification",
-                    "handlerId: $handlerId ${Date()} - variable = $variable")
+                    "handlerId: $handlerId ${getDateStringWithMillis()} - variable = $variable")
             logAndPingServer("handlerId: $handlerId, variable = $variable", tag)
         }
     }

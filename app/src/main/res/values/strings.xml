@@ -34,4 +34,5 @@
     <string name="url_to_ping">Url to ping</string>
     <string name="url_conversion_error">Url conversion error</string>
     <string name="google_url">https://google.com</string>
+    <string name="call_response">Call response:</string>
 </resources>
