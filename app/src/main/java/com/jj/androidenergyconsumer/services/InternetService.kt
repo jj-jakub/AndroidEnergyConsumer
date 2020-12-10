@@ -17,7 +17,7 @@ class InternetService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private lateinit var wakeLock: PowerManager.WakeLock
-    private var internetCallCreator: InternetCallCreator? = null
+    private var latestInternetCallCreator: InternetCallCreator? = null
 
     val isWorking = MutableLiveData(false)
     val inputErrorMessage = MutableLiveData<String?>(null)
@@ -66,53 +66,64 @@ class InternetService : BaseService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         logAndPingServer("onStartCommand", tag)
+        resetValues()
         when (intent?.action) {
-            START_PERIODIC_PINGS -> onStartPeriodicPingsCommand(intent)
-            START_ONE_AFTER_ANOTHER_PINGS -> onStartOneAfterAnotherPingsCommand(intent)
+            START_PERIODIC_PINGS -> setupInternetCallCreator(intent)?.let {
+                startPeriodicPingsToUrl(it, intent)
+            }
+            START_ONE_AFTER_ANOTHER_PINGS -> setupInternetCallCreator(intent)?.let {
+                startOneAfterAnotherPings(it)
+            }
             STOP_INTERNET_SERVICE -> stopService()
         }
         return START_NOT_STICKY
     }
 
-    private fun onStartPeriodicPingsCommand(intent: Intent) {
+    private fun setupInternetCallCreator(intent: Intent): InternetCallCreator? {
+        logAndPingServer("setupInternetCallCreator", tag)
         val urlToPing = intent.getStringExtra(URL_TO_PING_EXTRA)
-        val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
-        if (urlToPing != null) {
+        return if (urlToPing != null) {
             createInternetCallCreator(urlToPing)
-            startPeriodicPingsToUrl(periodBetweenPingsMs)
         } else {
             onUrlExtraNull()
+            null
         }
     }
 
-    private fun startPeriodicPingsToUrl(periodBetweenPingsMs: Long) {
-        logAndPingServer("startPeriodicPings", tag)
-        internetCallCreator?.let { callCreator ->
-            callCreator.pingGoogleWithPeriod(periodBetweenPingsMs, onCallFinished)
-            isWorking.value = true
+    private fun createInternetCallCreator(urlToPing: String): InternetCallCreator? {
+        return try {
+            stopInternetCallCreator()
+            InternetCallCreator(urlToPing).apply { latestInternetCallCreator = this }
+        } catch (iae: IllegalArgumentException) {
+            Log.e(tag, "Exception while creating InternetCallCreator", iae)
+            onInputError(iae.message)
+            null
         }
+    }
+
+    private fun stopInternetCallCreator() {
+        latestInternetCallCreator?.stopWorking()
+        latestInternetCallCreator = null
+    }
+
+    private fun onInputError(message: String?) {
+        inputErrorMessage.value = message
     }
 
     private fun onUrlExtraNull() {
         onInputError("Url extra is null")
     }
 
-    private fun onStartOneAfterAnotherPingsCommand(intent: Intent) {
-        logAndPingServer("startOneAfterAnotherPings", tag)
-        val urlToPing = intent.getStringExtra(URL_TO_PING_EXTRA)
-        if (urlToPing != null) {
-            createInternetCallCreator(urlToPing)
-            startOneAfterAnotherPings()
-        } else {
-            onUrlExtraNull()
-        }
+    private fun startPeriodicPingsToUrl(internetCallCreator: InternetCallCreator, intent: Intent) {
+        logAndPingServer("startPeriodicPingsToUrl", tag)
+        val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
+        internetCallCreator.pingGoogleWithPeriod(periodBetweenPingsMs, onCallFinished)
+        isWorking.value = true
     }
 
-    private fun startOneAfterAnotherPings() {
-        internetCallCreator?.let { callCreator ->
-            callCreator.startOneAfterAnotherPings(onCallFinished)
-            isWorking.value = true
-        }
+    private fun startOneAfterAnotherPings(internetCallCreator: InternetCallCreator) {
+        internetCallCreator.startOneAfterAnotherPings(onCallFinished)
+        isWorking.value = true
     }
 
     private val onCallFinished: (result: String) -> Unit = { result ->
@@ -125,20 +136,9 @@ class InternetService : BaseService() {
     private fun notifyNotification(content: String) =
         notificationManagerBuilder.notifyServiceNotification("InternetService notification", content)
 
-    private fun createInternetCallCreator(urlToPing: String) {
-        try {
-            inputErrorMessage.value = null
-            callResponse.value = null
-            internetCallCreator?.stopWorking()
-            internetCallCreator = InternetCallCreator(urlToPing)
-        } catch (iae: IllegalArgumentException) {
-            Log.e(tag, "Exception while creating InternetCallCreator", iae)
-            onInputError(iae.message)
-        }
-    }
-
-    private fun onInputError(message: String?) {
-        inputErrorMessage.value = message
+    private fun resetValues() {
+        inputErrorMessage.value = null
+        callResponse.value = null
     }
 
     private fun stopService() {
@@ -147,10 +147,10 @@ class InternetService : BaseService() {
 
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
-        callResponse.value = null
-        internetCallCreator?.stopWorking()
-        notificationManagerBuilder.cancelServiceNotification(this)
+        resetValues()
+        stopInternetCallCreator()
         releaseWakeLock()
+        notificationManagerBuilder.cancelServiceNotification(this)
         isWorking.value = false
         super.onDestroy()
     }
