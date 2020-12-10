@@ -5,13 +5,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.fragments.ChooseLauncherFragment
+import com.jj.androidenergyconsumer.permissions.PermissionManager
+import com.jj.androidenergyconsumer.permissions.PermissionManager.Companion.WRITE_EXTERNAL_STORAGE_PERMISSION
+import com.jj.androidenergyconsumer.permissions.PermissionManager.Companion.WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE
 
 class MainActivity : AppCompatActivity() {
+
+    private val permissionManager = PermissionManager()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setCurrentFragment(savedInstanceState)
+
+        handleWriteStoragePermission()
     }
 
     private fun setCurrentFragment(savedInstanceState: Bundle?) {
@@ -32,6 +39,14 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
         } else {
             supportFragmentManager.popBackStack()
+        }
+    }
+
+    private fun handleWriteStoragePermission() {
+        if (!permissionManager.isWriteExternalStoragePermissionGranted(this)
+            && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE_PERMISSION),
+                    WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE)
         }
     }
 }

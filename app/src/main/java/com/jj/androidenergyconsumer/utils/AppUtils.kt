@@ -20,6 +20,7 @@ infix fun String.ifNotEmpty(value: () -> Unit) {
 
 fun logAndPingServer(message: String, tag: String) {
     Log.d(tag, message)
+    LogSaver.saveLog(tag, message)
     CoroutineScope(Dispatchers.IO).launch {
 //        PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
     }
