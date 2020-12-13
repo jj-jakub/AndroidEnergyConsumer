@@ -22,6 +22,7 @@ class BluetoothService : BaseService() {
     private val shouldRestartScanning = AtomicBoolean(true)
 
     val isScanning = MutableLiveData(false)
+    val errorMessage = MutableLiveData<String?>(null)
 
     private val scanningCallback =
         BluetoothServiceScanningCallback(notificationManagerBuilder) { onScanningFinished() }
@@ -42,9 +43,7 @@ class BluetoothService : BaseService() {
         fun stopScanning(context: Context) = start(context, STOP_SCANNING_SERVICE)
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return MyBinder(this)
-    }
+    override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
@@ -66,11 +65,24 @@ class BluetoothService : BaseService() {
 
     @SuppressLint("WakelockTimeout")
     private fun startScanning() {
-        shouldRestartScanning.set(true)
-        isScanning.value = true
-        wakeLock.acquire()
-        bluetoothScanner.startScanning(scanningCallback)
+        resetErrorMessage()
+        val startedScanning = bluetoothScanner.startScanning(scanningCallback)
+        if (startedScanning) {
+            shouldRestartScanning.set(true)
+            isScanning.value = true
+            wakeLock.acquire()
+        } else {
+            onStartScanningError()
+        }
         logAndPingServer("After startScanning", tag)
+    }
+
+    private fun onStartScanningError() {
+        errorMessage.value = "Start scanning error. Check if bluetooth is turned on."
+    }
+
+    private fun resetErrorMessage() {
+        errorMessage.value = null
     }
 
     private fun stopService() {

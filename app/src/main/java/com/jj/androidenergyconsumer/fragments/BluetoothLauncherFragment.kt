@@ -3,6 +3,7 @@ package com.jj.androidenergyconsumer.fragments
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
@@ -12,9 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.android.synthetic.main.fragment_bluetooth_launcher.*
+import kotlinx.android.synthetic.main.fragment_gps_launcher.*
+import kotlinx.android.synthetic.main.fragment_internet_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothLauncherFragment : Fragment() {
@@ -25,14 +29,37 @@ class BluetoothLauncherFragment : Fragment() {
 
     private var bluetoothService: BluetoothService? = null
     private var serviceBound = AtomicBoolean(false)
+    private val permissionManager = PermissionManager()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fragment_bluetooth_launcher, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.let { activity ->
+            if (permissionManager.isLocationPermissionGranted(activity)) {
+                onPermissionGranted()
+            } else {
+                onPermissionNotGranted()
+                requestLocationPermission()
+            }
+        }
+    }
+
+    private fun onPermissionGranted() {
+        context?.let { setupFragment(it) }
+    }
+
+    private fun setupFragment(context: Context) {
+        bindToBluetoothService(context)
         setButtonsListeners()
-        context?.let { context -> bindToBluetoothService(context) }
+        bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
+        bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
+    }
+
+    private fun bindToBluetoothService(context: Context) {
+        val serviceIntent = BluetoothService.getServiceIntent(context)
+        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     private fun setButtonsListeners() {
@@ -47,11 +74,6 @@ class BluetoothLauncherFragment : Fragment() {
         }
     }
 
-    private fun bindToBluetoothService(context: Context) {
-        val serviceIntent = BluetoothService.getServiceIntent(context)
-        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-    }
-
     private fun abortBluetoothService() {
         context?.let { context ->
             if (serviceBound.compareAndSet(true, false)) {
@@ -59,6 +81,16 @@ class BluetoothLauncherFragment : Fragment() {
             }
             BluetoothService.stopScanning(context)
         }
+    }
+
+    private fun onPermissionNotGranted() {
+        bluetoothScanningStatusValueLabel.text = getString(R.string.permission_not_granted)
+        bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
+    }
+
+    private fun requestLocationPermission() {
+        requestPermissions(arrayOf(PermissionManager.LOCATION_PERMISSION),
+                PermissionManager.LOCATION_PERMISSION_REQUEST_CODE)
     }
 
     private val serviceConnection = object : ServiceConnection {
@@ -69,6 +101,9 @@ class BluetoothLauncherFragment : Fragment() {
             serviceBound.set(true)
             bluetoothService?.isScanning?.observe(this@BluetoothLauncherFragment, {
                 onScanningStatusChanged(it)
+            })
+            bluetoothService?.errorMessage?.observe(this@BluetoothLauncherFragment, {
+                onErrorMessageChanged(it)
             })
         }
 
@@ -98,6 +133,18 @@ class BluetoothLauncherFragment : Fragment() {
         } else {
             bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
             bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
+        }
+    }
+
+    private fun onErrorMessageChanged(errorMessage: String?) {
+        bluetoothErrorMessageLabel.text = errorMessage ?: ""
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PermissionManager.LOCATION_PERMISSION_REQUEST_CODE
+            && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            onPermissionGranted()
         }
     }
 }

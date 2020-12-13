@@ -10,10 +10,14 @@ class BluetoothScanner(context: Context) : IScanner {
     private val bluetoothBroadcastReceiver = BluetoothBroadcastReceiver(context)
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-    override fun startScanning(scanningCallback: ScanningCallback) {
+    override fun startScanning(scanningCallback: ScanningCallback): Boolean {
         logAndPingServer("startScanning", tag)
         bluetoothBroadcastReceiver.register(scanningCallback)
-        bluetoothAdapter.startDiscovery()
+        return bluetoothAdapter.startDiscovery().also { startedDiscovery ->
+            if (!startedDiscovery) {
+                bluetoothBroadcastReceiver.unregister()
+            }
+        }
     }
 
     override fun stopScanning() {
