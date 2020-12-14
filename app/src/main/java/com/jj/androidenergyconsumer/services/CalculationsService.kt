@@ -23,7 +23,7 @@ class CalculationsService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
 
-    override val wakelockManager = WakelockManager(this)
+    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"
 
     val areCalculationsRunning = MutableLiveData(false)
