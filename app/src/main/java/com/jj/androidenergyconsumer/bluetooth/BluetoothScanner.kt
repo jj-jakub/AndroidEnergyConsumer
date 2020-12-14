@@ -8,23 +8,23 @@ import com.jj.androidenergyconsumer.utils.tag
 class BluetoothScanner(context: Context) : IScanner {
 
     private val bluetoothBroadcastReceiver = BluetoothBroadcastReceiver(context)
-    private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
     override fun startScanning(scanningCallback: ScanningCallback): Boolean {
         logAndPingServer("startScanning", tag)
         bluetoothBroadcastReceiver.register(scanningCallback)
-        return bluetoothAdapter.startDiscovery().also { startedDiscovery ->
+        return bluetoothAdapter?.startDiscovery()?.also { startedDiscovery ->
             if (!startedDiscovery) {
                 bluetoothBroadcastReceiver.unregister()
             }
-        }
+        } ?: false
     }
 
     override fun stopScanning() {
         logAndPingServer("stopScanning", tag)
-        bluetoothAdapter.cancelDiscovery()
+        bluetoothAdapter?.cancelDiscovery()
         bluetoothBroadcastReceiver.unregister()
     }
 
-    override fun isScanning(): Boolean = bluetoothAdapter.isDiscovering
+    override fun isScanning(): Boolean = bluetoothAdapter?.isDiscovering ?: false
 }
