@@ -21,7 +21,7 @@ class GPSService : BaseService() {
     private var locationManager: LocationManager? = null
     private val locationListener: LocationListener = MyLocationListener(notificationManagerBuilder)
 
-    override val wakelockManager = WakelockManager(this)
+    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:GPSServiceWakeLock"
 
     val isWorking = MutableLiveData(false)

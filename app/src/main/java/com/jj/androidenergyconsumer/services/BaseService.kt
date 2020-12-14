@@ -5,6 +5,7 @@ import com.jj.androidenergyconsumer.wakelock.WakelockManager
 
 abstract class BaseService: Service() {
 
+    // TODO Make it being created in service onCreate
     abstract val wakelockManager: WakelockManager
     abstract val wakelockTag: String
 
