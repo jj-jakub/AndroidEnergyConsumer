@@ -1,5 +1,6 @@
 package com.jj.androidenergyconsumer.services
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.location.LocationListener
@@ -50,9 +51,7 @@ class GPSService : BaseService() {
         fun stopGpsService(context: Context) = start(context, STOP_GPS_SERVICE)
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return MyBinder(this)
-    }
+    override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
@@ -86,11 +85,13 @@ class GPSService : BaseService() {
     }
 
     @Suppress("SameParameterValue")
+    @SuppressLint("WakelockTimeout")
     private fun requestLocationUpdates(minimumPeriodMs: Long, minimumDistanceM: Float) {
         try {
             logAndPingServer("requestLocationUpdates", tag)
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minimumPeriodMs, minimumDistanceM,
                     locationListener)
+            wakeLock.acquire()
             isWorking.value = true
         } catch (se: SecurityException) {
             Log.e(tag, "requestLocationUpdates Security exception", se)
