@@ -20,7 +20,7 @@ class BluetoothService : BaseService() {
     private val bluetoothScanner = BluetoothScanner(this)
     private val shouldRestartScanning = AtomicBoolean(true)
 
-    override val wakelockManager = WakelockManager(this)
+    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:BluetoothServiceWakeLock"
 
     val isScanning = MutableLiveData(false)

@@ -19,7 +19,7 @@ class InternetService : BaseService() {
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
     private var latestInternetCallCreator: InternetCallCreator? = null
 
-    override val wakelockManager = WakelockManager(this)
+    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:InternetServiceWakeLock"
 
     val isWorking = MutableLiveData(false)
