@@ -6,7 +6,6 @@ import android.content.Intent
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.IBinder
-import android.os.PowerManager
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.gps.MyLocationListener
@@ -14,13 +13,16 @@ import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.wakelock.WakelockManager
 
 class GPSService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
-    private lateinit var wakeLock: PowerManager.WakeLock
-    private lateinit var locationManager: LocationManager
+    private var locationManager: LocationManager? = null
     private val locationListener: LocationListener = MyLocationListener(notificationManagerBuilder)
+
+    override val wakelockManager = WakelockManager(this)
+    override val wakelockTag = "AEC:GPSServiceWakeLock"
 
     val isWorking = MutableLiveData(false)
 
@@ -56,9 +58,7 @@ class GPSService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        locationManager = (getSystemService(Context.LOCATION_SERVICE) as LocationManager)
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AEC:GPSServiceWakeLock")
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
         val notification = notificationManagerBuilder.getServiceNotification("GPSService notification")
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
@@ -88,11 +88,13 @@ class GPSService : BaseService() {
     @SuppressLint("WakelockTimeout")
     private fun requestLocationUpdates(minimumPeriodMs: Long, minimumDistanceM: Float) {
         try {
-            logAndPingServer("requestLocationUpdates", tag)
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minimumPeriodMs, minimumDistanceM,
-                    locationListener)
-            wakeLock.acquire()
-            isWorking.value = true
+            logAndPingServer("requestLocationUpdates, locationManager: $locationManager", tag)
+            locationManager?.let { manager ->
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minimumPeriodMs, minimumDistanceM,
+                        locationListener)
+                acquireWakeLock()
+                isWorking.value = true
+            }
         } catch (se: SecurityException) {
             Log.e(tag, "requestLocationUpdates Security exception", se)
         }
@@ -104,16 +106,10 @@ class GPSService : BaseService() {
 
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
-        locationManager.removeUpdates(locationListener)
+        locationManager?.removeUpdates(locationListener)
         notificationManagerBuilder.cancelServiceNotification(this)
         releaseWakeLock()
         isWorking.value = false
         super.onDestroy()
-    }
-
-    private fun releaseWakeLock() {
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
     }
 }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.os.PowerManager
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
@@ -12,14 +11,17 @@ import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
 import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
-    private lateinit var wakeLock: PowerManager.WakeLock
     private val bluetoothScanner = BluetoothScanner(this)
     private val shouldRestartScanning = AtomicBoolean(true)
+
+    override val wakelockManager = WakelockManager(this)
+    override val wakelockTag = "AEC:BluetoothServiceWakeLock"
 
     val isScanning = MutableLiveData(false)
     val errorMessage = MutableLiveData<String?>(null)
@@ -48,8 +50,6 @@ class BluetoothService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AEC:MyWakeLock")
         val notification = notificationManagerBuilder.getServiceNotification("BluetoothService notification")
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
@@ -70,7 +70,7 @@ class BluetoothService : BaseService() {
         if (startedScanning) {
             shouldRestartScanning.set(true)
             isScanning.value = true
-            wakeLock.acquire()
+            acquireWakeLock()
         } else {
             onStartScanningError()
         }
@@ -107,11 +107,5 @@ class BluetoothService : BaseService() {
         releaseWakeLock()
         isScanning.value = false
         super.onDestroy()
-    }
-
-    private fun releaseWakeLock() {
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
     }
 }

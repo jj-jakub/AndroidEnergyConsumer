@@ -15,13 +15,16 @@ import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.wakelock.WakelockManager
 
 class CalculationsService : BaseService() {
 
     private val handlersOrchestrator = HandlersOrchestrator()
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
-    private lateinit var wakeLock: PowerManager.WakeLock
+
+    override val wakelockManager = WakelockManager(this)
+    override val wakelockTag = "AEC:CalculationsServiceWakeLock"
 
     val areCalculationsRunning = MutableLiveData(false)
 
@@ -60,15 +63,11 @@ class CalculationsService : BaseService() {
         fun stopCalculations(context: Context) = start(context, STOP_CALCULATIONS_ACTION)
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return MyBinder(this)
-    }
+    override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AEC:MyWakeLock")
         val notification = notificationManagerBuilder.getServiceNotification("CalculationsService notification")
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
@@ -89,7 +88,7 @@ class CalculationsService : BaseService() {
     @SuppressLint("WakelockTimeout")
     private fun onStartCalculationsAction(intent: Intent) {
         areCalculationsRunning.value = true
-        wakeLock.acquire()
+        acquireWakeLock()
         val amountOfHandlers = getAmountOfHandlers(intent)
         val calculationsProvider = CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
         handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
@@ -103,9 +102,7 @@ class CalculationsService : BaseService() {
         logAndPingServer("onDestroy", tag)
         handlersOrchestrator.abortHandlers()
         notificationManagerBuilder.cancelServiceNotification(this)
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
+        releaseWakeLock()
         areCalculationsRunning.value = false
         super.onDestroy()
     }
