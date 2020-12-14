@@ -12,12 +12,15 @@ import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.wakelock.WakelockManager
 
 class InternetService : BaseService() {
 
     private val notificationManagerBuilder = NotificationManagerBuilder(this)
-    private lateinit var wakeLock: PowerManager.WakeLock
     private var latestInternetCallCreator: InternetCallCreator? = null
+
+    override val wakelockManager = WakelockManager(this)
+    override val wakelockTag = "AEC:InternetServiceWakeLock"
 
     val isWorking = MutableLiveData(false)
     val inputErrorMessage = MutableLiveData<String?>(null)
@@ -58,8 +61,6 @@ class InternetService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AEC:InternetServiceWakeLock")
         val notification = notificationManagerBuilder.getServiceNotification("InternetService notification")
         startForeground(NOTIFICATION_SERVICE_ID, notification)
     }
@@ -118,11 +119,13 @@ class InternetService : BaseService() {
         logAndPingServer("startPeriodicPingsToUrl", tag)
         val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
         internetCallCreator.pingGoogleWithPeriod(periodBetweenPingsMs, onCallFinished)
+        acquireWakeLock()
         isWorking.value = true
     }
 
     private fun startOneAfterAnotherPings(internetCallCreator: InternetCallCreator) {
         internetCallCreator.startOneAfterAnotherPings(onCallFinished)
+        acquireWakeLock()
         isWorking.value = true
     }
 
@@ -153,11 +156,5 @@ class InternetService : BaseService() {
         notificationManagerBuilder.cancelServiceNotification(this)
         isWorking.value = false
         super.onDestroy()
-    }
-
-    private fun releaseWakeLock() {
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
     }
 }
