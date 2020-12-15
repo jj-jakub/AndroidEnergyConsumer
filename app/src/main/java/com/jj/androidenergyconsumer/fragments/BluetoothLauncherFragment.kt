@@ -39,6 +39,11 @@ class BluetoothLauncherFragment : Fragment() {
         manageLocationPermission()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        context?.apply { unbindFromService(this) }
+    }
+
     private fun manageLocationPermission() {
         activity?.let { activity ->
             if (permissionManager.isLocationPermissionGranted(activity)) {
@@ -80,9 +85,7 @@ class BluetoothLauncherFragment : Fragment() {
 
     private fun abortBluetoothService() {
         context?.let { context ->
-            if (serviceBound.compareAndSet(true, false)) {
-                context.unbindService(serviceConnection)
-            }
+            unbindFromService(context)
             BluetoothService.stopScanning(context)
         }
     }
@@ -90,6 +93,12 @@ class BluetoothLauncherFragment : Fragment() {
     private fun onPermissionNotGranted() {
         bluetoothScanningStatusValueLabel.text = getString(R.string.permission_not_granted)
         bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
+    }
+
+    private fun unbindFromService(context: Context) {
+        if (serviceBound.compareAndSet(true, false)) {
+            context.unbindService(serviceConnection)
+        }
     }
 
     private val serviceConnection = object : ServiceConnection {

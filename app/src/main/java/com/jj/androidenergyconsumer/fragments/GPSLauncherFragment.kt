@@ -16,6 +16,7 @@ import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.services.MyBinder
+import com.jj.androidenergyconsumer.utils.logAndPingServer
 import kotlinx.android.synthetic.main.fragment_gps_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -32,10 +33,14 @@ class GPSLauncherFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fragment_gps_launcher, container, false)
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         manageLocationPermission()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        context?.apply { unbindFromService(this) }
     }
 
     private fun manageLocationPermission() {
@@ -90,10 +95,14 @@ class GPSLauncherFragment : Fragment() {
 
     private fun stopGPSUpdates() {
         context?.let { context ->
-            if (serviceBound.compareAndSet(true, false)) {
-                context.unbindService(serviceConnection)
-            }
+            unbindFromService(context)
             GPSService.stopGpsService(context)
+        }
+    }
+
+    private fun unbindFromService(context: Context) {
+        if (serviceBound.compareAndSet(true, false)) {
+            context.unbindService(serviceConnection)
         }
     }
 
