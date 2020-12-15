@@ -6,12 +6,12 @@ import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.fragments.ChooseLauncherFragment
 import com.jj.androidenergyconsumer.permissions.PermissionManager
-import com.jj.androidenergyconsumer.permissions.PermissionManager.Companion.WRITE_EXTERNAL_STORAGE_PERMISSION
-import com.jj.androidenergyconsumer.permissions.PermissionManager.Companion.WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE
+import com.jj.androidenergyconsumer.utils.BatterySettingsLauncher
 
 class MainActivity : AppCompatActivity() {
 
     private val permissionManager = PermissionManager()
+    private lateinit var batterySettingsLauncher: BatterySettingsLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,6 +19,15 @@ class MainActivity : AppCompatActivity() {
         setCurrentFragment(savedInstanceState)
 
         permissionManager.requestWriteExternalStoragePermission(this)
+        batterySettingsLauncher = BatterySettingsLauncher(this)
+
+        manageBatteryOptimizationsSettings()
+    }
+
+    private fun manageBatteryOptimizationsSettings() {
+        if (!batterySettingsLauncher.isAppIgnoringBatteryOptimizations()) {
+            batterySettingsLauncher.requestToIgnoreBatteryOptimizations()
+        }
     }
 
     private fun setCurrentFragment(savedInstanceState: Bundle?) {
