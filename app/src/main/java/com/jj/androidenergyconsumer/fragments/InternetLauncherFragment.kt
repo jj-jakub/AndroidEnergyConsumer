@@ -10,20 +10,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
+import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import java.util.concurrent.atomic.AtomicBoolean
 
-class InternetLauncherFragment : Fragment() {
+class InternetLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
 
     private var internetService: InternetService? = null
-    private var serviceBound = AtomicBoolean(false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentInternetLauncherBinding = FragmentInternetLauncherBinding.inflate(inflater, container, false)
@@ -34,11 +33,6 @@ class InternetLauncherFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setButtonsListeners()
         context?.apply { bindToInternetService(this) }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        context?.apply { unbindFromService(this) }
     }
 
     private fun setButtonsListeners() {
@@ -101,13 +95,7 @@ class InternetLauncherFragment : Fragment() {
         context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private fun unbindFromService(context: Context) {
-        if (serviceBound.compareAndSet(true, false)) {
-            context.unbindService(serviceConnection)
-        }
-    }
-
-    private val serviceConnection = object : ServiceConnection {
+    override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?

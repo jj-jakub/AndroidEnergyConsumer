@@ -11,21 +11,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentBluetoothLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
-import java.util.concurrent.atomic.AtomicBoolean
 
-class BluetoothLauncherFragment : Fragment() {
+class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding
 
     private var bluetoothService: BluetoothService? = null
-    private var serviceBound = AtomicBoolean(false)
-    private val permissionManager = PermissionManager()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentBluetoothLauncherBinding = FragmentBluetoothLauncherBinding.inflate(inflater, container, false)
@@ -35,11 +31,6 @@ class BluetoothLauncherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         manageLocationPermission()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        context?.apply { unbindFromService(this) }
     }
 
     private fun manageLocationPermission() {
@@ -99,13 +90,7 @@ class BluetoothLauncherFragment : Fragment() {
         }
     }
 
-    private fun unbindFromService(context: Context) {
-        if (serviceBound.compareAndSet(true, false)) {
-            context.unbindService(serviceConnection)
-        }
-    }
-
-    private val serviceConnection = object : ServiceConnection {
+    override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
