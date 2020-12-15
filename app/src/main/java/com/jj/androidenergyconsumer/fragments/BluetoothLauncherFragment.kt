@@ -36,12 +36,16 @@ class BluetoothLauncherFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        manageLocationPermission()
+    }
+
+    private fun manageLocationPermission() {
         activity?.let { activity ->
             if (permissionManager.isLocationPermissionGranted(activity)) {
                 onPermissionGranted()
             } else {
                 onPermissionNotGranted()
-                requestLocationPermission()
+                permissionManager.requestLocationPermission(this)
             }
         }
     }
@@ -86,11 +90,6 @@ class BluetoothLauncherFragment : Fragment() {
     private fun onPermissionNotGranted() {
         bluetoothScanningStatusValueLabel.text = getString(R.string.permission_not_granted)
         bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
-    }
-
-    private fun requestLocationPermission() {
-        requestPermissions(arrayOf(PermissionManager.LOCATION_PERMISSION),
-                PermissionManager.LOCATION_PERMISSION_REQUEST_CODE)
     }
 
     private val serviceConnection = object : ServiceConnection {
