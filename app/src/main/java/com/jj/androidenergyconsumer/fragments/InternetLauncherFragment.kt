@@ -36,6 +36,11 @@ class InternetLauncherFragment : Fragment() {
         context?.apply { bindToInternetService(this) }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        context?.apply { unbindFromService(this) }
+    }
+
     private fun setButtonsListeners() {
         fragmentInternetLauncherBinding.apply {
             periodicInternetWorkButton.setOnClickListener { startPeriodicInternetWork() }
@@ -65,9 +70,7 @@ class InternetLauncherFragment : Fragment() {
 
     private fun stopInternetWork() {
         context?.let { context ->
-            if (serviceBound.compareAndSet(true, false)) {
-                context.unbindService(serviceConnection)
-            }
+            unbindFromService(context)
             InternetService.stopInternetService(context)
         }
     }
@@ -96,6 +99,12 @@ class InternetLauncherFragment : Fragment() {
     private fun bindToInternetService(context: Context) {
         val serviceIntent = InternetService.getServiceIntent(context)
         context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindFromService(context: Context) {
+        if (serviceBound.compareAndSet(true, false)) {
+            context.unbindService(serviceConnection)
+        }
     }
 
     private val serviceConnection = object : ServiceConnection {
