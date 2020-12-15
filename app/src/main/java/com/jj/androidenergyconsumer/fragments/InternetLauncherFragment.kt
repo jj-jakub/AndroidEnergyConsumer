@@ -10,23 +10,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import kotlinx.android.synthetic.main.fragment_internet_launcher.*
-import java.util.concurrent.atomic.AtomicBoolean
 
-class InternetLauncherFragment : Fragment() {
+class InternetLauncherFragment : BaseLauncherFragment() {
 
     companion object {
         fun newInstance(): InternetLauncherFragment = InternetLauncherFragment()
     }
 
     private var internetService: InternetService? = null
-    private var serviceBound = AtomicBoolean(false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fragment_internet_launcher, container, false)
@@ -35,11 +31,6 @@ class InternetLauncherFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setButtonsListeners()
         context?.apply { bindToInternetService(this) }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        context?.apply { unbindFromService(this) }
     }
 
     private fun setButtonsListeners() {
@@ -100,13 +91,7 @@ class InternetLauncherFragment : Fragment() {
         context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
-    private fun unbindFromService(context: Context) {
-        if (serviceBound.compareAndSet(true, false)) {
-            context.unbindService(serviceConnection)
-        }
-    }
-
-    private val serviceConnection = object : ServiceConnection {
+    override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
@@ -146,8 +131,7 @@ class InternetLauncherFragment : Fragment() {
         if (errorMessage != null) {
             urlToPingLabel.text = errorMessage
             urlToPingLabel.setTextColor(Color.RED)
-        }
-        else resetUrlLabelText()
+        } else resetUrlLabelText()
     }
 
     private fun resetUrlLabelText() {
@@ -160,8 +144,7 @@ class InternetLauncherFragment : Fragment() {
             callResponseInfoLabel.visibility = View.VISIBLE
             val responseText = "${getDateStringWithMillis()}; $callResponse"
             callResponseInfoValue.text = responseText
-        }
-        else resetCallResponseLabelAndValue()
+        } else resetCallResponseLabelAndValue()
     }
 
     private fun resetCallResponseLabelAndValue() {

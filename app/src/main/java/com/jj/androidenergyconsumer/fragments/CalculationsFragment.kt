@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.services.CalculationsService
@@ -18,16 +17,14 @@ import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAU
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.android.synthetic.main.fragment_calculations_launcher.*
-import java.util.concurrent.atomic.AtomicBoolean
 
-class CalculationsFragment : Fragment() {
+class CalculationsFragment : BaseLauncherFragment() {
 
     companion object {
         fun newInstance(): CalculationsFragment = CalculationsFragment()
     }
 
     private var calculationsService: CalculationsService? = null
-    private var serviceBound = AtomicBoolean(false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.fragment_calculations_launcher, container, false)
@@ -36,11 +33,6 @@ class CalculationsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setButtonsListeners()
         context?.let { context -> bindToCalculationsService(context) }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        context?.apply { unbindFromService(this) }
     }
 
     private fun setButtonsListeners() {
@@ -89,13 +81,7 @@ class CalculationsFragment : Fragment() {
         DEFAULT_CALCULATIONS_FACTOR
     }
 
-    private fun unbindFromService(context: Context) {
-        if (serviceBound.compareAndSet(true, false)) {
-            context.unbindService(serviceConnection)
-        }
-    }
-
-    private val serviceConnection = object : ServiceConnection {
+    override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
