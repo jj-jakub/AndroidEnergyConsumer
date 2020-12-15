@@ -34,19 +34,18 @@ class GPSLauncherFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        manageLocationPermission()
+    }
+
+    private fun manageLocationPermission() {
         activity?.let { activity ->
             if (permissionManager.isLocationPermissionGranted(activity)) {
                 onPermissionGranted()
             } else {
                 onPermissionNotGranted()
-                requestLocationPermission()
+                permissionManager.requestLocationPermission(this)
             }
         }
-    }
-
-    private fun requestLocationPermission() {
-        requestPermissions(arrayOf(PermissionManager.LOCATION_PERMISSION),
-                PermissionManager.LOCATION_PERMISSION_REQUEST_CODE)
     }
 
     private fun setupFragment(context: Context) {
