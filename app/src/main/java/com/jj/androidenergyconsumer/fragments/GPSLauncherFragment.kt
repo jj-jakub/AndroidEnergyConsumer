@@ -37,6 +37,11 @@ class GPSLauncherFragment : Fragment() {
         manageLocationPermission()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        context?.apply { unbindFromService(this) }
+    }
+
     private fun manageLocationPermission() {
         activity?.let { activity ->
             if (permissionManager.isLocationPermissionGranted(activity)) {
@@ -91,10 +96,14 @@ class GPSLauncherFragment : Fragment() {
 
     private fun stopGPSUpdates() {
         context?.let { context ->
-            if (serviceBound.compareAndSet(true, false)) {
-                context.unbindService(serviceConnection)
-            }
+            unbindFromService(context)
             GPSService.stopGpsService(context)
+        }
+    }
+
+    private fun unbindFromService(context: Context) {
+        if (serviceBound.compareAndSet(true, false)) {
+            context.unbindService(serviceConnection)
         }
     }
 

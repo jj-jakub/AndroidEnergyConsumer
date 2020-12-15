@@ -38,6 +38,11 @@ class CalculationsFragment : Fragment() {
         context?.let { context -> bindToCalculationsService(context) }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        context?.apply { unbindFromService(this) }
+    }
+
     private fun setButtonsListeners() {
         fragmentCalculationsLauncherBinding.apply {
             performAdditionsButton.setOnClickListener { startCalculationsService(CalculationsType.ADDITION) }
@@ -64,9 +69,7 @@ class CalculationsFragment : Fragment() {
 
     private fun abortCalculationsService() {
         context?.let { context ->
-            if (serviceBound.compareAndSet(true, false)) {
-                context.unbindService(serviceConnection)
-            }
+            unbindFromService(context)
             CalculationsService.stopCalculations(context)
         }
     }
@@ -86,6 +89,12 @@ class CalculationsFragment : Fragment() {
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
         DEFAULT_CALCULATIONS_FACTOR
+    }
+
+    private fun unbindFromService(context: Context) {
+        if (serviceBound.compareAndSet(true, false)) {
+            context.unbindService(serviceConnection)
+        }
     }
 
     private val serviceConnection = object : ServiceConnection {
