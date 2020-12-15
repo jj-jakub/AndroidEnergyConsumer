@@ -10,6 +10,7 @@ import java.util.*
 
 val Any.tag: String get() = this.javaClass.simpleName
 
+fun isAndroid6OrHigher() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 fun isAndroid8OrHigher() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
 infix fun String.ifIsEmpty(value: String): String = if (isEmpty()) value else this

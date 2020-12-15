@@ -1,9 +1,12 @@
 package com.jj.androidenergyconsumer.permissions
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import com.jj.androidenergyconsumer.utils.isAndroid6OrHigher
 
 class PermissionManager {
 
@@ -16,9 +19,20 @@ class PermissionManager {
 
     fun isLocationPermissionGranted(context: Context): Boolean = checkPermission(context, LOCATION_PERMISSION)
 
-    fun isWriteExternalStoragePermissionGranted(context: Context): Boolean =
+    private fun isWriteExternalStoragePermissionGranted(context: Context): Boolean =
         checkPermission(context, WRITE_EXTERNAL_STORAGE_PERMISSION)
 
     private fun checkPermission(context: Context, permission: String) =
         ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+
+    fun requestLocationPermission(fragment: Fragment) {
+        fragment.requestPermissions(arrayOf(LOCATION_PERMISSION), LOCATION_PERMISSION_REQUEST_CODE)
+    }
+
+    fun requestWriteExternalStoragePermission(activity: Activity) {
+        if (!isWriteExternalStoragePermissionGranted(activity) && isAndroid6OrHigher()) {
+            activity.requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE_PERMISSION),
+                    WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE)
+        }
+    }
 }
