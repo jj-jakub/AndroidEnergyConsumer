@@ -9,15 +9,15 @@ import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.gps.MyLocationListener
-import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
-import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
+import com.jj.androidenergyconsumer.notification.GPS_SERVICE_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationManager
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
 
 class GPSService : BaseService() {
 
-    private val notificationManagerBuilder = NotificationManagerBuilder(this)
+    private val notificationManagerBuilder = NotificationManager(this)
     private var locationManager: LocationManager? = null
     private val locationListener: LocationListener = MyLocationListener(notificationManagerBuilder)
 
@@ -59,8 +59,8 @@ class GPSService : BaseService() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-        val notification = notificationManagerBuilder.getServiceNotification("GPSService notification")
-        startForeground(NOTIFICATION_SERVICE_ID, notification)
+        val notification = notificationManagerBuilder.getGPSServiceNotification("GPSService notification")
+        startForeground(GPS_SERVICE_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -107,7 +107,7 @@ class GPSService : BaseService() {
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
         locationManager?.removeUpdates(locationListener)
-        notificationManagerBuilder.cancelServiceNotification(this)
+        notificationManagerBuilder.cancelGPSServiceNotification()
         releaseWakeLock()
         isWorking.value = false
         super.onDestroy()

@@ -7,8 +7,8 @@ import android.os.IBinder
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
-import com.jj.androidenergyconsumer.notification.NOTIFICATION_SERVICE_ID
-import com.jj.androidenergyconsumer.notification.NotificationManagerBuilder
+import com.jj.androidenergyconsumer.notification.BLUETOOTH_SERVICE_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationManager
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
 
-    private val notificationManagerBuilder = NotificationManagerBuilder(this)
+    private val notificationManagerBuilder = NotificationManager(this)
     private val bluetoothScanner = BluetoothScanner(this)
     private val shouldRestartScanning = AtomicBoolean(true)
 
@@ -50,8 +50,8 @@ class BluetoothService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        val notification = notificationManagerBuilder.getServiceNotification("BluetoothService notification")
-        startForeground(NOTIFICATION_SERVICE_ID, notification)
+        val notification = notificationManagerBuilder.getBtServiceNotification("BluetoothService notification")
+        startForeground(BLUETOOTH_SERVICE_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -103,7 +103,7 @@ class BluetoothService : BaseService() {
         logAndPingServer("onDestroy", tag)
         shouldRestartScanning.set(false)
         bluetoothScanner.stopScanning()
-        notificationManagerBuilder.cancelServiceNotification(this)
+        notificationManagerBuilder.cancelBtServiceNotification()
         releaseWakeLock()
         isScanning.value = false
         super.onDestroy()
