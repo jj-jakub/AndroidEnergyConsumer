@@ -11,7 +11,7 @@ import com.jj.androidenergyconsumer.utils.tag
 class MyLocationListener(private val notificationManager: NotificationManager) : LocationListener {
 
     override fun onLocationChanged(location: Location) {
-        logAndPingServer("onStatusChanged, loc: lat: ${location.latitude} - lon: ${location.longitude}", tag)
+        logAndPingServer("onLocationChanged, loc: lat: ${location.latitude} - lon: ${location.longitude}", tag)
         notificationManager.notifyGPSServiceNotification("GPSService notification",
                 "${getDateStringWithMillis()} loc: lat: ${location.latitude} - lon: ${location.longitude}")
     }

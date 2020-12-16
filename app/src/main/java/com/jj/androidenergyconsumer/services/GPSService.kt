@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.gps.MyLocationListener
+import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
 import com.jj.androidenergyconsumer.notification.GPS_SERVICE_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationManager
 import com.jj.androidenergyconsumer.utils.logAndPingServer
@@ -29,6 +31,7 @@ class GPSService : BaseService() {
     companion object : ServiceStarter {
         private const val START_CONSTANT_UPDATES = "START_CONSTANT_UPDATES"
         private const val START_PERIODIC_UPDATES = "START_PERIODIC_UPDATES"
+        private const val PING_MYSELF = "PING_MYSELF"
         private const val STOP_GPS_SERVICE = "STOP_SCANNING_SERVICE"
         private const val MINIMUM_PERIOD_MS_EXTRA = "MINIMUM_PERIOD_MS_EXTRA"
 
@@ -40,6 +43,10 @@ class GPSService : BaseService() {
 
         fun startPeriodicUpdates(context: Context, minimumPeriodMs: Long) {
             startWithAction(context, START_PERIODIC_UPDATES, minimumPeriodMs)
+        }
+
+        fun pingMyself(context: Context) {
+            startWithAction(context, PING_MYSELF)
         }
 
         private fun startWithAction(context: Context, intentAction: String, minimumPeriodMs: Long? = null) {
@@ -58,6 +65,11 @@ class GPSService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
+
+        handlerThread.start()
+        stoppableHandler = StoppableLoopedHandler(handlerThread.looper)
+        pingMyself()
+
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
         val notification = notificationManagerBuilder.getGPSServiceNotification("GPSService notification")
         startForeground(GPS_SERVICE_NOTIFICATION_ID, notification)
@@ -68,9 +80,20 @@ class GPSService : BaseService() {
         when (intent?.action) {
             START_CONSTANT_UPDATES -> startConstantUpdates()
             START_PERIODIC_UPDATES -> startPeriodicUpdates(intent)
+            PING_MYSELF -> pingMyself()
             STOP_GPS_SERVICE -> stopService()
         }
         return START_NOT_STICKY
+    }
+
+    private val handlerThread: HandlerThread = HandlerThread("InternetThread")
+    private lateinit var stoppableHandler: StoppableLoopedHandler
+
+    private fun pingMyself() {
+        stoppableHandler.postDelayed({
+            logAndPingServer("pingMyself", tag)
+            pingMyself(this)
+        }, 1000)
     }
 
     private fun startConstantUpdates() {
