@@ -31,7 +31,7 @@ class ChooseLauncherFragment : Fragment() {
         calculationsButton?.setOnClickListener { switchFragment(CalculationsFragment.newInstance()) }
         bluetoothModuleLauncherButton?.setOnClickListener { switchFragment(BluetoothLauncherFragment.newInstance()) }
         sensorsModuleLauncherButton?.setOnClickListener {
-            WorkScheduler(context!!).schedule()
+            WorkScheduler(context!!).startSimpleLogJob()
             Log.d(tag, "scheduled")
         }
     }
