@@ -11,6 +11,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.utils.LogSaver
 import com.jj.androidenergyconsumer.utils.tag
 
@@ -47,7 +48,8 @@ class SimpleLogWorker(private val context: Context, workerParams: WorkerParamete
 
 class SimpleLogJob : JobService() {
     override fun onStartJob(params: JobParameters?): Boolean {
-        printAndSaveLog(tag, "onStartJob")
+        printAndSaveLog(tag, "onStartJob, thread: ${Thread.currentThread().name}")
+        GPSService.pingFromOutside(this)
         return true
     }
 

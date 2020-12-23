@@ -32,6 +32,7 @@ class GPSService : BaseService() {
         private const val START_CONSTANT_UPDATES = "START_CONSTANT_UPDATES"
         private const val START_PERIODIC_UPDATES = "START_PERIODIC_UPDATES"
         private const val PING_MYSELF = "PING_MYSELF"
+        private const val PING_FROM_OUTSIDE = "PING_FROM_OUTSIDE"
         private const val STOP_GPS_SERVICE = "STOP_SCANNING_SERVICE"
         private const val MINIMUM_PERIOD_MS_EXTRA = "MINIMUM_PERIOD_MS_EXTRA"
 
@@ -47,6 +48,10 @@ class GPSService : BaseService() {
 
         fun pingMyself(context: Context) {
             startWithAction(context, PING_MYSELF)
+        }
+
+        fun pingFromOutside(context: Context) {
+            startWithAction(context, PING_FROM_OUTSIDE)
         }
 
         private fun startWithAction(context: Context, intentAction: String, minimumPeriodMs: Long? = null) {
@@ -71,6 +76,10 @@ class GPSService : BaseService() {
         pingMyself()
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        startForeground()
+    }
+
+    private fun startForeground() {
         val notification = notificationManagerBuilder.getGPSServiceNotification("GPSService notification")
         startForeground(GPS_SERVICE_NOTIFICATION_ID, notification)
     }
@@ -81,6 +90,7 @@ class GPSService : BaseService() {
             START_CONSTANT_UPDATES -> startConstantUpdates()
             START_PERIODIC_UPDATES -> startPeriodicUpdates(intent)
             PING_MYSELF -> pingMyself()
+            PING_FROM_OUTSIDE -> pingFromOutside()
             STOP_GPS_SERVICE -> stopService()
         }
         return START_NOT_STICKY
@@ -94,6 +104,11 @@ class GPSService : BaseService() {
             logAndPingServer("pingMyself", tag)
             pingMyself(this)
         }, 1000)
+    }
+
+    private fun pingFromOutside() {
+        logAndPingServer("pingFromOutside", tag)
+        startForeground()
     }
 
     private fun startConstantUpdates() {
