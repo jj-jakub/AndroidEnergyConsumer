@@ -22,9 +22,9 @@ infix fun String.ifNotEmpty(value: () -> Unit) {
 fun logAndPingServer(message: String, tag: String) {
     Log.d(tag, message)
     LogSaver.saveLog(tag, message)
-    CoroutineScope(Dispatchers.IO).launch {
+//    CoroutineScope(Dispatchers.IO).launch {
 //        PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
-    }
+//    }
 }
 
 fun getDateStringWithMillis(): String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ROOT).format(Date())
