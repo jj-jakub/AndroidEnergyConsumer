@@ -21,10 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothLauncherFragment : Fragment() {
 
-    companion object {
-        fun newInstance(): BluetoothLauncherFragment = BluetoothLauncherFragment()
-    }
-
     private lateinit var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding
 
     private var bluetoothService: BluetoothService? = null

@@ -20,10 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class InternetLauncherFragment : Fragment() {
 
-    companion object {
-        fun newInstance(): InternetLauncherFragment = InternetLauncherFragment()
-    }
-
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
 
     private var internetService: InternetService? = null

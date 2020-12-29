@@ -22,10 +22,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class CalculationsFragment : Fragment() {
 
-    companion object {
-        fun newInstance(): CalculationsFragment = CalculationsFragment()
-    }
-
     private lateinit var fragmentCalculationsLauncherBinding: FragmentCalculationsLauncherBinding
 
     private var calculationsService: CalculationsService? = null

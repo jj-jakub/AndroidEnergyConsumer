@@ -21,10 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class GPSLauncherFragment : Fragment() {
 
-    companion object {
-        fun newInstance(): GPSLauncherFragment = GPSLauncherFragment()
-    }
-
     private lateinit var fragmentGpsLauncherBinding: FragmentGpsLauncherBinding
 
     private var gpsService: GPSService? = null

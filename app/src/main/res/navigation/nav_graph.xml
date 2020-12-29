@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/chooseLauncherFragment">
+
+    <fragment
+        android:id="@+id/chooseLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.fragments.ChooseLauncherFragment"
+        android:label="ChooseLauncherFragment"
+        tools:layout="@layout/fragment_gps_launcher">
+        <action
+            android:id="@+id/action_chooseLauncherFragment_to_GPSLauncherFragment"
+            app:destination="@id/GPSLauncherFragment" />
+        <action
+            android:id="@+id/action_chooseLauncherFragment_to_calculationsFragment"
+            app:destination="@id/calculationsFragment" />
+        <action
+            android:id="@+id/action_chooseLauncherFragment_to_internetLauncherFragment"
+            app:destination="@id/internetLauncherFragment" />
+        <action
+            android:id="@+id/action_chooseLauncherFragment_to_bluetoothLauncherFragment"
+            app:destination="@id/bluetoothLauncherFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bluetoothLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.fragments.BluetoothLauncherFragment"
+        android:label="BluetoothLauncherFragment"
+        tools:layout="@layout/fragment_bluetooth_launcher"/>
+    <fragment
+        android:id="@+id/calculationsFragment"
+        android:name="com.jj.androidenergyconsumer.fragments.CalculationsFragment"
+        android:label="CalculationsFragment"
+        tools:layout="@layout/fragment_calculations_launcher"/>
+    <fragment
+        android:id="@+id/GPSLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.fragments.GPSLauncherFragment"
+        android:label="GPSLauncherFragment"
+        tools:layout="@layout/fragment_gps_launcher"/>
+    <fragment
+        android:id="@+id/internetLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.fragments.InternetLauncherFragment"
+        android:label="InternetLauncherFragment"
+        tools:layout="@layout/fragment_internet_launcher"/>
+</navigation>
