@@ -13,12 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.databinding.FragmentBluetoothLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
-import kotlinx.android.synthetic.main.fragment_bluetooth_launcher.*
-import kotlinx.android.synthetic.main.fragment_gps_launcher.*
-import kotlinx.android.synthetic.main.fragment_internet_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothLauncherFragment : Fragment() {
@@ -27,12 +25,16 @@ class BluetoothLauncherFragment : Fragment() {
         fun newInstance(): BluetoothLauncherFragment = BluetoothLauncherFragment()
     }
 
+    private lateinit var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding
+
     private var bluetoothService: BluetoothService? = null
     private var serviceBound = AtomicBoolean(false)
     private val permissionManager = PermissionManager()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_bluetooth_launcher, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        fragmentBluetoothLauncherBinding = FragmentBluetoothLauncherBinding.inflate(inflater, container, false)
+        return fragmentBluetoothLauncherBinding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,8 +55,10 @@ class BluetoothLauncherFragment : Fragment() {
     private fun setupFragment(context: Context) {
         bindToBluetoothService(context)
         setButtonsListeners()
-        bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
-        bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
+        fragmentBluetoothLauncherBinding.apply {
+            bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
+            bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
+        }
     }
 
     private fun bindToBluetoothService(context: Context) {
@@ -63,8 +67,10 @@ class BluetoothLauncherFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        startBluetoothScanningButton?.setOnClickListener { startBluetoothService() }
-        abortBluetoothScanningButton?.setOnClickListener { abortBluetoothService() }
+        fragmentBluetoothLauncherBinding.apply {
+            startBluetoothScanningButton.setOnClickListener { startBluetoothService() }
+            abortBluetoothScanningButton.setOnClickListener { abortBluetoothService() }
+        }
     }
 
     private fun startBluetoothService() {
@@ -84,8 +90,10 @@ class BluetoothLauncherFragment : Fragment() {
     }
 
     private fun onPermissionNotGranted() {
-        bluetoothScanningStatusValueLabel.text = getString(R.string.permission_not_granted)
-        bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
+        fragmentBluetoothLauncherBinding.apply {
+            bluetoothScanningStatusValueLabel.text = getString(R.string.permission_not_granted)
+            bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
+        }
     }
 
     private fun requestLocationPermission() {
@@ -127,17 +135,19 @@ class BluetoothLauncherFragment : Fragment() {
     }
 
     private fun onScanningStatusChanged(scanningStatus: Boolean) {
-        if (scanningStatus) {
-            bluetoothScanningStatusValueLabel.text = getString(R.string.running)
-            bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
-        } else {
-            bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
-            bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
+        fragmentBluetoothLauncherBinding.apply {
+            if (scanningStatus) {
+                bluetoothScanningStatusValueLabel.text = getString(R.string.running)
+                bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
+            } else {
+                bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
+                bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
+            }
         }
     }
 
     private fun onErrorMessageChanged(errorMessage: String?) {
-        bluetoothErrorMessageLabel.text = errorMessage ?: ""
+        fragmentBluetoothLauncherBinding.bluetoothErrorMessageLabel.text = errorMessage ?: ""
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

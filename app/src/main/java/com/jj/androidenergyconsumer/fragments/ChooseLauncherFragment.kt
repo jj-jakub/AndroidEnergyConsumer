@@ -6,8 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.activities.MainActivity
-import com.jj.androidenergyconsumer.R
-import kotlinx.android.synthetic.main.fragment_choose_launcher.*
+import com.jj.androidenergyconsumer.databinding.FragmentChooseLauncherBinding
 
 class ChooseLauncherFragment : Fragment() {
 
@@ -15,8 +14,12 @@ class ChooseLauncherFragment : Fragment() {
         fun newInstance(): ChooseLauncherFragment = ChooseLauncherFragment()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_choose_launcher, container, false)
+    private lateinit var fragmentChooseLauncherBinding: FragmentChooseLauncherBinding
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        fragmentChooseLauncherBinding = FragmentChooseLauncherBinding.inflate(inflater, container, false)
+        return fragmentChooseLauncherBinding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -24,10 +27,12 @@ class ChooseLauncherFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        gpsModuleLauncherButton?.setOnClickListener { switchFragment(GPSLauncherFragment.newInstance()) }
-        internetModuleLauncherButton?.setOnClickListener { switchFragment(InternetLauncherFragment.newInstance()) }
-        calculationsButton?.setOnClickListener { switchFragment(CalculationsFragment.newInstance()) }
-        bluetoothModuleLauncherButton?.setOnClickListener { switchFragment(BluetoothLauncherFragment.newInstance()) }
+        fragmentChooseLauncherBinding.apply {
+            gpsModuleLauncherButton.setOnClickListener { switchFragment(GPSLauncherFragment.newInstance()) }
+            internetModuleLauncherButton.setOnClickListener { switchFragment(InternetLauncherFragment.newInstance()) }
+            calculationsButton.setOnClickListener { switchFragment(CalculationsFragment.newInstance()) }
+            bluetoothModuleLauncherButton.setOnClickListener { switchFragment(BluetoothLauncherFragment.newInstance()) }
+        }
     }
 
     private fun switchFragment(fragment: Fragment) = (activity as MainActivity?)?.switchFragment(fragment)

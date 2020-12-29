@@ -13,11 +13,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.calculations.CalculationsType
+import com.jj.androidenergyconsumer.databinding.FragmentCalculationsLauncherBinding
 import com.jj.androidenergyconsumer.services.CalculationsService
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import com.jj.androidenergyconsumer.services.MyBinder
-import kotlinx.android.synthetic.main.fragment_calculations_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class CalculationsFragment : Fragment() {
@@ -26,11 +26,15 @@ class CalculationsFragment : Fragment() {
         fun newInstance(): CalculationsFragment = CalculationsFragment()
     }
 
+    private lateinit var fragmentCalculationsLauncherBinding: FragmentCalculationsLauncherBinding
+
     private var calculationsService: CalculationsService? = null
     private var serviceBound = AtomicBoolean(false)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_calculations_launcher, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        fragmentCalculationsLauncherBinding = FragmentCalculationsLauncherBinding.inflate(inflater, container, false)
+        return fragmentCalculationsLauncherBinding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -39,11 +43,13 @@ class CalculationsFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        performAdditionsButton?.setOnClickListener { startCalculationsService(CalculationsType.ADDITION) }
-        performMultiplicationsButton?.setOnClickListener {
-            startCalculationsService(CalculationsType.MULTIPLICATION)
+        fragmentCalculationsLauncherBinding.apply {
+            performAdditionsButton.setOnClickListener { startCalculationsService(CalculationsType.ADDITION) }
+            performMultiplicationsButton.setOnClickListener {
+                startCalculationsService(CalculationsType.MULTIPLICATION)
+            }
+            abortCalculationsButton.setOnClickListener { abortCalculationsService() }
         }
-        abortCalculationsButton?.setOnClickListener { abortCalculationsService() }
     }
 
     private fun startCalculationsService(type: CalculationsType) {
@@ -70,7 +76,7 @@ class CalculationsFragment : Fragment() {
     }
 
     private fun getAmountOfHandlersFromInput() = try {
-        calculationsHandlersNOInput.text.toString().toInt().apply {
+        fragmentCalculationsLauncherBinding.calculationsHandlersNOInput.text.toString().toInt().apply {
             if (this > 0) return this
             else DEFAULT_NUMBER_OF_HANDLERS
         }
@@ -80,7 +86,7 @@ class CalculationsFragment : Fragment() {
     }
 
     private fun getFactorFromInput() = try {
-        calculationsFactorInput.text.toString().toInt()
+        fragmentCalculationsLauncherBinding.calculationsFactorInput.text.toString().toInt()
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
         DEFAULT_CALCULATIONS_FACTOR
@@ -117,12 +123,14 @@ class CalculationsFragment : Fragment() {
     }
 
     private fun onCalculationsStatusChanged(calculationsStatus: Boolean) {
-        if (calculationsStatus) {
-            calculationsStatusValueLabel.text = getString(R.string.running)
-            calculationsStatusValueLabel.setTextColor(Color.RED)
-        } else {
-            calculationsStatusValueLabel.text = getString(R.string.not_running)
-            calculationsStatusValueLabel.setTextColor(Color.GREEN)
+        fragmentCalculationsLauncherBinding.apply {
+            if (calculationsStatus) {
+                calculationsStatusValueLabel.text = getString(R.string.running)
+                calculationsStatusValueLabel.setTextColor(Color.RED)
+            } else {
+                calculationsStatusValueLabel.text = getString(R.string.not_running)
+                calculationsStatusValueLabel.setTextColor(Color.GREEN)
+            }
         }
     }
 }

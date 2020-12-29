@@ -13,10 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.databinding.FragmentGpsLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.services.MyBinder
-import kotlinx.android.synthetic.main.fragment_gps_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class GPSLauncherFragment : Fragment() {
@@ -25,13 +25,16 @@ class GPSLauncherFragment : Fragment() {
         fun newInstance(): GPSLauncherFragment = GPSLauncherFragment()
     }
 
+    private lateinit var fragmentGpsLauncherBinding: FragmentGpsLauncherBinding
+
     private var gpsService: GPSService? = null
     private var serviceBound = AtomicBoolean(false)
     private val permissionManager = PermissionManager()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_gps_launcher, container, false)
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        fragmentGpsLauncherBinding = FragmentGpsLauncherBinding.inflate(inflater, container, false)
+        return fragmentGpsLauncherBinding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,9 +59,11 @@ class GPSLauncherFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        constantGPSWorkButton?.setOnClickListener { startConstantGPSWork() }
-        periodicGPSWorkButton?.setOnClickListener { startPeriodicGPSWork() }
-        stopGpsUpdatesButton?.setOnClickListener { stopGPSUpdates() }
+        fragmentGpsLauncherBinding.apply {
+            constantGPSWorkButton.setOnClickListener { startConstantGPSWork() }
+            periodicGPSWorkButton.setOnClickListener { startPeriodicGPSWork() }
+            stopGpsUpdatesButton.setOnClickListener { stopGPSUpdates() }
+        }
     }
 
     private fun startConstantGPSWork() {
@@ -78,7 +83,7 @@ class GPSLauncherFragment : Fragment() {
 
     private fun getMillisFromInput(): Long =
         try {
-            gpsIntervalInput.text.toString().toLong()
+            fragmentGpsLauncherBinding.gpsIntervalInput.text.toString().toLong()
         } catch (e: Exception) {
             Log.e(tag, "Exception while converting input interval", e)
             0
@@ -129,24 +134,30 @@ class GPSLauncherFragment : Fragment() {
     }
 
     private fun onScanningStatusChanged(scanningStatus: Boolean) {
-        if (scanningStatus) {
-            gpsWorkingStatusValueLabel.text = getString(R.string.running)
-            gpsWorkingStatusValueLabel.setTextColor(Color.RED)
-        } else {
-            gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
-            gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
+        fragmentGpsLauncherBinding.apply {
+            if (scanningStatus) {
+                gpsWorkingStatusValueLabel.text = getString(R.string.running)
+                gpsWorkingStatusValueLabel.setTextColor(Color.RED)
+            } else {
+                gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
+                gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
+            }
         }
     }
 
     private fun onPermissionNotGranted() {
-        gpsWorkingStatusValueLabel.text = getString(R.string.permission_not_granted)
-        gpsWorkingStatusValueLabel.setTextColor(Color.RED)
+        fragmentGpsLauncherBinding.apply {
+            gpsWorkingStatusValueLabel.text = getString(R.string.permission_not_granted)
+            gpsWorkingStatusValueLabel.setTextColor(Color.RED)
+        }
     }
 
     private fun onPermissionGranted() {
         context?.let { setupFragment(it) }
-        gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
-        gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
+        fragmentGpsLauncherBinding.apply {
+            gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
+            gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

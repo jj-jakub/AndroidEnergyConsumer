@@ -10,13 +10,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import kotlinx.android.synthetic.main.fragment_internet_launcher.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 class InternetLauncherFragment : Fragment() {
@@ -25,11 +24,15 @@ class InternetLauncherFragment : Fragment() {
         fun newInstance(): InternetLauncherFragment = InternetLauncherFragment()
     }
 
+    private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
+
     private var internetService: InternetService? = null
     private var serviceBound = AtomicBoolean(false)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_internet_launcher, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        fragmentInternetLauncherBinding = FragmentInternetLauncherBinding.inflate(inflater, container, false)
+        return fragmentInternetLauncherBinding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -38,9 +41,11 @@ class InternetLauncherFragment : Fragment() {
     }
 
     private fun setButtonsListeners() {
-        periodicInternetWorkButton?.setOnClickListener { startPeriodicInternetWork() }
-        constantInternetWorkButton?.setOnClickListener { startConstantInternetWork() }
-        stopInternetCallsButton?.setOnClickListener { stopInternetWork() }
+        fragmentInternetLauncherBinding.apply {
+            periodicInternetWorkButton.setOnClickListener { startPeriodicInternetWork() }
+            constantInternetWorkButton.setOnClickListener { startConstantInternetWork() }
+            stopInternetCallsButton.setOnClickListener { stopInternetWork() }
+        }
     }
 
     private fun startPeriodicInternetWork() {
@@ -73,7 +78,7 @@ class InternetLauncherFragment : Fragment() {
 
     private fun getMillisFromInput(): Long =
         try {
-            internetIntervalInput.text.toString().toLong()
+            fragmentInternetLauncherBinding.internetIntervalInput.text.toString().toLong()
         } catch (e: Exception) {
             Log.e(tag, "Exception while converting input interval", e)
             0
@@ -81,7 +86,7 @@ class InternetLauncherFragment : Fragment() {
 
     private fun getUrlFromInput(): String =
         try {
-            urlInput.text.toString()
+            fragmentInternetLauncherBinding.urlInput.text.toString()
         } catch (e: Exception) {
             Log.e(tag, "Exception while converting input url", e)
             onWrongUrlInput()
@@ -89,7 +94,7 @@ class InternetLauncherFragment : Fragment() {
         }
 
     private fun onWrongUrlInput() {
-        urlToPingLabel.text = getString(R.string.url_conversion_error)
+        fragmentInternetLauncherBinding.urlToPingLabel.text = getString(R.string.url_conversion_error)
     }
 
     private fun bindToInternetService(context: Context) {
@@ -135,38 +140,44 @@ class InternetLauncherFragment : Fragment() {
 
     private fun onErrorMessageChanged(errorMessage: String?) {
         if (errorMessage != null) {
-            urlToPingLabel.text = errorMessage
-            urlToPingLabel.setTextColor(Color.RED)
-        }
-        else resetUrlLabelText()
+            fragmentInternetLauncherBinding.apply {
+                urlToPingLabel.text = errorMessage
+                urlToPingLabel.setTextColor(Color.RED)
+            }
+        } else resetUrlLabelText()
     }
 
     private fun resetUrlLabelText() {
-        urlToPingLabel.text = getString(R.string.url_to_ping)
-        urlToPingLabel.setTextColor(Color.GRAY)
+        fragmentInternetLauncherBinding.apply {
+            urlToPingLabel.text = getString(R.string.url_to_ping)
+            urlToPingLabel.setTextColor(Color.GRAY)
+        }
     }
 
     private fun onCallResponseChanged(callResponse: String?) {
         if (callResponse != null) {
-            callResponseInfoLabel.visibility = View.VISIBLE
+            fragmentInternetLauncherBinding.callResponseInfoLabel.visibility = View.VISIBLE
             val responseText = "${getDateStringWithMillis()}; $callResponse"
-            callResponseInfoValue.text = responseText
-        }
-        else resetCallResponseLabelAndValue()
+            fragmentInternetLauncherBinding.callResponseInfoValue.text = responseText
+        } else resetCallResponseLabelAndValue()
     }
 
     private fun resetCallResponseLabelAndValue() {
-        callResponseInfoLabel.visibility = View.INVISIBLE
-        callResponseInfoValue.text = ""
+        fragmentInternetLauncherBinding.apply {
+            callResponseInfoLabel.visibility = View.INVISIBLE
+            callResponseInfoValue.text = ""
+        }
     }
 
     private fun onScanningStatusChanged(scanningStatus: Boolean?) {
-        if (scanningStatus == true) {
-            internetWorkingStatusValue.text = getString(R.string.running)
-            internetWorkingStatusValue.setTextColor(Color.RED)
-        } else {
-            internetWorkingStatusValue.text = getString(R.string.not_running)
-            internetWorkingStatusValue.setTextColor(Color.GREEN)
+        fragmentInternetLauncherBinding.apply {
+            if (scanningStatus == true) {
+                internetWorkingStatusValue.text = getString(R.string.running)
+                internetWorkingStatusValue.setTextColor(Color.RED)
+            } else {
+                internetWorkingStatusValue.text = getString(R.string.not_running)
+                internetWorkingStatusValue.setTextColor(Color.GREEN)
+            }
         }
     }
 }
