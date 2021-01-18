@@ -11,13 +11,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jj.androidenergyconsumer.R
-import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import java.util.concurrent.atomic.AtomicBoolean
 
+// TODO - Make file download cancellable
+// TODO - Prevent to launch download more than once at a time
+// TODO - Delete downloaded file
+// TODO - Download file in loop (start if one download ended)
 class InternetLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
@@ -40,6 +42,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
             periodicInternetWorkButton.setOnClickListener { startPeriodicInternetWork() }
             constantInternetWorkButton.setOnClickListener { startConstantInternetWork() }
             stopInternetCallsButton.setOnClickListener { stopInternetWork() }
+            startFileDownloadButton.setOnClickListener { startFileDownload() }
         }
     }
 
@@ -69,6 +72,15 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
     }
 
+    private fun startFileDownload() {
+        context?.let { context ->
+            resetUrlLabelText()
+            val urlToDownloadFrom = getUrlFromInput()
+            bindToInternetService(context)
+            InternetService.startFileDownload(context, urlToDownloadFrom)
+        }
+    }
+
     private fun getMillisFromInput(): Long =
         try {
             fragmentInternetLauncherBinding.internetIntervalInput.text.toString().toLong()
@@ -87,7 +99,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
 
     private fun onWrongUrlInput() {
-        fragmentInternetLauncherBinding.urlToPingLabel.text = getString(R.string.url_conversion_error)
+        fragmentInternetLauncherBinding.urlToPingOrDownloadLabel.text = getString(R.string.url_conversion_error)
     }
 
     private fun bindToInternetService(context: Context) {
@@ -134,16 +146,16 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     private fun onErrorMessageChanged(errorMessage: String?) {
         if (errorMessage != null) {
             fragmentInternetLauncherBinding.apply {
-                urlToPingLabel.text = errorMessage
-                urlToPingLabel.setTextColor(Color.RED)
+                urlToPingOrDownloadLabel.text = errorMessage
+                urlToPingOrDownloadLabel.setTextColor(Color.RED)
             }
         } else resetUrlLabelText()
     }
 
     private fun resetUrlLabelText() {
         fragmentInternetLauncherBinding.apply {
-            urlToPingLabel.text = getString(R.string.url_to_ping)
-            urlToPingLabel.setTextColor(Color.GRAY)
+            urlToPingOrDownloadLabel.text = getString(R.string.url_to_ping_or_download)
+            urlToPingOrDownloadLabel.setTextColor(Color.GRAY)
         }
     }
 
