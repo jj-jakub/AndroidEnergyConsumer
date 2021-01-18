@@ -31,8 +31,9 @@
     <string name="permission_not_granted">Permission not granted</string>
     <string name="internet_working_status">Internet working status:</string>
     <string name="stop_internet_calls">Stop internet calls</string>
-    <string name="url_to_ping">Url to ping</string>
+    <string name="url_to_ping_or_download">Url to ping/download</string>
     <string name="url_conversion_error">Url conversion error</string>
     <string name="google_url">https://google.com</string>
+    <string name="default_file_download_url">http://192.168.0.107:8080/bigFileDownload</string>
     <string name="call_response">Call response:</string>
 </resources>
