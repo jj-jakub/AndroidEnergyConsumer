@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun manageBatteryOptimizationsSettings() {
-        if (!batterySettingsLauncher.isAppIgnoringBatteryOptimizations()) {
-            batterySettingsLauncher.requestToIgnoreBatteryOptimizations()
+        batterySettingsLauncher.apply {
+            if (!isAppIgnoringBatteryOptimizations()) requestToIgnoreBatteryOptimizations()
         }
     }
 }
