@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.TimeUnit
 
-private const val serverUrl = BuildConfig.SERVER_URL
+private val serverUrl = BuildConfig.SERVER_URL
 
 class RetrofitClientFactory {
 
