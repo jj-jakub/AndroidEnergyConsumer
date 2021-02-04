@@ -2,6 +2,7 @@ package com.jj.androidenergyconsumer.calculations
 
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.fail
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
@@ -36,8 +37,8 @@ class AdditionCalculationsProviderTest {
         val additionCalculationsProvider = createAdditionCalculationsProvider(callbackMock, factor)
 
         additionCalculationsProvider.calculationsTask(0, stoppableLoopedHandlerMock)
-
         Mockito.verify(callbackMock).onThresholdAchieved(Mockito.anyInt(), Mockito.eq(0))
+        fail(NullPointerException())
     }
 
     @ParameterizedTest
@@ -49,5 +50,6 @@ class AdditionCalculationsProviderTest {
         additionCalculationsProvider.calculationsTask(0, stoppableLoopedHandlerMock)
 
         Mockito.verify(callbackMock, Mockito.never()).onThresholdAchieved(Mockito.anyInt(), Mockito.eq(0))
+        fail(NullPointerException())
     }
 }
