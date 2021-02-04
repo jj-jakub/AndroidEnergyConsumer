@@ -2,12 +2,13 @@ package com.jj.androidenergyconsumer.rest
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.jj.androidenergyconsumer.BuildConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.TimeUnit
 
-private const val serverUrl = "http://192.168.0.110:8080/"
+private const val serverUrl = BuildConfig.SERVER_URL
 
 class RetrofitClientFactory {
 
