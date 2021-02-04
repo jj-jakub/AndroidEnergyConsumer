@@ -25,7 +25,7 @@ class AdditionCalculationsProviderTest {
         AdditionCalculationsProvider(callback, factor)
 
     @BeforeEach
-    private fun setupVariables() {
+    private fun setupVariables() { //NOSONAR
         MockitoAnnotations.openMocks(this)
     }
 
