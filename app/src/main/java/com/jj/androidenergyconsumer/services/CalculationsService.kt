@@ -5,12 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.lifecycle.MutableLiveData
+import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
 import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
-import com.jj.androidenergyconsumer.notification.CALCULATIONS_SERVICE_NOTIFICATION_ID
-import com.jj.androidenergyconsumer.notification.NotificationManager
+import com.jj.androidenergyconsumer.notification.CALCULATIONS_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationType.CALCULATIONS
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
@@ -20,7 +21,7 @@ class CalculationsService : BaseService() {
 
     private val handlersOrchestrator = HandlersOrchestrator()
 
-    private val notificationManagerBuilder = NotificationManager(this)
+    private val calculationsNotification = AECApplication.notificationContainer.getProperNotification(CALCULATIONS)
 
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"
@@ -29,7 +30,7 @@ class CalculationsService : BaseService() {
 
     private val calculationsCallback = object : CalculationsCallback {
         override fun onThresholdAchieved(variable: Int, handlerId: Int) {
-            notificationManagerBuilder.notifyCalculationsServiceNotification("CalculationsService notification",
+            calculationsNotification.notify("CalculationsService notification",
                     "handlerId: $handlerId ${getDateStringWithMillis()} - variable = $variable")
             logAndPingServer("handlerId: $handlerId, variable = $variable", tag)
         }
@@ -67,9 +68,7 @@ class CalculationsService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        val notification =
-            notificationManagerBuilder.getCalculationsServiceNotification("CalculationsService notification")
-        startForeground(CALCULATIONS_SERVICE_NOTIFICATION_ID, notification)
+        startForeground(CALCULATIONS_NOTIFICATION_ID, calculationsNotification.get("CalculationsService notification"))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -101,7 +100,7 @@ class CalculationsService : BaseService() {
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
         handlersOrchestrator.abortHandlers()
-        notificationManagerBuilder.cancelCalculationsServiceNotification()
+        calculationsNotification.cancel()
         releaseWakeLock()
         areCalculationsRunning.value = false
         super.onDestroy()

@@ -5,10 +5,11 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetCallCreator
-import com.jj.androidenergyconsumer.notification.INTERNET_SERVICE_NOTIFICATION_ID
-import com.jj.androidenergyconsumer.notification.NotificationManager
+import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
@@ -16,11 +17,10 @@ import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class InternetService : BaseService() {
 
-    private val notificationManagerBuilder = NotificationManager(this)
+    private val internetNotification = AECApplication.notificationContainer.getProperNotification(INTERNET)
     private var latestInternetCallCreator: InternetCallCreator? = null
     private val fileDownloader = FileDownloader()
 
@@ -71,8 +71,8 @@ class InternetService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        val notification = notificationManagerBuilder.getInternetServiceNotification("InternetService notification")
-        startForeground(INTERNET_SERVICE_NOTIFICATION_ID, notification)
+        val notification = internetNotification.get("InternetService notification")
+        startForeground(INTERNET_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -159,7 +159,7 @@ class InternetService : BaseService() {
     }
 
     private fun notifyNotification(content: String) =
-        notificationManagerBuilder.notifyInternetServiceNotification("InternetService notification", content)
+        internetNotification.notify("InternetService notification", content)
 
     private fun resetValues() {
         inputErrorMessage.value = null
@@ -171,7 +171,7 @@ class InternetService : BaseService() {
         resetValues()
         stopInternetCallCreator()
         stopWorking()
-        notificationManagerBuilder.cancelInternetServiceNotification()
+        internetNotification.cancel()
         super.onDestroy()
     }
 

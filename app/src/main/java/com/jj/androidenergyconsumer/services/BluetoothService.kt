@@ -5,10 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.lifecycle.MutableLiveData
+import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
-import com.jj.androidenergyconsumer.notification.BLUETOOTH_SERVICE_NOTIFICATION_ID
-import com.jj.androidenergyconsumer.notification.NotificationManager
+import com.jj.androidenergyconsumer.notification.BLUETOOTH_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationType.BLUETOOTH
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
 
-    private val notificationManagerBuilder = NotificationManager(this)
+    private val bluetoothNotification = AECApplication.notificationContainer.getProperNotification(BLUETOOTH)
     private val bluetoothScanner = BluetoothScanner(this)
     private val shouldRestartScanning = AtomicBoolean(true)
 
@@ -26,8 +27,7 @@ class BluetoothService : BaseService() {
     val isScanning = MutableLiveData(false)
     val errorMessage = MutableLiveData<String?>(null)
 
-    private val scanningCallback =
-        BluetoothServiceScanningCallback(notificationManagerBuilder) { onScanningFinished() }
+    private val scanningCallback = BluetoothServiceScanningCallback(bluetoothNotification) { onScanningFinished() }
 
     companion object : ServiceStarter {
         private const val START_SCANNING_ACTION = "START_SCANNING_ACTION"
@@ -50,8 +50,8 @@ class BluetoothService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        val notification = notificationManagerBuilder.getBtServiceNotification("BluetoothService notification")
-        startForeground(BLUETOOTH_SERVICE_NOTIFICATION_ID, notification)
+        val notification = bluetoothNotification.get("BluetoothService notification")
+        startForeground(BLUETOOTH_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -103,7 +103,7 @@ class BluetoothService : BaseService() {
         logAndPingServer("onDestroy", tag)
         shouldRestartScanning.set(false)
         bluetoothScanner.stopScanning()
-        notificationManagerBuilder.cancelBtServiceNotification()
+        bluetoothNotification.cancel()
         releaseWakeLock()
         isScanning.value = false
         super.onDestroy()
