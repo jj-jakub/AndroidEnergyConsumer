@@ -68,7 +68,7 @@ class CalculationsService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        startForeground(CALCULATIONS_NOTIFICATION_ID, calculationsNotification.get("CalculationsService notification"))
+        startForeground(CALCULATIONS_NOTIFICATION_ID, calculationsNotification.get())
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

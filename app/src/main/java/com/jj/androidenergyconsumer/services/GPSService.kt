@@ -72,7 +72,7 @@ class GPSService : BaseService() {
         pingMyself()
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-        val notification = gpsNotification.get("GPSService notification")
+        val notification = gpsNotification.get()
         startForeground(GPS_NOTIFICATION_ID, notification)
     }
 

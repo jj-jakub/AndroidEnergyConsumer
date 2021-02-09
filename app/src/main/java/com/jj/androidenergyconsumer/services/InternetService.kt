@@ -71,7 +71,7 @@ class InternetService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        val notification = internetNotification.get("InternetService notification")
+        val notification = internetNotification.get()
         startForeground(INTERNET_NOTIFICATION_ID, notification)
     }
 

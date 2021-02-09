@@ -12,40 +12,70 @@ import androidx.core.app.NotificationManagerCompat
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.activities.MainActivity
 import com.jj.androidenergyconsumer.utils.ifIsEmpty
-import com.jj.androidenergyconsumer.utils.ifNotEmpty
 import com.jj.androidenergyconsumer.utils.isAndroid8OrHigher
 
-abstract class CustomNotification(private val context: Context) {
+abstract class CustomNotification(private val context: Context, private val notificationId: Int,
+                                  private val notificationChannelId: String,
+                                  private val notificationChannelName: String,
+                                  private val defaultNotificationTitle: String) {
 
-    abstract fun get(contentTitle: String = "", contentText: String = "", subText: String = ""): Notification
+    private var notificationBuilder: NotificationCompat.Builder? = null
 
-    abstract fun notify(contentTitle: String = "Service is running in background", contentText: String = "",
-                        subText: String = "")
+    private var notification: Notification? = null
 
-    abstract fun cancel()
+    fun get(): Notification = notification ?: prepareNotification()
 
-    protected fun notifyNotification(notificationId: Int, notification: Notification) =
+    fun notify(contentTitle: String = "", contentText: String = "", subText: String = "") {
+        val title = contentTitle ifIsEmpty defaultNotificationTitle
+        prepareNotification(title)
+    }
+
+    fun cancel() = cancelNotification(notificationId)
+
+    private fun prepareNotification(title: String = defaultNotificationTitle) =
+        createNotification(contentTitle = title, builder = notificationBuilder ?: createBuilder()).apply {
+            notification = this
+            notifyNotification(notificationId, this)
+        }
+
+    private fun notifyNotification(notificationId: Int, notification: Notification) =
         NotificationManagerCompat.from(context).notify(notificationId, notification)
 
-    protected fun cancelNotification(notificationId: Int) =
+    private fun cancelNotification(notificationId: Int) =
         NotificationManagerCompat.from(context).cancel(notificationId)
 
-    protected fun createNotification(contentTitle: String, contentText: String, subText: String,
-                           channelId: String, channelName: String, builder: NotificationCompat.Builder): Notification {
+
+    private fun createBuilder(): NotificationCompat.Builder = prepareDefaultBuilderAndChannel(notificationChannelId,
+            notificationChannelName).apply { notificationBuilder = this }
+
+    @Suppress("SameParameterValue")
+    private fun createNotification(contentTitle: String = "", contentText: String = "", subText: String = "",
+                                   builder: NotificationCompat.Builder): Notification =
+        builder.apply {
+            setContentTitle(contentTitle)
+            setContentText(contentText)
+            setSubText(subText)
+        }.build()
+
+    private fun prepareDefaultBuilderAndChannel(channelId: String, channelName: String): NotificationCompat.Builder {
         createNotificationChannel(context, channelId, channelName)
-        val intent = createMainActivityIntent(context)
-        builder.setOnlyAlertOnce(true)
-        builder.priority = NotificationCompat.PRIORITY_MAX
-        return createNotification(intent, channelId, contentTitle, contentText, subText, builder)
+        return NotificationCompat.Builder(context, channelId).apply {
+            val intent = createMainActivityIntent(context)
+            setOnlyAlertOnce(true)
+            setOngoing(true)
+            priority = NotificationCompat.PRIORITY_MAX
+            setSmallIcon(R.mipmap.ic_launcher)
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            setChannelId(channelId)
+            setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+        }
     }
 
     @Suppress("SameParameterValue")
-    private fun createNotificationChannel(context: Context, notificationChannelId: String,
-                                          notificationChannelName: String) {
+    private fun createNotificationChannel(context: Context, channelId: String, channelName: String) {
         if (isAndroid8OrHigher()) {
-            val notificationChannel = NotificationChannel(notificationChannelId,
-                    notificationChannelName, IMPORTANCE_HIGH)
-            context.getSystemService(NotificationManager::class.java).createNotificationChannel(notificationChannel)
+            val channel = NotificationChannel(channelId, channelName, IMPORTANCE_HIGH)
+            context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
 
@@ -53,20 +83,4 @@ abstract class CustomNotification(private val context: Context) {
         action = Intent.ACTION_MAIN
         addCategory(Intent.CATEGORY_LAUNCHER)
     }
-
-    @Suppress("SameParameterValue")
-    private fun createNotification(intent: Intent, channelId: String, contentTitle: String,
-                                   contentText: String,
-                                   subText: String, builder: NotificationCompat.Builder): Notification =
-        builder.apply {
-            setContentTitle(contentTitle ifIsEmpty "Notification default title")
-            contentText ifNotEmpty { setContentText(contentText) }
-            subText ifNotEmpty { setSubText(subText) }
-            setOngoing(true)
-            priority = NotificationCompat.PRIORITY_MAX
-            setSmallIcon(R.mipmap.ic_launcher)
-            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            setChannelId(channelId)
-            setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
-        }.build()
 }

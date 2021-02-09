@@ -50,7 +50,7 @@ class BluetoothService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        val notification = bluetoothNotification.get("BluetoothService notification")
+        val notification = bluetoothNotification.get()
         startForeground(BLUETOOTH_NOTIFICATION_ID, notification)
     }
 
