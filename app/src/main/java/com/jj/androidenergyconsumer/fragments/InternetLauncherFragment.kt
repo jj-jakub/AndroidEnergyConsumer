@@ -16,7 +16,6 @@ import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 
-// TODO - Make file download cancellable
 // TODO - Prevent to launch download more than once at a time
 // TODO - Delete downloaded file
 // TODO - Download file in loop (start if one download ended)

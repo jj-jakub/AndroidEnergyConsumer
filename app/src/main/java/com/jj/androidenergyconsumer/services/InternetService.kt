@@ -171,6 +171,7 @@ class InternetService : BaseService() {
         resetValues()
         stopInternetCallCreator()
         stopWorking()
+        fileDownloader.cancelDownload()
         internetNotification.cancel()
         super.onDestroy()
     }

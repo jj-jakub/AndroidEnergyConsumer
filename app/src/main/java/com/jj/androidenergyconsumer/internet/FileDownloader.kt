@@ -9,9 +9,16 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
+import java.util.concurrent.atomic.AtomicBoolean
 
 class FileDownloader {
-    //TODO make it cancellable
+
+    private val downloadCancelled = AtomicBoolean(false)
+
+    fun cancelDownload() {
+        downloadCancelled.set(true)
+    }
+
     suspend fun downloadFile(urlToDownload: String, onDownloadProgressChanged: (progress: Int) -> Unit) {
         withContext(Dispatchers.IO) {
             try {
@@ -28,17 +35,17 @@ class FileDownloader {
                 val fileToSave = File(Environment.getExternalStorageDirectory(), "AECDownloadedFile.xyz")
                 val output = FileOutputStream(fileToSave)
 
-                val data = ByteArray(8192)
-                var total = 0L
-                var count: Int
+                val buffer = ByteArray(8192)
+                var totalBytesReceived = 0L
+                var receivedBytes: Int
 
                 while (true) {
-                    count = input.read(data)
-                    if (count == -1) break
-                    total += count
+                    receivedBytes = input.read(buffer)
+                    if (receivedBytes == -1 || downloadCancelled.get()) break
+                    totalBytesReceived += receivedBytes
 
-                    output.write(data, 0, count)
-                    onProgressUpdate((total * 100 / fileLength).toInt(), onDownloadProgressChanged)
+                    output.write(buffer, 0, receivedBytes)
+                    onProgressUpdate((totalBytesReceived * 100 / fileLength).toInt(), onDownloadProgressChanged)
                 }
 
                 // close streams
@@ -48,7 +55,6 @@ class FileDownloader {
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                // return
             }
             onProgressUpdate(100, onDownloadProgressChanged)
         }
