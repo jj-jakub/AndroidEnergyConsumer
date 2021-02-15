@@ -17,6 +17,7 @@ import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import kotlinx.coroutines.flow.collect
+import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class InternetLauncherFragment : BaseLauncherFragment() {
 
@@ -107,7 +108,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
-            Log.d(tag, "onServiceConnected")
+            Log.d(LogTag, "onServiceConnected")
             val binder = iBinder as MyBinder?
             (binder?.getService() as InternetService?)?.let { service ->
                 internetService = service
@@ -121,20 +122,20 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {
-            Log.d(tag, "onServiceDisconnected")
+            Log.d(LogTag, "onServiceDisconnected")
             serviceBound.set(false)
             internetService = null
         }
 
         override fun onBindingDied(componentName: ComponentName?) {
-            Log.d(tag, "onBindingDied")
+            Log.d(LogTag, "onBindingDied")
             serviceBound.set(false)
             internetService = null
             super.onBindingDied(componentName)
         }
 
         override fun onNullBinding(componentName: ComponentName?) {
-            Log.d(tag, "onNullBinding")
+            Log.d(LogTag, "onNullBinding")
             super.onNullBinding(componentName)
         }
     }

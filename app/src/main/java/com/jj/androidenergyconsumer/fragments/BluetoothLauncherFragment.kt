@@ -18,6 +18,7 @@ import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.coroutines.flow.collect
+import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class BluetoothLauncherFragment : BaseLauncherFragment() {
 
@@ -94,7 +95,7 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
-            Log.d(tag, "onServiceConnected")
+            Log.d(LogTag, "onServiceConnected")
             val binder = iBinder as MyBinder?
             (binder?.getService() as BluetoothService?)?.let { service ->
                 bluetoothService = service
@@ -107,20 +108,20 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {
-            Log.d(tag, "onServiceDisconnected")
+            Log.d(LogTag, "onServiceDisconnected")
             serviceBound.set(false)
             bluetoothService = null
         }
 
         override fun onBindingDied(componentName: ComponentName?) {
-            Log.d(tag, "onBindingDied")
+            Log.d(LogTag, "onBindingDied")
             serviceBound.set(false)
             bluetoothService = null
             super.onBindingDied(componentName)
         }
 
         override fun onNullBinding(componentName: ComponentName?) {
-            Log.d(tag, "onNullBinding")
+            Log.d(LogTag, "onNullBinding")
             super.onNullBinding(componentName)
         }
     }

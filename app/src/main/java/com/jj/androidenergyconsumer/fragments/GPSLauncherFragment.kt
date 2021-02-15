@@ -18,6 +18,7 @@ import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.coroutines.flow.collect
+import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class GPSLauncherFragment : BaseLauncherFragment() {
 
@@ -96,7 +97,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     override val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
-            Log.d(tag, "onServiceConnected")
+            Log.d(LogTag, "onServiceConnected")
             val binder = iBinder as MyBinder?
             (binder?.getService() as GPSService?)?.let { service ->
                 gpsService = service
@@ -106,20 +107,20 @@ class GPSLauncherFragment : BaseLauncherFragment() {
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {
-            Log.d(tag, "onServiceDisconnected")
+            Log.d(LogTag, "onServiceDisconnected")
             serviceBound.set(false)
             gpsService = null
         }
 
         override fun onBindingDied(componentName: ComponentName?) {
-            Log.d(tag, "onBindingDied")
+            Log.d(LogTag, "onBindingDied")
             serviceBound.set(false)
             gpsService = null
             super.onBindingDied(componentName)
         }
 
         override fun onNullBinding(componentName: ComponentName?) {
-            Log.d(tag, "onNullBinding")
+            Log.d(LogTag, "onNullBinding")
             super.onNullBinding(componentName)
         }
     }

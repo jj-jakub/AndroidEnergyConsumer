@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-val Any.tag: String get() = this.javaClass.simpleName
+val Any.tag: String get() = this.javaClass.simpleName ifIsEmpty "DefaultTag"
 
 fun isAndroid6OrHigher() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 fun isAndroid8OrHigher() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
