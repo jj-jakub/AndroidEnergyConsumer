@@ -74,7 +74,7 @@ class FileDownloader {
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                val downloadProgress = DownloadProgress(0, averageDownloadSpeedKBs, true, e)
+                val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, true, e)
                 onProgressUpdate(downloadProgress, onDownloadProgressChanged)
             }
         }

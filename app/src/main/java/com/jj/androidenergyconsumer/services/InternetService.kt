@@ -145,20 +145,22 @@ class InternetService : BaseService() {
     private val onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit =
         { downloadProgress ->
             CoroutineScope(Dispatchers.Main).launch {
-                callResponse.value = "$downloadProgress.progress% downloaded, " +
+                callResponse.value = "${downloadProgress.progressPercentage}% downloaded, " +
                         "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s"
-                if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
-                //TODO if (downloadProgress.exception != null)
+                if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
+                else if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
             }
         }
 
     private fun onFileDownloadingCompleted() {
-        Log.d("ABAB", "onFileDownloadingCompleted")
-        val successfullyDeleted =
-            fileManager.deleteFile(FileManager.downloadDestinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME)
+        Log.d(tag, "onFileDownloadingCompleted")
+        val successfullyDeleted = deleteDownloadedFile()
         if (!successfullyDeleted) onFileDeleteFailed()
         else restartFileDownload()
     }
+
+    private fun deleteDownloadedFile() =
+        fileManager.deleteFile(FileManager.downloadDestinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME)
 
     private fun restartFileDownload() {
         lastKnownSourceUrl?.let { startFileDownload(it) } ?: stopSelf()
@@ -172,6 +174,12 @@ class InternetService : BaseService() {
     private fun onProcessingError(message: String?) {
         Log.e(tag, "onProcessingError: $message")
         inputErrorMessage.value = message
+    }
+
+    private fun onDownloadException(exception: Exception?) {
+        onProcessingError(exception?.message ?: "Exception while downloading file")
+        stopWorking()
+        deleteDownloadedFile()
     }
 
     private fun onUrlExtraNull() {
