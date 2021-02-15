@@ -16,6 +16,10 @@ import com.jj.androidenergyconsumer.databinding.FragmentBluetoothLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class BluetoothLauncherFragment : BaseLauncherFragment() {
 
@@ -94,14 +98,14 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
-            bluetoothService = (binder?.getService() as BluetoothService?)
-            serviceBound.set(true)
-            bluetoothService?.isScanning?.observe(this@BluetoothLauncherFragment, {
-                onScanningStatusChanged(it)
-            })
-            bluetoothService?.errorMessage?.observe(this@BluetoothLauncherFragment, {
-                onErrorMessageChanged(it)
-            })
+            (binder?.getService() as BluetoothService?)?.let { service ->
+                bluetoothService = service
+                serviceBound.set(true)
+                CoroutineScope(Dispatchers.IO).launch {
+                    service.observeIsScanning().collect { onScanningStatusChanged(it) }
+                    service.observeErrorMessage().collect { onErrorMessageChanged(it) }
+                }
+            }
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
@@ -13,6 +12,8 @@ import com.jj.androidenergyconsumer.notification.NotificationType.BLUETOOTH
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
@@ -24,8 +25,8 @@ class BluetoothService : BaseService() {
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:BluetoothServiceWakeLock"
 
-    val isScanning = MutableLiveData(false)
-    val errorMessage = MutableLiveData<String?>(null)
+    private val isScanning = MutableStateFlow(false)
+    private val errorMessage = MutableStateFlow<String?>(null)
 
     private val scanningCallback = BluetoothServiceScanningCallback(bluetoothNotification) { onScanningFinished() }
 
@@ -44,6 +45,9 @@ class BluetoothService : BaseService() {
 
         fun stopScanning(context: Context) = start(context, STOP_SCANNING_SERVICE)
     }
+
+    fun observeIsScanning(): StateFlow<Boolean> = isScanning
+    fun observeErrorMessage(): StateFlow<String?> = errorMessage
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
