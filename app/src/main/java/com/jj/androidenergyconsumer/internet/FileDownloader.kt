@@ -1,6 +1,5 @@
 package com.jj.androidenergyconsumer.internet
 
-import android.os.Environment
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,10 +18,11 @@ class FileDownloader {
         downloadCancelled.set(true)
     }
 
-    suspend fun downloadFile(urlToDownload: String, onDownloadProgressChanged: (progress: Int) -> Unit) {
+    suspend fun downloadFile(destinationDirPath: File, fileForDownloadName: String, sourceUrl: String,
+                             onDownloadProgressChanged: (progress: Int) -> Unit) {
         withContext(Dispatchers.IO) {
             try {
-                val url = URL(urlToDownload)
+                val url = URL(sourceUrl)
                 val connection = url.openConnection()
                 connection.connect()
 
@@ -32,7 +32,7 @@ class FileDownloader {
                 // download the file
                 val input = BufferedInputStream(connection.getInputStream())
 
-                val fileToSave = File(Environment.getExternalStorageDirectory(), "AECDownloadedFile.xyz")
+                val fileToSave = File(destinationDirPath, fileForDownloadName)
                 val output = FileOutputStream(fileToSave)
 
                 val buffer = ByteArray(8192)

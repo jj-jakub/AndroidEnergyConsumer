@@ -10,10 +10,7 @@ import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetCallCreator
 import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
-import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import com.jj.androidenergyconsumer.utils.logAndPingServer
-import com.jj.androidenergyconsumer.utils.showShortToast
-import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.utils.*
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +21,7 @@ class InternetService : BaseService() {
     private val internetNotification = AECApplication.notificationContainer.getProperNotification(INTERNET)
     private var latestInternetCallCreator: InternetCallCreator? = null
     private val fileDownloader = FileDownloader()
+    private val fileManager = FileManager()
 
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:InternetServiceWakeLock"
@@ -110,24 +108,39 @@ class InternetService : BaseService() {
             InternetCallCreator(urlToPing).apply { latestInternetCallCreator = this }
         } catch (iae: IllegalArgumentException) {
             Log.e(tag, "Exception while creating InternetCallCreator", iae)
-            onInputError(iae.message)
+            onProcessingError(iae.message)
             null
         }
     }
 
     private fun startFileDownload(intent: Intent) {
         intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
+            val destinationDir = FileManager.downloadDestinationDir
+            if (destinationDir == null) {
+                onDestinationDirNull()
+                return
+            }
+
             acquireWakeLock()
             isWorking.value = true
-            CoroutineScope(Dispatchers.IO).launch { fileDownloader.downloadFile(url, onDownloadProgressChanged) }
+            CoroutineScope(Dispatchers.IO).launch {
+                fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url,
+                        onDownloadProgressChanged)
+            }
         } ?: onUrlExtraNull()
     }
 
     private val onDownloadProgressChanged: (progress: Int) -> Unit = { progress ->
         CoroutineScope(Dispatchers.Main).launch {
             callResponse.value = "$progress% downloaded"
-            if (progress == 100) stopWorking()
+            if (progress == 100) onFileDownloadingCompleted()
         }
+    }
+
+    private fun onFileDownloadingCompleted() {
+        val successfullyDeleted =
+            fileManager.deleteFile(FileManager.downloadDestinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME)
+        if (!successfullyDeleted) onFileDeleteFailed()
     }
 
     private fun stopInternetCallCreator() {
@@ -135,12 +148,21 @@ class InternetService : BaseService() {
         latestInternetCallCreator = null
     }
 
-    private fun onInputError(message: String?) {
+    private fun onProcessingError(message: String?) {
+        Log.e(tag, "onProcessingError: $message")
         inputErrorMessage.value = message
     }
 
     private fun onUrlExtraNull() {
-        onInputError("Url extra is null")
+        onProcessingError("Url extra is null")
+    }
+
+    private fun onDestinationDirNull() {
+        onProcessingError("Fatal error - destination dir is null")
+    }
+
+    private fun onFileDeleteFailed() {
+        onProcessingError("Failed to remove downloaded file")
     }
 
     private fun startPeriodicPingsToUrl(internetCallCreator: InternetCallCreator, intent: Intent) {
