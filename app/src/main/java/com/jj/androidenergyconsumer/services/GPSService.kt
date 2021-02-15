@@ -8,7 +8,6 @@ import android.location.LocationManager
 import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.gps.MyLocationListener
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
@@ -17,6 +16,8 @@ import com.jj.androidenergyconsumer.notification.NotificationType.GPS
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class GPSService : BaseService() {
 
@@ -27,7 +28,7 @@ class GPSService : BaseService() {
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:GPSServiceWakeLock"
 
-    val isWorking = MutableLiveData(false)
+    private val isWorking = MutableStateFlow(false)
 
     companion object : ServiceStarter {
         private const val START_CONSTANT_UPDATES = "START_CONSTANT_UPDATES"
@@ -60,6 +61,8 @@ class GPSService : BaseService() {
 
         fun stopGpsService(context: Context) = start(context, STOP_GPS_SERVICE)
     }
+
+    fun observeIsWorking(): StateFlow<Boolean> = isWorking
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 

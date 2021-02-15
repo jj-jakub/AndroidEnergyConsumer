@@ -16,6 +16,10 @@ import com.jj.androidenergyconsumer.databinding.FragmentGpsLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.services.MyBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class GPSLauncherFragment : BaseLauncherFragment() {
 
@@ -96,11 +100,13 @@ class GPSLauncherFragment : BaseLauncherFragment() {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
-            gpsService = (binder?.getService() as GPSService?)
-            serviceBound.set(true)
-            gpsService?.isWorking?.observe(this@GPSLauncherFragment, {
-                onScanningStatusChanged(it)
-            })
+            (binder?.getService() as GPSService?)?.let { service ->
+                gpsService = service
+                serviceBound.set(true)
+                CoroutineScope(Dispatchers.IO).launch {
+                    service.observeIsWorking().collect { onScanningStatusChanged(it) }
+                }
+            }
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {
