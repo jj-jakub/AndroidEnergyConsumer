@@ -41,23 +41,32 @@ class FileDownloader {
 
                 while (true) {
                     receivedBytes = input.read(buffer)
-                    if (receivedBytes == -1 || downloadCancelled.get()) break
+                    val downloadCancelled = downloadCancelled.get()
+                    if (receivedBytes == -1 || downloadCancelled) {
+                        onDownloadEnd(input, output, downloadCancelled, onDownloadProgressChanged)
+                        return@withContext
+                    }
                     totalBytesReceived += receivedBytes
 
                     output.write(buffer, 0, receivedBytes)
                     onProgressUpdate((totalBytesReceived * 100 / fileLength).toInt(), onDownloadProgressChanged)
                 }
 
-                // close streams
-                output.flush()
-                output.close()
-                input.close()
-
             } catch (e: IOException) {
                 e.printStackTrace()
+                onProgressUpdate(100, onDownloadProgressChanged)
             }
-            onProgressUpdate(100, onDownloadProgressChanged)
         }
+    }
+
+    private fun onDownloadEnd(input: BufferedInputStream, output: FileOutputStream, downloadCancelled: Boolean,
+                              onDownloadProgressChanged: (progress: Int) -> Unit) {
+        // close streams
+        output.flush()
+        output.close()
+        input.close()
+
+        if (!downloadCancelled) onProgressUpdate(100, onDownloadProgressChanged)
     }
 
     private fun onProgressUpdate(progressPercentage: Int, onDownloadProgressChanged: (progress: Int) -> Unit) {

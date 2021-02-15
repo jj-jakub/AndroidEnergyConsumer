@@ -16,7 +16,6 @@ import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 
-// TODO - Download file in loop (start if one download ended)
 class InternetLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding

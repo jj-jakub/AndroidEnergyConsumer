@@ -23,6 +23,8 @@ class InternetService : BaseService() {
     private val fileDownloader = FileDownloader()
     private val fileManager = FileManager()
 
+    private var lastKnownSourceUrl: String? = null
+
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:InternetServiceWakeLock"
 
@@ -92,7 +94,12 @@ class InternetService : BaseService() {
 
     private fun onDownloadFileRequested(intent: Intent) {
         if (isWorking.value == true) showShortToast("Service is currently doing work")
-        else startFileDownload(intent)
+        else {
+            intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
+                lastKnownSourceUrl = url
+                startFileDownload(url)
+            } ?: onUrlExtraNull()
+        }
     }
 
     private fun setupInternetCallCreator(intent: Intent): InternetCallCreator? {
@@ -113,21 +120,19 @@ class InternetService : BaseService() {
         }
     }
 
-    private fun startFileDownload(intent: Intent) {
-        intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
-            val destinationDir = FileManager.downloadDestinationDir
-            if (destinationDir == null) {
-                onDestinationDirNull()
-                return
-            }
+    private fun startFileDownload(url: String) {
+        val destinationDir = FileManager.downloadDestinationDir
+        if (destinationDir == null) {
+            onDestinationDirNull()
+            return
+        }
 
-            acquireWakeLock()
-            isWorking.value = true
-            CoroutineScope(Dispatchers.IO).launch {
-                fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url,
-                        onDownloadProgressChanged)
-            }
-        } ?: onUrlExtraNull()
+        acquireWakeLock()
+        isWorking.value = true
+        CoroutineScope(Dispatchers.IO).launch {
+            fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url,
+                    onDownloadProgressChanged)
+        }
     }
 
     private val onDownloadProgressChanged: (progress: Int) -> Unit = { progress ->
@@ -141,6 +146,11 @@ class InternetService : BaseService() {
         val successfullyDeleted =
             fileManager.deleteFile(FileManager.downloadDestinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME)
         if (!successfullyDeleted) onFileDeleteFailed()
+        else restartFileDownload()
+    }
+
+    private fun restartFileDownload() {
+        lastKnownSourceUrl?.let { startFileDownload(it) } ?: stopSelf()
     }
 
     private fun stopInternetCallCreator() {
