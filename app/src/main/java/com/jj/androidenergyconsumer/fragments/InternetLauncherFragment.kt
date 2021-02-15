@@ -15,6 +15,10 @@ import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class InternetLauncherFragment : BaseLauncherFragment() {
 
@@ -107,17 +111,15 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
-            internetService = (binder?.getService() as InternetService?)
-            serviceBound.set(true)
-            internetService?.isWorking?.observe(this@InternetLauncherFragment, {
-                onScanningStatusChanged(it)
-            })
-            internetService?.inputErrorMessage?.observe(this@InternetLauncherFragment, {
-                onErrorMessageChanged(it)
-            })
-            internetService?.callResponse?.observe(this@InternetLauncherFragment, {
-                onCallResponseChanged(it)
-            })
+            (binder?.getService() as InternetService?)?.let { service ->
+                internetService = service
+                serviceBound.set(true)
+                CoroutineScope(Dispatchers.IO).launch {
+                    service.observeIsWorking().collect { onScanningStatusChanged(it) }
+                    service.observeInputErrorMessage().collect { onErrorMessageChanged(it) }
+                    service.observeCallResponse().collect { onCallResponseChanged(it) }
+                }
+            }
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {

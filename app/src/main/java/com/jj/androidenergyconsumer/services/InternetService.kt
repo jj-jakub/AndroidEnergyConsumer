@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetCallCreator
@@ -14,6 +13,8 @@ import com.jj.androidenergyconsumer.utils.*
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class InternetService : BaseService() {
@@ -28,9 +29,9 @@ class InternetService : BaseService() {
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:InternetServiceWakeLock"
 
-    val isWorking = MutableLiveData(false)
-    val inputErrorMessage = MutableLiveData<String?>(null)
-    val callResponse = MutableLiveData<String?>(null)
+    private val isWorking = MutableStateFlow(false)
+    private val inputErrorMessage = MutableStateFlow<String?>(null)
+    private val callResponse = MutableStateFlow<String?>(null)
 
     companion object : ServiceStarter {
         private const val START_PERIODIC_PINGS = "START_PERIODIC_PINGS"
@@ -67,6 +68,10 @@ class InternetService : BaseService() {
         fun stopInternetService(context: Context) = start(context, STOP_INTERNET_SERVICE)
     }
 
+    fun observeIsWorking(): StateFlow<Boolean> = isWorking
+    fun observeInputErrorMessage(): StateFlow<String?> = inputErrorMessage
+    fun observeCallResponse(): StateFlow<String?> = callResponse
+
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
     override fun onCreate() {
@@ -93,7 +98,7 @@ class InternetService : BaseService() {
     }
 
     private fun onDownloadFileRequested(intent: Intent) {
-        if (isWorking.value == true) showShortToast("Service is currently doing work")
+        if (isWorking.value) showShortToast("Service is currently doing work")
         else {
             intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
                 lastKnownSourceUrl = url
@@ -192,7 +197,7 @@ class InternetService : BaseService() {
     }
 
     private val onCallFinished: (result: String) -> Unit = { result ->
-        if (isWorking.value == true) {
+        if (isWorking.value) {
             notifyNotification("${getDateStringWithMillis()} $result")
             callResponse.value = result
         }
