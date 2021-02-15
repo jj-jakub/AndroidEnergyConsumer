@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+//TODO Prevent to launch pings tasks in parallel
 class InternetService : BaseService() {
 
     private val internetNotification = AECApplication.notificationContainer.getProperNotification(INTERNET)
