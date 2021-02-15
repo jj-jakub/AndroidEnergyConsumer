@@ -11,6 +11,9 @@ import java.io.IOException
 import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
 
+data class DownloadProgress(val progressPercentage: Int, val averageDownloadSpeedKBs: Float,
+                            val downloadFinished: Boolean, val exception: Exception? = null)
+
 class FileDownloader {
 
     companion object {
@@ -28,7 +31,7 @@ class FileDownloader {
     }
 
     suspend fun downloadFile(destinationDirPath: File, fileForDownloadName: String, sourceUrl: String,
-                             onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit) {
+                             onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit) {
         withContext(Dispatchers.IO) {
             var totalBytesReceived = 0L
             try {
@@ -64,32 +67,34 @@ class FileDownloader {
                         averageDownloadSpeedKBs =
                             (totalBytesReceived / 1000F) / ((System.currentTimeMillis() - downloadStartTime) / 1000F)
                         progressPercentage = (totalBytesReceived * 100 / fileLength).toInt()
-                        onProgressUpdate(progressPercentage, averageDownloadSpeedKBs, false, onDownloadProgressChanged)
+                        val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, false)
+                        onProgressUpdate(downloadProgress, onDownloadProgressChanged)
                     }.start()
                 }
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                onProgressUpdate(100, averageDownloadSpeedKBs, true, onDownloadProgressChanged)
+                val downloadProgress = DownloadProgress(0, averageDownloadSpeedKBs, true, e)
+                onProgressUpdate(downloadProgress, onDownloadProgressChanged)
             }
         }
     }
 
     private fun onDownloadEnd(input: BufferedInputStream, output: FileOutputStream, downloadCancelled: Boolean,
-                              onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit) {
+                              onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit) {
         // close streams
         output.flush()
         output.close()
         input.close()
 
-        if (!downloadCancelled) onProgressUpdate(100, averageDownloadSpeedKBs, true,
-                onDownloadProgressChanged)
+        if (!downloadCancelled) {
+            val downloadProgress = DownloadProgress(100, averageDownloadSpeedKBs, true)
+            onProgressUpdate(downloadProgress, onDownloadProgressChanged)
+        }
     }
 
-    private fun onProgressUpdate(progressPercentage: Int,
-                                 averageDownloadSpeedKBs: Float,
-                                 downloadFinished: Boolean,
-                                 onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit) {
-        onDownloadProgressChanged(progressPercentage, averageDownloadSpeedKBs, downloadFinished)
+    private fun onProgressUpdate(downloadProgress: DownloadProgress,
+                                 onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit) {
+        onDownloadProgressChanged(downloadProgress)
     }
 }

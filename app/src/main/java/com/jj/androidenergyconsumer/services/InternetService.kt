@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.jj.androidenergyconsumer.AECApplication
+import com.jj.androidenergyconsumer.internet.DownloadProgress
 import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetCallCreator
 import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
@@ -141,11 +142,13 @@ class InternetService : BaseService() {
         }
     }
 
-    private val onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit =
-        { progress, averageSpeedKBs, downloadFinished ->
+    private val onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit =
+        { downloadProgress ->
             CoroutineScope(Dispatchers.Main).launch {
-                callResponse.value = "$progress% downloaded, ${averageSpeedKBs.roundAsString()} KB/s"
-                if (downloadFinished) onFileDownloadingCompleted()
+                callResponse.value = "$downloadProgress.progress% downloaded, " +
+                        "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s"
+                if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
+                //TODO if (downloadProgress.exception != null)
             }
         }
 
