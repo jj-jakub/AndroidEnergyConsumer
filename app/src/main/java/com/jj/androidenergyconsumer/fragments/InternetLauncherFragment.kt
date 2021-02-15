@@ -114,7 +114,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
                 internetService = service
                 serviceBound.set(true)
                 with(lifecycleScope) {
-                    launchWhenResumed { service.observeIsWorking().collect { onScanningStatusChanged(it) } }
+                    launchWhenResumed { service.observeIsWorking().collect { onWorkingStatusChanged(it) } }
                     launchWhenResumed { service.observeInputErrorMessage().collect { onErrorMessageChanged(it) } }
                     launchWhenResumed { service.observeCallResponse().collect { onCallResponseChanged(it) } }
                 }
@@ -171,9 +171,9 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun onScanningStatusChanged(scanningStatus: Boolean?) {
+    private fun onWorkingStatusChanged(workingStatus: Boolean?) {
         fragmentInternetLauncherBinding.apply {
-            if (scanningStatus == true) {
+            if (workingStatus == true) {
                 internetWorkingStatusValue.text = getString(R.string.running)
                 internetWorkingStatusValue.setTextColor(Color.RED)
             } else {

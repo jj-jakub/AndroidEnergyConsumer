@@ -102,7 +102,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
             (binder?.getService() as GPSService?)?.let { service ->
                 gpsService = service
                 serviceBound.set(true)
-                lifecycleScope.launchWhenResumed { service.observeIsWorking().collect { onScanningStatusChanged(it) } }
+                lifecycleScope.launchWhenResumed { service.observeIsWorking().collect { onWorkingStatusChanged(it) } }
             }
         }
 
@@ -125,9 +125,9 @@ class GPSLauncherFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun onScanningStatusChanged(scanningStatus: Boolean) {
+    private fun onWorkingStatusChanged(workingStatus: Boolean) {
         fragmentGpsLauncherBinding.apply {
-            if (scanningStatus) {
+            if (workingStatus) {
                 gpsWorkingStatusValueLabel.text = getString(R.string.running)
                 gpsWorkingStatusValueLabel.setTextColor(Color.RED)
             } else {
