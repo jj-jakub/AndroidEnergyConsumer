@@ -3,6 +3,7 @@ package com.jj.androidenergyconsumer.rest
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jj.androidenergyconsumer.BuildConfig
+import com.jj.androidenergyconsumer.FlipperLauncher
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -22,6 +23,7 @@ class RetrofitClientFactory {
         retryOnConnectionFailure(true)
         readTimeout(1, TimeUnit.MINUTES)
         connectTimeout(1, TimeUnit.MINUTES)
+        FlipperLauncher.addFlipperNetworkInterceptor(this)
     }.build()
 
     private fun createMapper() = ObjectMapper().apply {

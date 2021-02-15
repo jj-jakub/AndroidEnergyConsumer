@@ -17,5 +17,6 @@ class AECApplication : Application() {
         super.onCreate()
         instance = this
         notificationContainer = NotificationContainer(applicationContext)
+        FlipperLauncher.enableFlipper(this)
     }
 }
