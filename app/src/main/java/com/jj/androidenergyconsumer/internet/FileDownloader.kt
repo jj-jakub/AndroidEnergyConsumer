@@ -21,13 +21,14 @@ class FileDownloader {
 
     private var downloadStartTime: Long = 0
     private var averageDownloadSpeedKBs: Float = 0F
+    private var progressPercentage: Int = 0
 
     fun cancelDownload() {
         downloadCancelled.set(true)
     }
 
     suspend fun downloadFile(destinationDirPath: File, fileForDownloadName: String, sourceUrl: String,
-                             onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float) -> Unit) {
+                             onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit) {
         withContext(Dispatchers.IO) {
             var totalBytesReceived = 0L
             try {
@@ -53,7 +54,7 @@ class FileDownloader {
                     receivedBytes = input.read(buffer)
                     val downloadCancelled = downloadCancelled.get()
                     if (receivedBytes == -1 || downloadCancelled) {
-                        onDownloadEnd(input, output, downloadCancelled, totalBytesReceived, onDownloadProgressChanged)
+                        onDownloadEnd(input, output, downloadCancelled, onDownloadProgressChanged)
                         return@withContext
                     }
                     totalBytesReceived += receivedBytes
@@ -62,36 +63,33 @@ class FileDownloader {
                     Thread {
                         averageDownloadSpeedKBs =
                             (totalBytesReceived / 1000F) / ((System.currentTimeMillis() - downloadStartTime) / 1000F)
-                        onProgressUpdate((totalBytesReceived * 100 / fileLength).toInt(), totalBytesReceived,
-                                averageDownloadSpeedKBs, onDownloadProgressChanged)
+                        progressPercentage = (totalBytesReceived * 100 / fileLength).toInt()
+                        onProgressUpdate(progressPercentage, averageDownloadSpeedKBs, false, onDownloadProgressChanged)
                     }.start()
                 }
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                onProgressUpdate(100, totalBytesReceived, averageDownloadSpeedKBs, onDownloadProgressChanged)
+                onProgressUpdate(100, averageDownloadSpeedKBs, true, onDownloadProgressChanged)
             }
         }
     }
 
     private fun onDownloadEnd(input: BufferedInputStream, output: FileOutputStream, downloadCancelled: Boolean,
-                              bytesDownloaded: Long,
-                              onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float) -> Unit) {
+                              onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit) {
         // close streams
         output.flush()
         output.close()
         input.close()
 
-        if (!downloadCancelled) onProgressUpdate(100, bytesDownloaded, averageDownloadSpeedKBs,
+        if (!downloadCancelled) onProgressUpdate(100, averageDownloadSpeedKBs, true,
                 onDownloadProgressChanged)
     }
 
-    private fun onProgressUpdate(progressPercentage: Int, bytesDownloaded: Long,
+    private fun onProgressUpdate(progressPercentage: Int,
                                  averageDownloadSpeedKBs: Float,
-                                 onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float) -> Unit) {
-        //TODO update ui on main thread
-        Log.d("ABAB",
-                "onProgressUpdate, $progressPercentage%, bytes downloaded: $bytesDownloaded, averageDownloadSpeedKBs: $averageDownloadSpeedKBs KB/s")
-        onDownloadProgressChanged(progressPercentage, averageDownloadSpeedKBs)
+                                 downloadFinished: Boolean,
+                                 onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float, downloadFinished: Boolean) -> Unit) {
+        onDownloadProgressChanged(progressPercentage, averageDownloadSpeedKBs, downloadFinished)
     }
 }
