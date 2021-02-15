@@ -31,4 +31,7 @@ fun logAndPingServer(message: String, tag: String) {
 
 fun getDateStringWithMillis(): String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ROOT).format(Date())
 
-fun showShortToast(message: String) = Toast.makeText(AECApplication.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
+fun showShortToast(message: String) =
+    Toast.makeText(AECApplication.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
+
+fun Float.roundAsString(decimals: Int = 2): String = "%.${decimals}f".format(Locale.US, this)

@@ -135,12 +135,13 @@ class InternetService : BaseService() {
         }
     }
 
-    private val onDownloadProgressChanged: (progress: Int) -> Unit = { progress ->
-        CoroutineScope(Dispatchers.Main).launch {
-            callResponse.value = "$progress% downloaded"
-            if (progress == 100) onFileDownloadingCompleted()
+    private val onDownloadProgressChanged: (progress: Int, averageDownloadSpeedKBs: Float) -> Unit =
+        { progress, averageSpeedKBs ->
+            CoroutineScope(Dispatchers.Main).launch {
+                callResponse.value = "$progress% downloaded, ${averageSpeedKBs.roundAsString()} KB/s"
+                if (progress == 100) onFileDownloadingCompleted()
+            }
         }
-    }
 
     private fun onFileDownloadingCompleted() {
         val successfullyDeleted =
