@@ -1,7 +1,9 @@
 package com.jj.androidenergyconsumer.calculations
 
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
@@ -12,7 +14,16 @@ class MultiplicationCalculationsProviderTest {
 
     companion object {
         @JvmStatic
-        fun factors() = IntRange(0, 20).toList()
+        fun factors(): List<Int> {
+            val range = IntRange(-20, 20).toMutableList()
+            range.remove(-1)
+            range.remove(0)
+            range.remove(1)
+            return range.toList()
+        }
+
+        @JvmStatic
+        fun illegalFactors() = listOf(-1, 0, 1)
     }
 
     @Mock
@@ -48,5 +59,13 @@ class MultiplicationCalculationsProviderTest {
         multiplicationCalculationsProvider.calculationsTask(0, stoppableLoopedHandlerMock)
 
         Mockito.verify(callbackMock, Mockito.never()).onThresholdAchieved(Mockito.anyInt(), Mockito.eq(0))
+    }
+
+    @ParameterizedTest
+    @MethodSource("illegalFactors")
+    fun `creating provider with one of illegal factors should throw IllegalArgumentException`(factor: Int) {
+        Assertions.assertThrows(IllegalArgumentException::class.java) {
+            MultiplicationCalculationsProvider(callbackMock, factor)
+        }
     }
 }

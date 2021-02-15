@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
@@ -14,6 +15,7 @@ import com.jj.androidenergyconsumer.notification.CALCULATIONS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.CALCULATIONS
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
+import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
 
@@ -86,11 +88,17 @@ class CalculationsService : BaseService() {
 
     @SuppressLint("WakelockTimeout")
     private fun onStartCalculationsAction(intent: Intent) {
-        areCalculationsRunning.value = true
-        acquireWakeLock()
-        val amountOfHandlers = getAmountOfHandlers(intent)
-        val calculationsProvider = CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
-        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
+        try {
+            val amountOfHandlers = getAmountOfHandlers(intent)
+            val calculationsProvider =
+                CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
+            handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
+            areCalculationsRunning.value = true
+            acquireWakeLock()
+        } catch (iae: IllegalArgumentException) {
+            Log.e(tag, "Exception when starting calculations", iae)
+            showShortToast("Exception: ${iae.message}") // TODO Unify - create error label in fragment
+        }
         logAndPingServer("After onStartCalculationsAction", tag)
     }
 

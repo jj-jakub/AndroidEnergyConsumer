@@ -1,7 +1,9 @@
 package com.jj.androidenergyconsumer.calculations
 
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
@@ -12,7 +14,11 @@ class AdditionCalculationsProviderTest {
 
     companion object {
         @JvmStatic
-        fun factors() = IntRange(0, 20).toList()
+        fun factors(): List<Int> {
+            val range = IntRange(-20, 20).toMutableList()
+            range.remove(0)
+            return range.toList()
+        }
     }
 
     @Mock
@@ -48,5 +54,10 @@ class AdditionCalculationsProviderTest {
         additionCalculationsProvider.calculationsTask(0, stoppableLoopedHandlerMock)
 
         Mockito.verify(callbackMock, Mockito.never()).onThresholdAchieved(Mockito.anyInt(), Mockito.eq(0))
+    }
+
+    @Test
+    fun `creating provider with factor equal to 0 should throw IllegalArgumentException`() {
+        assertThrows(IllegalArgumentException::class.java) { AdditionCalculationsProvider(callbackMock, 0) }
     }
 }

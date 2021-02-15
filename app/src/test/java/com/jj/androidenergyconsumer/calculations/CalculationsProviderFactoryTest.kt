@@ -34,9 +34,13 @@ class CalculationsProviderFactoryTest {
 
     @ParameterizedTest
     @MethodSource("calculationsTypesAndExpectedResults")
-    fun `factory should return addition calculations provider`(
-            typeAndResult: Pair<CalculationsType, Class<out CalculationsProvider>>) {
+    fun `factory should return addition calculations provider`(typeAndResult: Pair<CalculationsType,
+            Class<out CalculationsProvider>>) {
         val intentMock = Mockito.mock(Intent::class.java)
+        Mockito.`when`(intentMock.getIntExtra(CalculationsService.CALCULATIONS_FACTOR_EXTRA,
+                CalculationsService.DEFAULT_CALCULATIONS_FACTOR))
+            .thenReturn(CalculationsService.DEFAULT_CALCULATIONS_FACTOR)
+
         val calculationsCallbackMock = Mockito.mock(CalculationsCallback::class.java)
 
         Mockito.`when`(intentMock.getSerializableExtra(CalculationsService.CALCULATIONS_TYPE_EXTRA))
