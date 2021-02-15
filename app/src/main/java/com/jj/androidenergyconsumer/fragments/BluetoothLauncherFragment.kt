@@ -11,15 +11,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentBluetoothLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class BluetoothLauncherFragment : BaseLauncherFragment() {
 
@@ -101,9 +99,9 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
             (binder?.getService() as BluetoothService?)?.let { service ->
                 bluetoothService = service
                 serviceBound.set(true)
-                CoroutineScope(Dispatchers.IO).launch {
-                    service.observeIsScanning().collect { onScanningStatusChanged(it) }
-                    service.observeErrorMessage().collect { onErrorMessageChanged(it) }
+                with(lifecycleScope) {
+                    launchWhenResumed { service.observeIsScanning().collect { onScanningStatusChanged(it) } }
+                    launchWhenResumed { service.observeErrorMessage().collect { onErrorMessageChanged(it) } }
                 }
             }
         }

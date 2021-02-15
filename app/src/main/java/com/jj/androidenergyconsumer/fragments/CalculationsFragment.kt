@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.databinding.FragmentCalculationsLauncherBinding
@@ -17,10 +18,7 @@ import com.jj.androidenergyconsumer.services.CalculationsService
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import com.jj.androidenergyconsumer.services.MyBinder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class CalculationsFragment : BaseLauncherFragment() {
 
@@ -94,7 +92,7 @@ class CalculationsFragment : BaseLauncherFragment() {
             (binder?.getService() as CalculationsService?)?.let { service ->
                 calculationsService = service
                 serviceBound.set(true)
-                CoroutineScope(Dispatchers.IO).launch {
+                lifecycleScope.launchWhenResumed {
                     service.observeCalculationsRunning().collect { onCalculationsStatusChanged(it) }
                 }
             }

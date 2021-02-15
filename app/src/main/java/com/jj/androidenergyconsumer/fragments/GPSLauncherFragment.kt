@@ -11,15 +11,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentGpsLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.services.MyBinder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class GPSLauncherFragment : BaseLauncherFragment() {
 
@@ -103,9 +101,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
             (binder?.getService() as GPSService?)?.let { service ->
                 gpsService = service
                 serviceBound.set(true)
-                CoroutineScope(Dispatchers.IO).launch {
-                    service.observeIsWorking().collect { onScanningStatusChanged(it) }
-                }
+                lifecycleScope.launchWhenResumed { service.observeIsWorking().collect { onScanningStatusChanged(it) } }
             }
         }
 

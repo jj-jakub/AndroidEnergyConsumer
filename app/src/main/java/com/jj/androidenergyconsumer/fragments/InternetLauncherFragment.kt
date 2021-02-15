@@ -10,15 +10,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class InternetLauncherFragment : BaseLauncherFragment() {
 
@@ -114,10 +112,10 @@ class InternetLauncherFragment : BaseLauncherFragment() {
             (binder?.getService() as InternetService?)?.let { service ->
                 internetService = service
                 serviceBound.set(true)
-                CoroutineScope(Dispatchers.IO).launch {
-                    service.observeIsWorking().collect { onScanningStatusChanged(it) }
-                    service.observeInputErrorMessage().collect { onErrorMessageChanged(it) }
-                    service.observeCallResponse().collect { onCallResponseChanged(it) }
+                with(lifecycleScope) {
+                    launchWhenResumed { service.observeIsWorking().collect { onScanningStatusChanged(it) } }
+                    launchWhenResumed { service.observeInputErrorMessage().collect { onErrorMessageChanged(it) } }
+                    launchWhenResumed { service.observeCallResponse().collect { onCallResponseChanged(it) } }
                 }
             }
         }
