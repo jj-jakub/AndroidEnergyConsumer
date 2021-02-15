@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.calculations.CalculationsCallback
 import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
@@ -18,6 +17,8 @@ import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class CalculationsService : BaseService() {
 
@@ -28,7 +29,7 @@ class CalculationsService : BaseService() {
     override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"
 
-    val areCalculationsRunning = MutableLiveData(false)
+    private val calculationsRunning = MutableStateFlow(false)
 
     private val calculationsCallback = object : CalculationsCallback {
         override fun onThresholdAchieved(variable: Int, handlerId: Int) {
@@ -65,6 +66,8 @@ class CalculationsService : BaseService() {
         fun stopCalculations(context: Context) = start(context, STOP_CALCULATIONS_ACTION)
     }
 
+    fun observeCalculationsRunning(): StateFlow<Boolean> = calculationsRunning
+
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
     override fun onCreate() {
@@ -93,7 +96,7 @@ class CalculationsService : BaseService() {
             val calculationsProvider =
                 CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
             handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
-            areCalculationsRunning.value = true
+            calculationsRunning.value = true
             acquireWakeLock()
         } catch (iae: IllegalArgumentException) {
             Log.e(tag, "Exception when starting calculations", iae)
@@ -110,7 +113,7 @@ class CalculationsService : BaseService() {
         handlersOrchestrator.abortHandlers()
         calculationsNotification.cancel()
         releaseWakeLock()
-        areCalculationsRunning.value = false
+        calculationsRunning.value = false
         super.onDestroy()
     }
 }

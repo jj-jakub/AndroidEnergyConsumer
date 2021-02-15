@@ -17,6 +17,10 @@ import com.jj.androidenergyconsumer.services.CalculationsService
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import com.jj.androidenergyconsumer.services.MyBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class CalculationsFragment : BaseLauncherFragment() {
 
@@ -87,11 +91,13 @@ class CalculationsFragment : BaseLauncherFragment() {
         override fun onServiceConnected(componentName: ComponentName?, iBinder: IBinder?) {
             Log.d(tag, "onServiceConnected")
             val binder = iBinder as MyBinder?
-            calculationsService = (binder?.getService() as CalculationsService?)
-            serviceBound.set(true)
-            calculationsService?.areCalculationsRunning?.observe(this@CalculationsFragment, {
-                onCalculationsStatusChanged(it)
-            })
+            (binder?.getService() as CalculationsService?)?.let { service ->
+                calculationsService = service
+                serviceBound.set(true)
+                CoroutineScope(Dispatchers.IO).launch {
+                    service.observeCalculationsRunning().collect { onCalculationsStatusChanged(it) }
+                }
+            }
         }
 
         override fun onServiceDisconnected(componentName: ComponentName?) {
