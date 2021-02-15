@@ -2,6 +2,8 @@ package com.jj.androidenergyconsumer.utils
 
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import com.jj.androidenergyconsumer.AECApplication
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,3 +30,5 @@ fun logAndPingServer(message: String, tag: String) {
 }
 
 fun getDateStringWithMillis(): String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ROOT).format(Date())
+
+fun showShortToast(message: String) = Toast.makeText(AECApplication.instance.applicationContext, message, Toast.LENGTH_SHORT).show()

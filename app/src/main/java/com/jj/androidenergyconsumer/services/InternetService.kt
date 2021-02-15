@@ -12,6 +12,7 @@ import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
+import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.CoroutineScope
@@ -85,10 +86,15 @@ class InternetService : BaseService() {
             START_ONE_AFTER_ANOTHER_PINGS -> setupInternetCallCreator(intent)?.let {
                 startOneAfterAnotherPings(it)
             }
-            DOWNLOAD_FILE_ACTION -> startFileDownload(intent)
+            DOWNLOAD_FILE_ACTION -> onDownloadFileRequested(intent)
             STOP_INTERNET_SERVICE -> stopSelf()
         }
         return START_NOT_STICKY
+    }
+
+    private fun onDownloadFileRequested(intent: Intent) {
+        if (isWorking.value == true) showShortToast("Service is currently doing work")
+        else startFileDownload(intent)
     }
 
     private fun setupInternetCallCreator(intent: Intent): InternetCallCreator? {
