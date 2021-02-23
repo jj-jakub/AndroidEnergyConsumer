@@ -4,21 +4,23 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
 import com.jj.androidenergyconsumer.notification.BLUETOOTH_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.notification.NotificationType.BLUETOOTH
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
 
-    private val bluetoothNotification = AECApplication.notificationContainer.getProperNotification(BLUETOOTH)
+    private val notificationContainer: NotificationContainer by inject()
+    private val bluetoothNotification = notificationContainer.getProperNotification(BLUETOOTH)
     private val bluetoothScanner = BluetoothScanner(this)
     private val shouldRestartScanning = AtomicBoolean(true)
 

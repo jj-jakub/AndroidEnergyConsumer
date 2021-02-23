@@ -4,11 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import com.jj.androidenergyconsumer.AECApplication
 import com.jj.androidenergyconsumer.internet.DownloadProgress
 import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetCallCreator
 import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
+import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.utils.*
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
@@ -17,11 +17,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 //TODO Prevent to launch pings tasks in parallel
 class InternetService : BaseService() {
 
-    private val internetNotification = AECApplication.notificationContainer.getProperNotification(INTERNET)
+    private val notificationContainer: NotificationContainer by inject()
+    private val internetNotification = notificationContainer.getProperNotification(INTERNET)
     private var latestInternetCallCreator: InternetCallCreator? = null
     private val fileDownloader = FileDownloader()
     private val fileManager = FileManager()
