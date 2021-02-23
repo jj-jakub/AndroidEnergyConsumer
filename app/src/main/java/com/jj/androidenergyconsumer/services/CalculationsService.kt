@@ -10,7 +10,6 @@ import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
 import com.jj.androidenergyconsumer.notification.CALCULATIONS_NOTIFICATION_ID
-import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.notification.NotificationType.CALCULATIONS
 import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
@@ -18,13 +17,11 @@ import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.utils.tag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.koin.android.ext.android.inject
 
 class CalculationsService : BaseService() {
 
     private val handlersOrchestrator = HandlersOrchestrator()
 
-    private val notificationContainer: NotificationContainer by inject()
     private val calculationsNotification = notificationContainer.getProperNotification(CALCULATIONS)
 
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"

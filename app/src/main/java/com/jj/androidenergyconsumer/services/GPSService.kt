@@ -10,17 +10,14 @@ import android.os.IBinder
 import android.util.Log
 import com.jj.androidenergyconsumer.gps.MyLocationListener
 import com.jj.androidenergyconsumer.notification.GPS_NOTIFICATION_ID
-import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.notification.NotificationType.GPS
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.koin.android.ext.android.inject
 
 class GPSService : BaseService() {
 
-    private val notificationContainer: NotificationContainer by inject()
     private val gpsNotification = notificationContainer.getProperNotification(GPS)
     private var locationManager: LocationManager? = null
     private val locationListener: LocationListener = MyLocationListener(gpsNotification)
