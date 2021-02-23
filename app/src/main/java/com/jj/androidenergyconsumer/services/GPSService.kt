@@ -14,7 +14,6 @@ import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.notification.NotificationType.GPS
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
-import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.android.ext.android.inject
@@ -26,7 +25,6 @@ class GPSService : BaseService() {
     private var locationManager: LocationManager? = null
     private val locationListener: LocationListener = MyLocationListener(gpsNotification)
 
-    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:GPSServiceWakeLock"
 
     private val isWorking = MutableStateFlow(false)

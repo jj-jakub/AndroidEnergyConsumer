@@ -16,7 +16,6 @@ import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.utils.tag
-import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.android.ext.android.inject
@@ -28,7 +27,6 @@ class CalculationsService : BaseService() {
     private val notificationContainer: NotificationContainer by inject()
     private val calculationsNotification = notificationContainer.getProperNotification(CALCULATIONS)
 
-    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"
 
     private val calculationsRunning = MutableStateFlow(false)

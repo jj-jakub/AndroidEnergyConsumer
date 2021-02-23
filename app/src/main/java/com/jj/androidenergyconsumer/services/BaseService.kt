@@ -2,11 +2,11 @@ package com.jj.androidenergyconsumer.services
 
 import android.app.Service
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
+import org.koin.android.ext.android.inject
 
-abstract class BaseService: Service() {
+abstract class BaseService : Service() {
 
-    // TODO Make it being created in service onCreate
-    abstract val wakelockManager: WakelockManager
+    private val wakelockManager: WakelockManager by inject()
     abstract val wakelockTag: String
 
     protected fun acquireWakeLock() {

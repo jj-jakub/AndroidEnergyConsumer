@@ -11,7 +11,6 @@ import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.utils.*
-import com.jj.androidenergyconsumer.wakelock.WakelockManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +28,6 @@ class InternetService : BaseService() {
 
     private var lastKnownSourceUrl: String? = null
 
-    override val wakelockManager by lazy { WakelockManager(this) }
     override val wakelockTag = "AEC:InternetServiceWakeLock"
 
     private val isWorking = MutableStateFlow(false)
