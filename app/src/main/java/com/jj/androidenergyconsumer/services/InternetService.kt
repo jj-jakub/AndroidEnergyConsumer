@@ -13,6 +13,7 @@ import com.jj.androidenergyconsumer.utils.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -28,8 +29,8 @@ class InternetService : BaseService() {
     override val wakelockTag = "AEC:InternetServiceWakeLock"
 
     private val isWorking = MutableStateFlow(false)
-    private val inputErrorMessage = MutableStateFlow<String?>(null)
-    private val callResponse = MutableStateFlow<String?>(null)
+    private val inputErrorMessage = BufferedMutableSharedFlow<String?>()
+    private val callResponse = BufferedMutableSharedFlow<String?>()
 
     companion object : ServiceStarter {
         private const val START_PERIODIC_PINGS = "START_PERIODIC_PINGS"
@@ -67,8 +68,8 @@ class InternetService : BaseService() {
     }
 
     fun observeIsWorking(): StateFlow<Boolean> = isWorking
-    fun observeInputErrorMessage(): StateFlow<String?> = inputErrorMessage
-    fun observeCallResponse(): StateFlow<String?> = callResponse
+    fun observeInputErrorMessage(): SharedFlow<String?> = inputErrorMessage
+    fun observeCallResponse(): SharedFlow<String?> = callResponse
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
@@ -150,8 +151,8 @@ class InternetService : BaseService() {
     private val onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit =
         { downloadProgress ->
             CoroutineScope(Dispatchers.Main).launch {
-                callResponse.value = "${downloadProgress.progressPercentage}% downloaded, " +
-                        "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s"
+                callResponse.tryEmit("${downloadProgress.progressPercentage}% downloaded, " +
+                        "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s")
                 if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
                 else if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
             }
@@ -178,7 +179,7 @@ class InternetService : BaseService() {
 
     private fun onProcessingError(message: String?) {
         Log.e(tag, "onProcessingError: $message")
-        inputErrorMessage.value = message
+        inputErrorMessage.tryEmit(message)
     }
 
     private fun onDownloadException(exception: Exception?) {
@@ -216,7 +217,7 @@ class InternetService : BaseService() {
     private val onCallFinished: (result: String) -> Unit = { result ->
         if (isWorking.value) {
             notifyNotification("${getDateStringWithMillis()} $result")
-            callResponse.value = result
+            callResponse.tryEmit(result)
         }
     }
 
@@ -224,8 +225,8 @@ class InternetService : BaseService() {
         internetNotification.notify("InternetService notification", content)
 
     private fun resetValues() {
-        inputErrorMessage.value = null
-        callResponse.value = null
+        inputErrorMessage.tryEmit(null)
+        callResponse.tryEmit(null)
     }
 
     override fun onDestroy() {

@@ -8,9 +8,11 @@ import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
 import com.jj.androidenergyconsumer.notification.BLUETOOTH_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.BLUETOOTH
+import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -23,7 +25,7 @@ class BluetoothService : BaseService() {
     override val wakelockTag = "AEC:BluetoothServiceWakeLock"
 
     private val isScanning = MutableStateFlow(false)
-    private val errorMessage = MutableStateFlow<String?>(null)
+    private val errorMessage = BufferedMutableSharedFlow<String?>()
 
     private val scanningCallback = BluetoothServiceScanningCallback(bluetoothNotification) { onScanningFinished() }
 
@@ -44,7 +46,7 @@ class BluetoothService : BaseService() {
     }
 
     fun observeIsScanning(): StateFlow<Boolean> = isScanning
-    fun observeErrorMessage(): StateFlow<String?> = errorMessage
+    fun observeErrorMessage(): SharedFlow<String?> = errorMessage
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
@@ -79,11 +81,11 @@ class BluetoothService : BaseService() {
     }
 
     private fun onStartScanningError() {
-        errorMessage.value = "Start scanning error. Check if bluetooth is turned on."
+        errorMessage.tryEmit("Start scanning error. Check if bluetooth is turned on.")
     }
 
     private fun resetErrorMessage() {
-        errorMessage.value = null
+        errorMessage.tryEmit(null)
     }
 
     private fun stopService() {
