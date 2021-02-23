@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
-//TODO Prevent to launch pings tasks in parallel
 class InternetService : BaseService() {
 
     private val notificationContainer: NotificationContainer by inject()
@@ -89,6 +88,20 @@ class InternetService : BaseService() {
         logAndPingServer("onStartCommand", tag)
         resetValues()
         when (intent?.action) {
+            STOP_INTERNET_SERVICE -> stopSelf()
+            else -> onWorkCommandReceived(intent)
+        }
+        return START_NOT_STICKY
+    }
+
+    @Synchronized
+    private fun onWorkCommandReceived(intent: Intent?) {
+        if (isWorking.value) {
+            onProcessingError("Service is currently doing work")
+            return
+        }
+
+        when (intent?.action) {
             START_PERIODIC_PINGS -> setupInternetCallCreator(intent)?.let {
                 startPeriodicPingsToUrl(it, intent)
             }
@@ -96,19 +109,14 @@ class InternetService : BaseService() {
                 startOneAfterAnotherPings(it)
             }
             DOWNLOAD_FILE_ACTION -> onDownloadFileRequested(intent)
-            STOP_INTERNET_SERVICE -> stopSelf()
         }
-        return START_NOT_STICKY
     }
 
     private fun onDownloadFileRequested(intent: Intent) {
-        if (isWorking.value) showShortToast("Service is currently doing work")
-        else {
-            intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
-                lastKnownSourceUrl = url
-                startFileDownload(url)
-            } ?: onUrlExtraNull()
-        }
+        intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
+            lastKnownSourceUrl = url
+            startFileDownload(url)
+        } ?: onUrlExtraNull()
     }
 
     private fun setupInternetCallCreator(intent: Intent): InternetCallCreator? {
@@ -197,17 +205,17 @@ class InternetService : BaseService() {
     }
 
     private fun startPeriodicPingsToUrl(internetCallCreator: InternetCallCreator, intent: Intent) {
+        isWorking.value = true
         logAndPingServer("startPeriodicPingsToUrl", tag)
         val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
         internetCallCreator.pingGoogleWithPeriod(periodBetweenPingsMs, onCallFinished)
         acquireWakeLock()
-        isWorking.value = true
     }
 
     private fun startOneAfterAnotherPings(internetCallCreator: InternetCallCreator) {
+        isWorking.value = true
         internetCallCreator.startOneAfterAnotherPings(onCallFinished)
         acquireWakeLock()
-        isWorking.value = true
     }
 
     private val onCallFinished: (result: String) -> Unit = { result ->
