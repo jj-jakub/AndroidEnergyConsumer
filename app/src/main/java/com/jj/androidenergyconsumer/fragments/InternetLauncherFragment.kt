@@ -15,7 +15,6 @@ import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
-import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import kotlinx.coroutines.flow.collect
 import com.jj.androidenergyconsumer.utils.tag as LogTag
 
@@ -159,8 +158,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     private fun onCallResponseChanged(callResponse: String?) {
         if (callResponse != null) {
             fragmentInternetLauncherBinding.callResponseInfoLabel.visibility = View.VISIBLE
-            val responseText = "${getDateStringWithMillis()}; $callResponse"
-            fragmentInternetLauncherBinding.callResponseInfoValue.text = responseText
+            fragmentInternetLauncherBinding.callResponseInfoValue.text = callResponse
         } else resetCallResponseLabelAndValue()
     }
 
