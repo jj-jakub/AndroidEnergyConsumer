@@ -28,6 +28,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/gpsErrorMessageLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:textColor="@color/red"
+        app:layout_constraintBottom_toTopOf="@+id/constantGPSWorkButton"
+        app:layout_constraintEnd_toEndOf="@+id/constantGPSWorkButton"
+        app:layout_constraintStart_toStartOf="@+id/constantGPSWorkButton"
+        tools:text="Error message" />
+
     <Button
         android:id="@+id/constantGPSWorkButton"
         android:layout_width="wrap_content"
@@ -89,12 +100,34 @@
         app:layout_constraintTop_toTopOf="@+id/gpsWorkingStatusInfoLabel"
         app:layout_constraintVertical_chainStyle="packed" />
 
+    <TextView
+        android:id="@+id/lastGpsResultLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/last_location"
+        app:layout_constraintBottom_toTopOf="@+id/stopGpsUpdatesButton"
+        app:layout_constraintEnd_toEndOf="@+id/gpsWorkingStatusInfoLabel"
+        app:layout_constraintTop_toBottomOf="@+id/gpsWorkingStatusInfoLabel" />
+
+    <TextView
+        android:id="@+id/lastGpsResultValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        app:layout_constraintBottom_toBottomOf="@+id/lastGpsResultLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/gpsWorkingStatusValueLabel"
+        app:layout_constraintTop_toTopOf="@+id/lastGpsResultLabel"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Result field" />
+
     <Button
         android:id="@+id/stopGpsUpdatesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="58dp"
-        android:text="Stop GPS updates"
+        android:text="@string/stop_gps_updates"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

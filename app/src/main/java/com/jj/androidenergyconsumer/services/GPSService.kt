@@ -3,28 +3,36 @@ package com.jj.androidenergyconsumer.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.location.LocationListener
 import android.location.LocationManager
-import android.os.HandlerThread
 import android.os.IBinder
 import android.util.Log
-import com.jj.androidenergyconsumer.gps.MyLocationListener
+import com.jj.androidenergyconsumer.gps.CustomLocationListener
+import com.jj.androidenergyconsumer.gps.LocationListenerResult
 import com.jj.androidenergyconsumer.notification.GPS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.GPS
+import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class GPSService : BaseService() {
 
     private val gpsNotification = notificationContainer.getProperNotification(GPS)
     private var locationManager: LocationManager? = null
-    private val locationListener: LocationListener = MyLocationListener(gpsNotification)
+    private val locationListener: CustomLocationListener by inject()
 
     override val wakelockTag = "AEC:GPSServiceWakeLock"
 
     private val isWorking = MutableStateFlow(false)
+    private val errorMessage = BufferedMutableSharedFlow<String?>()
 
     companion object : ServiceStarter {
         private const val START_CONSTANT_UPDATES = "START_CONSTANT_UPDATES"
@@ -54,15 +62,13 @@ class GPSService : BaseService() {
     }
 
     fun observeIsWorking(): StateFlow<Boolean> = isWorking
+    fun observeErrorMessage(): SharedFlow<String?> = errorMessage
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-
-        handlerThread.start()
-
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
         val notification = gpsNotification.get()
         startForeground(GPS_NOTIFICATION_ID, notification)
@@ -78,8 +84,6 @@ class GPSService : BaseService() {
         return START_NOT_STICKY
     }
 
-    private val handlerThread: HandlerThread = HandlerThread("InternetThread")
-
     private fun startConstantUpdates() {
         logAndPingServer("startConstantUpdates", tag)
         requestLocationUpdates(0, 0F)
@@ -94,17 +98,52 @@ class GPSService : BaseService() {
     @Suppress("SameParameterValue")
     @SuppressLint("WakelockTimeout")
     private fun requestLocationUpdates(minimumPeriodMs: Long, minimumDistanceM: Float) {
-        try {
-            logAndPingServer("requestLocationUpdates, locationManager: $locationManager", tag)
-            locationManager?.let { manager ->
-                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minimumPeriodMs, minimumDistanceM,
-                        locationListener)
-                acquireWakeLock()
-                isWorking.value = true
+        if (!isWorking.value) {
+            resetErrorMessage()
+            try {
+                logAndPingServer("requestLocationUpdates, locationManager: $locationManager", tag)
+                locationManager?.let { manager ->
+                    manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minimumPeriodMs, minimumDistanceM,
+                            locationListener)
+                    isWorking.value = true
+                    observeGPSResults()
+                    acquireWakeLock()
+                } ?: run {
+                    errorMessage.tryEmit("Location manager is null")
+                }
+            } catch (se: SecurityException) {
+                Log.e(tag, "requestLocationUpdates Security exception", se)
+                errorMessage.tryEmit("No location permission")
             }
-        } catch (se: SecurityException) {
-            Log.e(tag, "requestLocationUpdates Security exception", se)
+        } else onServiceAlreadyRunning()
+    }
+
+    private fun observeGPSResults() {
+        CoroutineScope(Dispatchers.IO).launch {
+            locationListener.observeLocationInfoUpdates().collect { result ->
+                when (result) {
+                    is LocationListenerResult.LocationChanged -> onLocationChanged(result)
+                    else -> {
+                        /* no-op */
+                    }
+                }
+            }
         }
+    }
+
+    private fun onLocationChanged(result: LocationListenerResult.LocationChanged) {
+        gpsNotification.notify("GPSService notification",
+                "${getDateStringWithMillis()} loc: " +
+                        "lat: ${result.location.latitude} - lon: ${result.location.longitude}")
+    }
+
+    // TODO Extract common code from services
+    private fun onServiceAlreadyRunning() {
+        errorMessage.tryEmit("Service is already running")
+    }
+
+    private fun resetErrorMessage() {
+        errorMessage.tryEmit(null)
     }
 
     private fun stopService() {

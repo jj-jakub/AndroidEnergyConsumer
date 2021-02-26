@@ -14,15 +14,19 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentGpsLauncherBinding
+import com.jj.androidenergyconsumer.gps.CustomLocationListener
+import com.jj.androidenergyconsumer.gps.LocationListenerResult
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.GPSService
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.coroutines.flow.collect
+import org.koin.android.ext.android.inject
 import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class GPSLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentGpsLauncherBinding: FragmentGpsLauncherBinding
+    private val customLocationListener: CustomLocationListener by inject()
 
     private var gpsService: GPSService? = null
 
@@ -48,8 +52,29 @@ class GPSLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun setupFragment(context: Context) {
-        setButtonsListeners()
         bindToGPSService(context)
+        setButtonsListeners()
+        observeGPSResults()
+    }
+
+    private fun observeGPSResults() {
+        with(lifecycleScope) {
+            launchWhenResumed {
+                customLocationListener.observeLocationInfoUpdates().collect { result ->
+                    when (result) {
+                        is LocationListenerResult.LocationChanged -> onLocationChanged(result)
+                        else -> {
+                            /* no-op */
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onLocationChanged(result: LocationListenerResult.LocationChanged) {
+        val coordinates = "lat: ${result.location.latitude}, lon: ${result.location.longitude}"
+        fragmentGpsLauncherBinding.lastGpsResultValue.text = coordinates
     }
 
     private fun setButtonsListeners() {
@@ -102,7 +127,10 @@ class GPSLauncherFragment : BaseLauncherFragment() {
             (binder?.getService() as GPSService?)?.let { service ->
                 gpsService = service
                 serviceBound.set(true)
-                lifecycleScope.launchWhenResumed { service.observeIsWorking().collect { onWorkingStatusChanged(it) } }
+                lifecycleScope.launchWhenResumed {
+                    service.observeIsWorking().collect { onWorkingStatusChanged(it) }
+                    service.observeErrorMessage().collect { onErrorMessageChanged(it) }
+                }
             }
         }
 
@@ -135,6 +163,10 @@ class GPSLauncherFragment : BaseLauncherFragment() {
                 gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
             }
         }
+    }
+
+    private fun onErrorMessageChanged(errorMessage: String?) {
+        fragmentGpsLauncherBinding.gpsErrorMessageLabel.text = errorMessage ?: ""
     }
 
     private fun onPermissionNotGranted() {

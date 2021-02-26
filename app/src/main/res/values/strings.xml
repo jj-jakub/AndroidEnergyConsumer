@@ -37,4 +37,6 @@
     <string name="default_file_download_url">http://192.168.0.106:8080/bigFileDownload</string>
     <string name="call_response">Call response:</string>
     <string name="last_result">Last result:</string>
+    <string name="last_location">Last location</string>
+    <string name="stop_gps_updates">Stop GPS updates</string>
 </resources>
