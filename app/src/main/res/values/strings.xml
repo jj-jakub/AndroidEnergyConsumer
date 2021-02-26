@@ -36,4 +36,5 @@
     <string name="google_url">https://google.com</string>
     <string name="default_file_download_url">http://192.168.0.106:8080/bigFileDownload</string>
     <string name="call_response">Call response:</string>
+    <string name="last_result">Last result:</string>
 </resources>

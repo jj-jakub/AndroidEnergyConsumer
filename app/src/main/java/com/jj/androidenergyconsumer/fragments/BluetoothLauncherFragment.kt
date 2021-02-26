@@ -1,5 +1,6 @@
 package com.jj.androidenergyconsumer.fragments
 
+import android.bluetooth.BluetoothDevice
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
@@ -13,17 +14,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.bluetooth.BluetoothBroadcastResult
+import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.databinding.FragmentBluetoothLauncherBinding
 import com.jj.androidenergyconsumer.permissions.PermissionManager
 import com.jj.androidenergyconsumer.services.BluetoothService
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.coroutines.flow.collect
+import org.koin.android.ext.android.inject
 import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding
 
+    private val bluetoothScanner: BluetoothScanner by inject()
     private var bluetoothService: BluetoothService? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -53,6 +58,7 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     private fun setupFragment(context: Context) {
         bindToBluetoothService(context)
+        observeBluetoothResults()
         setButtonsListeners()
         fragmentBluetoothLauncherBinding.apply {
             bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
@@ -70,6 +76,28 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
             startBluetoothScanningButton.setOnClickListener { startBluetoothService() }
             abortBluetoothScanningButton.setOnClickListener { abortBluetoothService() }
         }
+    }
+
+    private fun observeBluetoothResults() {
+        with(lifecycleScope) {
+            launchWhenResumed {
+                bluetoothScanner.observeBluetoothResults().collect { result ->
+                    when (result) {
+                        is BluetoothBroadcastResult.DiscoveryFinished -> onScanningFinished()
+                        is BluetoothBroadcastResult.FoundDevice -> onDeviceFound(result.device)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onDeviceFound(device: BluetoothDevice) {
+        fragmentBluetoothLauncherBinding.lastScanningResultValue.text =
+            "device: ${device.name} - ${device.bluetoothClass?.deviceClass}"
+    }
+
+    private fun onScanningFinished() {
+        fragmentBluetoothLauncherBinding.lastScanningResultValue.text = "Scanning finished"
     }
 
     private fun startBluetoothService() {

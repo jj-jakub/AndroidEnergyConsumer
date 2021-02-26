@@ -1,23 +1,23 @@
 package com.jj.androidenergyconsumer.bluetooth
 
 import android.bluetooth.BluetoothAdapter
-import android.content.Context
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import kotlinx.coroutines.flow.SharedFlow
 
-class BluetoothScanner(context: Context) : IScanner {
+class BluetoothScanner(private val bluetoothBroadcastReceiver: BluetoothBroadcastReceiver) : IScanner {
 
-    private val bluetoothBroadcastReceiver = BluetoothBroadcastReceiver(context)
     private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
-    override fun startScanning(scanningCallback: ScanningCallback): Boolean {
+    fun observeBluetoothResults(): SharedFlow<BluetoothBroadcastResult> =
+        bluetoothBroadcastReceiver.observeBluetoothResults()
+
+    override fun startScanning(): Boolean {
         logAndPingServer("startScanning", tag)
-        bluetoothBroadcastReceiver.register(scanningCallback)
-        return bluetoothAdapter?.startDiscovery()?.also { startedDiscovery ->
-            if (!startedDiscovery) {
-                bluetoothBroadcastReceiver.unregister()
-            }
-        } ?: false
+        bluetoothBroadcastReceiver.register()
+        val startedDiscovery = bluetoothAdapter?.startDiscovery() ?: false
+        if (!startedDiscovery) stopScanning()
+        return startedDiscovery
     }
 
     override fun stopScanning() {

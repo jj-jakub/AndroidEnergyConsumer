@@ -5,6 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/bluetoothErrorMessageLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:textColor="@color/red"
+        app:layout_constraintBottom_toTopOf="@+id/startBluetoothScanningButton"
+        app:layout_constraintEnd_toEndOf="@+id/startBluetoothScanningButton"
+        app:layout_constraintStart_toStartOf="@+id/startBluetoothScanningButton"
+        tools:text="Error message" />
+
     <Button
         android:id="@+id/startBluetoothScanningButton"
         android:layout_width="wrap_content"
@@ -26,7 +37,7 @@
         android:gravity="end"
         android:text="@string/bluetooth_scanning_status"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/abortBluetoothScanningButton"
+        app:layout_constraintBottom_toTopOf="@+id/lastScanningResultLabel"
         app:layout_constraintEnd_toStartOf="@+id/bluetoothScanningStatusValueLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startBluetoothScanningButton"
@@ -45,6 +56,28 @@
         app:layout_constraintTop_toTopOf="@+id/bluetoothScanningStatusInfoLabel"
         app:layout_constraintVertical_chainStyle="packed" />
 
+    <TextView
+        android:id="@+id/lastScanningResultLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/last_result"
+        app:layout_constraintBottom_toTopOf="@+id/abortBluetoothScanningButton"
+        app:layout_constraintEnd_toEndOf="@+id/bluetoothScanningStatusInfoLabel"
+        app:layout_constraintTop_toBottomOf="@+id/bluetoothScanningStatusInfoLabel" />
+
+    <TextView
+        android:id="@+id/lastScanningResultValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        app:layout_constraintBottom_toBottomOf="@+id/lastScanningResultLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/bluetoothScanningStatusValueLabel"
+        app:layout_constraintTop_toTopOf="@+id/lastScanningResultLabel"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Result field" />
+
     <Button
         android:id="@+id/abortBluetoothScanningButton"
         android:layout_width="wrap_content"
@@ -54,17 +87,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bluetoothScanningStatusInfoLabel"
+        app:layout_constraintTop_toBottomOf="@+id/lastScanningResultLabel"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <TextView
-        android:id="@+id/bluetoothErrorMessageLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:textColor="@color/red"
-        app:layout_constraintBottom_toTopOf="@+id/startBluetoothScanningButton"
-        app:layout_constraintEnd_toEndOf="@+id/startBluetoothScanningButton"
-        app:layout_constraintStart_toStartOf="@+id/startBluetoothScanningButton"
-        tools:text="Error message" />
 </androidx.constraintlayout.widget.ConstraintLayout>

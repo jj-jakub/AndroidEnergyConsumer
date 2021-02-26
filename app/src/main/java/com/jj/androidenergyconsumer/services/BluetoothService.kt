@@ -1,33 +1,39 @@
 package com.jj.androidenergyconsumer.services
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import com.jj.androidenergyconsumer.bluetooth.BluetoothBroadcastResult
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
-import com.jj.androidenergyconsumer.bluetooth.BluetoothServiceScanningCallback
 import com.jj.androidenergyconsumer.notification.BLUETOOTH_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.BLUETOOTH
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
 import com.jj.androidenergyconsumer.utils.logAndPingServer
 import com.jj.androidenergyconsumer.utils.tag
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
 
     private val bluetoothNotification = notificationContainer.getProperNotification(BLUETOOTH)
-    private val bluetoothScanner = BluetoothScanner(this)
+    private val bluetoothScanner: BluetoothScanner by inject()
+
     private val shouldRestartScanning = AtomicBoolean(true)
 
     override val wakelockTag = "AEC:BluetoothServiceWakeLock"
 
     private val isScanning = MutableStateFlow(false)
     private val errorMessage = BufferedMutableSharedFlow<String?>()
-
-    private val scanningCallback = BluetoothServiceScanningCallback(bluetoothNotification) { onScanningFinished() }
 
     companion object : ServiceStarter {
         private const val START_SCANNING_ACTION = "START_SCANNING_ACTION"
@@ -68,16 +74,38 @@ class BluetoothService : BaseService() {
 
     @SuppressLint("WakelockTimeout")
     private fun startScanning() {
-        resetErrorMessage()
-        val startedScanning = bluetoothScanner.startScanning(scanningCallback)
-        if (startedScanning) {
-            shouldRestartScanning.set(true)
-            isScanning.value = true
-            acquireWakeLock()
-        } else {
-            onStartScanningError()
-        }
+        if (!isScanning.value) {
+            resetErrorMessage()
+            val startedScanning = bluetoothScanner.startScanning()
+            if (startedScanning) {
+                isScanning.value = true
+                shouldRestartScanning.set(true)
+                observeBluetoothResults()
+                acquireWakeLock()
+            } else onStartScanningError()
+        } else onServiceAlreadyRunning()
         logAndPingServer("After startScanning", tag)
+    }
+
+    private fun observeBluetoothResults() {
+        CoroutineScope(Dispatchers.IO).launch {
+            bluetoothScanner.observeBluetoothResults().collect { result ->
+                when (result) {
+                    is BluetoothBroadcastResult.DiscoveryFinished -> onScanningFinished()
+                    is BluetoothBroadcastResult.FoundDevice -> onDeviceFound(result.device)
+                }
+            }
+        }
+    }
+
+    private fun onDeviceFound(device: BluetoothDevice) {
+        bluetoothNotification.notify("BluetoothService notification",
+                "${getDateStringWithMillis()} device: ${device.name} - ${device.bluetoothClass?.deviceClass}")
+        logAndPingServer("device: ${device.name} - ${device.bluetoothClass?.deviceClass}", tag)
+    }
+
+    private fun onServiceAlreadyRunning() {
+        errorMessage.tryEmit("Service is already running")
     }
 
     private fun onStartScanningError() {

@@ -6,38 +6,41 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
-import com.jj.androidenergyconsumer.utils.CustomBroadcastReceiver
-import com.jj.androidenergyconsumer.utils.logAndPingServer
-import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.utils.*
+import kotlinx.coroutines.flow.SharedFlow
+import java.util.concurrent.atomic.AtomicBoolean
+
+sealed class BluetoothBroadcastResult {
+    data class FoundDevice(val device: BluetoothDevice) : BluetoothBroadcastResult()
+    object DiscoveryFinished : BluetoothBroadcastResult()
+}
 
 class BluetoothBroadcastReceiver(private val context: Context) : CustomBroadcastReceiver() {
 
-    private var scanningCallback: ScanningCallback? = null
+    private val receiverRegistered = AtomicBoolean(false)
+    private val bluetoothScanResults = BufferedMutableSharedFlow<BluetoothBroadcastResult>()
+
+    fun observeBluetoothResults(): SharedFlow<BluetoothBroadcastResult> = bluetoothScanResults
 
     override fun onReceive(context: Context?, intent: Intent?) {
         logAndPingServer("Received action: ${intent?.action}", tag)
         if (intent?.action == BluetoothDevice.ACTION_FOUND) {
             val device = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
             logAndPingServer("Discovered device: ${device?.name}, address: ${device?.address}", tag)
-            scanningCallback?.onDeviceDiscovered(device)
+            device?.let { bluetoothScanResults.tryEmit(BluetoothBroadcastResult.FoundDevice(device)) }
         }
         if (intent?.action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
-            scanningCallback?.onScanningFinished()
+            bluetoothScanResults.tryEmit(BluetoothBroadcastResult.DiscoveryFinished)
         }
     }
 
-    override fun register(callback: ScanningCallback) {
-        scanningCallback = callback
-        context.registerReceiver(this, intentFilter)
+    override fun register() {
+        if (receiverRegistered.compareAndSet(false, true)) context.registerReceiver(this, intentFilter)
     }
 
     override fun unregister() {
-        try {
-            context.unregisterReceiver(this)
-        } catch (iae: IllegalArgumentException) {
-            Log.e(tag, "Error when unregistering receiver", iae)
-        }
+        safelyUnregisterReceiver(context)
+        receiverRegistered.set(false)
     }
 
     private val intentFilter = IntentFilter().apply {

@@ -1,5 +1,7 @@
 package com.jj.androidenergyconsumer.utils
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -35,3 +37,11 @@ fun showShortToast(message: String) =
     Toast.makeText(AECApplication.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
 
 fun Float.roundAsString(decimals: Int = 2): String = "%.${decimals}f".format(Locale.US, this)
+
+fun BroadcastReceiver.safelyUnregisterReceiver(context: Context) {
+    try {
+        context.unregisterReceiver(this)
+    } catch (iae: IllegalArgumentException) {
+        Log.e(tag, "Error when unregistering receiver", iae)
+    }
+}
