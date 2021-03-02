@@ -27,6 +27,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentGpsLauncherBinding: FragmentGpsLauncherBinding
     private val customLocationListener: CustomLocationListener by inject()
+    override val activityTitle: String = "GPS launcher"
 
     private var gpsService: GPSService? = null
 

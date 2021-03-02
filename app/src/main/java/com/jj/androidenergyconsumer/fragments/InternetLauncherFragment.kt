@@ -21,6 +21,7 @@ import com.jj.androidenergyconsumer.utils.tag as LogTag
 class InternetLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
+    override val activityTitle: String = "Internet launcher"
 
     private var internetService: InternetService? = null
 

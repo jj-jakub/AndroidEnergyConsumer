@@ -27,6 +27,7 @@ import com.jj.androidenergyconsumer.utils.tag as LogTag
 class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding
+    override val activityTitle: String = "Bluetooth launcher"
 
     private val bluetoothScanner: BluetoothScanner by inject()
     private var bluetoothService: BluetoothService? = null

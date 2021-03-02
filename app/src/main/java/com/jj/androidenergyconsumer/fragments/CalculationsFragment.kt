@@ -24,6 +24,7 @@ import com.jj.androidenergyconsumer.utils.tag as LogTag
 class CalculationsFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentCalculationsLauncherBinding: FragmentCalculationsLauncherBinding
+    override val activityTitle: String = "Calculations launcher"
 
     private var calculationsService: CalculationsService? = null
 

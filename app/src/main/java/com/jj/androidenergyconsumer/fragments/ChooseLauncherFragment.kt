@@ -22,8 +22,13 @@ class ChooseLauncherFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setActivityTitle()
         navController = Navigation.findNavController(fragmentChooseLauncherBinding.root)
         setButtonsListeners()
+    }
+
+    private fun setActivityTitle() {
+        activity?.title = getString(R.string.app_name)
     }
 
     private fun setButtonsListeners() {
