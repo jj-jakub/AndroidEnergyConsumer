@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="redButtonStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/red</item>
+        <item name="android:background">@color/red</item>
+    </style>
+
+</resources>

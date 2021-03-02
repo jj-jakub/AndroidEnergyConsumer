@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_chooseLauncherFragment_to_bluetoothLauncherFragment"
             app:destination="@id/bluetoothLauncherFragment" />
+        <action
+            android:id="@+id/action_chooseLauncherFragment_to_LEDControllerFragment"
+            app:destination="@id/LEDControllerFragment" />
     </fragment>
     <fragment
         android:id="@+id/bluetoothLauncherFragment"
@@ -43,4 +46,9 @@
         android:name="com.jj.androidenergyconsumer.fragments.InternetLauncherFragment"
         android:label="InternetLauncherFragment"
         tools:layout="@layout/fragment_internet_launcher"/>
+    <fragment
+        android:id="@+id/LEDControllerFragment"
+        android:name="com.jj.androidenergyconsumer.fragments.LEDControllerFragment"
+        android:label="LEDControllerFragment"
+        tools:layout="@layout/fragment_led_controller" />
 </navigation>

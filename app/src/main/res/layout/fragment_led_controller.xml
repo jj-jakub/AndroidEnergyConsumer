@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/redLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/red"
+            android:text="Red"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/greenLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/green"
+            android:text="Green"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/redLedButton" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/blueLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/blue"
+            android:text="Blue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/greenLedButton" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/yellowLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/yellow"
+            android:text="Yellow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/blueLedButton" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/whiteLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/white"
+            android:text="White"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/yellowLedButton" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/purpleLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/purple"
+            android:text="Purple"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/whiteLedButton" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cyanLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@color/cyan"
+            android:text="Cyan"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/purpleLedButton" />
+
+        <EditText
+            android:id="@+id/brightnessField"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:ems="10"
+            android:inputType="number"
+            android:text="255"
+            app:layout_constraintEnd_toEndOf="@+id/cyanLedButton"
+            app:layout_constraintStart_toStartOf="@+id/cyanLedButton"
+            app:layout_constraintTop_toBottomOf="@+id/cyanLedButton"
+            tools:text="255" />
+
+        <TextView
+            android:id="@+id/brightnessLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brightness"
+            app:layout_constraintStart_toStartOf="@+id/brightnessField"
+            app:layout_constraintTop_toBottomOf="@+id/brightnessField" />
+
+        <Button
+            android:id="@+id/sendBrightnessButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Change brightness"
+            app:layout_constraintEnd_toEndOf="@+id/brightnessField"
+            app:layout_constraintStart_toStartOf="@+id/brightnessField"
+            app:layout_constraintTop_toBottomOf="@+id/brightnessLabel" />
+
+        <EditText
+            android:id="@+id/ledNodeIpField"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:ems="10"
+
+            android:inputType="textPersonName"
+            android:text="192.168.43.71"
+            app:layout_constraintEnd_toEndOf="@+id/sendBrightnessButton"
+            app:layout_constraintStart_toStartOf="@+id/sendBrightnessButton"
+            app:layout_constraintTop_toBottomOf="@+id/sendBrightnessButton"
+            tools:text="192.168.43.71" />
+
+        <TextView
+            android:id="@+id/ledNodeIpLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LED node IP"
+            app:layout_constraintStart_toStartOf="@+id/ledNodeIpField"
+            app:layout_constraintTop_toBottomOf="@+id/ledNodeIpField" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

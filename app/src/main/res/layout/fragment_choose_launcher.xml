@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -31,11 +32,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sensors_launcher"
-        app:layout_constraintBottom_toTopOf="@+id/bluetoothModuleLauncherButton"
+        app:layout_constraintBottom_toTopOf="@+id/ledControllerButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/internetModuleLauncherButton" />
+
+    <Button
+        android:id="@+id/ledControllerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LED Controller"
+        app:layout_constraintBottom_toTopOf="@+id/bluetoothModuleLauncherButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sensorsModuleLauncherButton" />
 
     <Button
         android:id="@+id/calculationsButton"
@@ -56,6 +67,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sensorsModuleLauncherButton" />
+        app:layout_constraintTop_toBottomOf="@+id/ledControllerButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

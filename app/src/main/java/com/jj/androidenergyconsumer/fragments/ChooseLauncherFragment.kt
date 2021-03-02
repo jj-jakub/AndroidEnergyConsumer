@@ -45,6 +45,9 @@ class ChooseLauncherFragment : Fragment() {
             bluetoothModuleLauncherButton.setOnClickListener {
                 navController.navigate(R.id.action_chooseLauncherFragment_to_bluetoothLauncherFragment)
             }
+            ledControllerButton.setOnClickListener {
+                navController.navigate(R.id.action_chooseLauncherFragment_to_LEDControllerFragment)
+            }
         }
     }
 }
