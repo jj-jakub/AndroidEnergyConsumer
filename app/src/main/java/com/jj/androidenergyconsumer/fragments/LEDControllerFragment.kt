@@ -59,15 +59,15 @@ class LEDControllerFragment : BaseLauncherFragment() {
     }
 
     private fun switchLeds(color: AvailableLedColors) {
-        getUrlFromInput()?.let { url ->
-            ledControllerViewModel.sendLedRequest(color, url)
+        getIpFromInput()?.let { ip ->
+            ledControllerViewModel.sendLedRequest(color, ip)
         }
     }
 
     private fun switchLedsBrightness() {
         getBrightnessFromInput()?.let { brightness ->
-            getUrlFromInput()?.let { url ->
-                ledControllerViewModel.sendBrightnessRequest(brightness, url)
+            getIpFromInput()?.let { ip ->
+                ledControllerViewModel.sendBrightnessRequest(brightness, ip)
             }
         }
     }
@@ -85,17 +85,17 @@ class LEDControllerFragment : BaseLauncherFragment() {
     }
 
 
-    private fun getUrlFromInput(): String? =
+    private fun getIpFromInput(): String? =
         try {
             fragmentLedControllerBinding.ledNodeIpField.text.toString()
         } catch (e: Exception) {
-            Log.e(tag, "Exception while converting input url", e)
-            onUrlInputError()
+            Log.e(tag, "Exception while converting input IP", e)
+            onIpInputError()
             null
         }
 
-    private fun onUrlInputError() {
-        onInputError("Wrong Url input")
+    private fun onIpInputError() {
+        onInputError("Wrong IP input")
     }
 
     @Suppress("SameParameterValue")

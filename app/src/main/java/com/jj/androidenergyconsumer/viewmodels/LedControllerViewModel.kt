@@ -30,12 +30,14 @@ class LedControllerViewModel : ViewModel() {
 
     fun observeErrorMessage(): SharedFlow<String> = errorMessage
 
-    fun sendLedRequest(color: AvailableLedColors, url: String) {
-        val urlWithEndpoint = "$url/${color.toString().toLowerCase(Locale.ROOT)}"
+    fun sendLedRequest(color: AvailableLedColors, ip: String) {
+        val url = "http://$ip/"
+        val urlWithEndpoint = "$url${color.toString().toLowerCase(Locale.ROOT)}"
         createLedColorCallManager(url)?.ping(urlWithEndpoint, callCallback)
     }
 
-    fun sendBrightnessRequest(brightness: Int, url: String) {
+    fun sendBrightnessRequest(brightness: Int, ip: String) {
+        val url = "http://$ip"
         createLedBrightnessCallManager(url)?.sendBrightness(brightness, callCallback)
     }
 
