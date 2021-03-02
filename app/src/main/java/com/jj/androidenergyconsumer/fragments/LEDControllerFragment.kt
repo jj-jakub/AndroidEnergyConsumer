@@ -50,7 +50,9 @@ class LEDControllerFragment : BaseLauncherFragment() {
     }
 
     private fun switchLeds(color: AvailableLedColors) {
-        ledControllerViewModel.sendLedRequest(color)
+        getUrlFromInput()?.let { url ->
+            ledControllerViewModel.sendLedRequest(color, url)
+        }
     }
 
     private fun switchLedsBrightness() {
