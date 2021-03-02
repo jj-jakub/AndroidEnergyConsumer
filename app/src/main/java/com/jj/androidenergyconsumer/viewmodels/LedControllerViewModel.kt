@@ -8,6 +8,7 @@ import com.jj.androidenergyconsumer.rest.SampleInternetCallManager
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.utils.tag
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,6 +27,8 @@ class LedControllerViewModel : ViewModel() {
             errorMessage.tryEmit(t.message ?: "Call Error")
         }
     }
+
+    fun observeErrorMessage(): SharedFlow<String> = errorMessage
 
     fun sendLedRequest(color: AvailableLedColors, url: String) {
         val urlWithEndpoint = "$url/${color.toString().toLowerCase(Locale.ROOT)}"

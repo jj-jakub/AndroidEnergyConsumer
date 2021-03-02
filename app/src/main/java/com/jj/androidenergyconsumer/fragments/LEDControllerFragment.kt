@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.databinding.FragmentLedControllerBinding
 import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.viewmodels.LedControllerViewModel
+import kotlinx.coroutines.flow.collect
 
 enum class AvailableLedColors {
     RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, CYAN
@@ -32,7 +34,14 @@ class LEDControllerFragment : BaseLauncherFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observeErrors()
         setupButtonListeners()
+    }
+
+    private fun observeErrors() {
+        with(lifecycleScope) {
+            launchWhenResumed { ledControllerViewModel.observeErrorMessage().collect { onInputError(it) } }
+        }
     }
 
     private fun setupButtonListeners() {
