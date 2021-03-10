@@ -16,13 +16,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class InternetService : BaseService() {
 
     private val internetNotification = notificationContainer.getProperNotification(INTERNET)
     private var latestInternetCallCreator: InternetCallCreator? = null
-    private val fileDownloader = FileDownloader()
-    private val fileManager = FileManager()
+    private val fileDownloader: FileDownloader by inject()
+    private val fileManager: FileManager by inject()
 
     private var lastKnownSourceUrl: String? = null
 
