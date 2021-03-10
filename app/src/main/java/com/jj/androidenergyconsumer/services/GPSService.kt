@@ -10,12 +10,7 @@ import com.jj.androidenergyconsumer.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.gps.LocationListenerResult
 import com.jj.androidenergyconsumer.notification.GPS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.GPS
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
-import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import com.jj.androidenergyconsumer.utils.logAndPingServer
-import com.jj.androidenergyconsumer.utils.tag
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.jj.androidenergyconsumer.utils.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +19,8 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class GPSService : BaseService() {
+
+    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
 
     private val gpsNotification = notificationContainer.getProperNotification(GPS)
     private var locationManager: LocationManager? = null
@@ -119,7 +116,7 @@ class GPSService : BaseService() {
     }
 
     private fun observeGPSResults() {
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScopeProvider.getIO().launch {
             locationListener.observeLocationInfoUpdates().collect { result ->
                 when (result) {
                     is LocationListenerResult.LocationChanged -> onLocationChanged(result)

@@ -6,8 +6,6 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import com.jj.androidenergyconsumer.AECApplication
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,10 +21,11 @@ infix fun String.ifNotEmpty(value: () -> Unit) {
     if (this.isNotEmpty()) value.invoke()
 }
 
-fun logAndPingServer(message: String, tag: String) {
+fun logAndPingServer(message: String, tag: String,
+                     coroutineScopeProvider: CoroutineScopeProvider = CoroutineScopeProvider()) {
     Log.d(tag, message)
     LogSaver.saveLog(tag, message)
-    CoroutineScope(Dispatchers.IO).launch {
+    coroutineScopeProvider.getIO().launch {
 //        PingDataCall.postSensorsData(PingData(Date(), "${Build.MODEL} $message"), DefaultCallback())
     }
 }

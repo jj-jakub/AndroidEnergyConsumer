@@ -9,12 +9,7 @@ import com.jj.androidenergyconsumer.bluetooth.BluetoothBroadcastResult
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.notification.BLUETOOTH_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.BLUETOOTH
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
-import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import com.jj.androidenergyconsumer.utils.logAndPingServer
-import com.jj.androidenergyconsumer.utils.tag
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.jj.androidenergyconsumer.utils.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +19,8 @@ import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
+
+    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
 
     private val bluetoothNotification = notificationContainer.getProperNotification(BLUETOOTH)
     private val bluetoothScanner: BluetoothScanner by inject()
@@ -88,7 +85,7 @@ class BluetoothService : BaseService() {
     }
 
     private fun observeBluetoothResults() {
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScopeProvider.getIO().launch {
             bluetoothScanner.observeBluetoothResults().collect { result ->
                 when (result) {
                     is BluetoothBroadcastResult.DiscoveryFinished -> onScanningFinished()

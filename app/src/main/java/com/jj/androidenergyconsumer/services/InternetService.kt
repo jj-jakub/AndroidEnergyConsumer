@@ -10,8 +10,6 @@ import com.jj.androidenergyconsumer.internet.InternetCallCreator
 import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.utils.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +17,8 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class InternetService : BaseService() {
+
+    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
 
     private val internetNotification = notificationContainer.getProperNotification(INTERNET)
     private var latestInternetCallCreator: InternetCallCreator? = null
@@ -143,7 +143,7 @@ class InternetService : BaseService() {
 
         acquireWakeLock()
         isWorking.value = true
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScopeProvider.getIO().launch {
             fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url,
                     onDownloadProgressChanged)
         }
@@ -151,7 +151,7 @@ class InternetService : BaseService() {
 
     private val onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit =
         { downloadProgress ->
-            CoroutineScope(Dispatchers.Main).launch {
+            coroutineScopeProvider.getMain().launch {
                 callResponse.tryEmit("${downloadProgress.progressPercentage}% downloaded, " +
                         "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s")
                 if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
