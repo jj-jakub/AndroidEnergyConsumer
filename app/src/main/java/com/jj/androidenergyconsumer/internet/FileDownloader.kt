@@ -1,8 +1,11 @@
 package com.jj.androidenergyconsumer.internet
 
 import android.util.Log
+import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import com.jj.androidenergyconsumer.utils.CoroutineScopeProvider
 import com.jj.androidenergyconsumer.utils.tag
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
 import java.io.File
@@ -14,25 +17,27 @@ import java.util.concurrent.atomic.AtomicBoolean
 data class DownloadProgress(val progressPercentage: Int, val averageDownloadSpeedKBs: Float,
                             val downloadFinished: Boolean, val exception: Exception? = null)
 
-class FileDownloader {
+class FileDownloader(private val coroutineScopeProvider: CoroutineScopeProvider) {
 
     companion object {
         private const val DOWNLOAD_BUFFER_SIZE = 16384
     }
 
+    private val downloadProgressFlow = BufferedMutableSharedFlow<DownloadProgress>()
     private val downloadCancelled = AtomicBoolean(false)
 
     private var downloadStartTime: Long = 0
     private var averageDownloadSpeedKBs: Float = 0F
     private var progressPercentage: Int = 0
 
+    fun observeDownloadProgress(): SharedFlow<DownloadProgress> = downloadProgressFlow
+
     fun cancelDownload() {
         downloadCancelled.set(true)
     }
 
-    suspend fun downloadFile(destinationDirPath: File, fileForDownloadName: String, sourceUrl: String,
-                             onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit) {
-        withContext(Dispatchers.IO) {
+    suspend fun downloadFile(destinationDirPath: File, fileForDownloadName: String, sourceUrl: String) {
+        withContext(coroutineScopeProvider.getIODispatcher()) {
             var totalBytesReceived = 0L
             try {
                 val url = URL(sourceUrl)
@@ -57,7 +62,7 @@ class FileDownloader {
                     receivedBytes = input.read(buffer)
                     val downloadCancelled = downloadCancelled.get()
                     if (receivedBytes == -1 || downloadCancelled) {
-                        onDownloadEnd(input, output, downloadCancelled, onDownloadProgressChanged)
+                        onDownloadEnd(input, output, downloadCancelled)
                         return@withContext
                     }
                     totalBytesReceived += receivedBytes
@@ -68,20 +73,19 @@ class FileDownloader {
                             (totalBytesReceived / 1000F) / ((System.currentTimeMillis() - downloadStartTime) / 1000F)
                         progressPercentage = (totalBytesReceived * 100 / fileLength).toInt()
                         val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, false)
-                        onProgressUpdate(downloadProgress, onDownloadProgressChanged)
+                        onProgressUpdate(downloadProgress)
                     }.start()
                 }
 
             } catch (e: IOException) {
                 e.printStackTrace()
                 val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, true, e)
-                onProgressUpdate(downloadProgress, onDownloadProgressChanged)
+                onProgressUpdate(downloadProgress)
             }
         }
     }
 
-    private fun onDownloadEnd(input: BufferedInputStream, output: FileOutputStream, downloadCancelled: Boolean,
-                              onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit) {
+    private fun onDownloadEnd(input: BufferedInputStream, output: FileOutputStream, downloadCancelled: Boolean) {
         // close streams
         output.flush()
         output.close()
@@ -89,12 +93,11 @@ class FileDownloader {
 
         if (!downloadCancelled) {
             val downloadProgress = DownloadProgress(100, averageDownloadSpeedKBs, true)
-            onProgressUpdate(downloadProgress, onDownloadProgressChanged)
+            onProgressUpdate(downloadProgress)
         }
     }
 
-    private fun onProgressUpdate(downloadProgress: DownloadProgress,
-                                 onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit) {
-        onDownloadProgressChanged(downloadProgress)
+    private fun onProgressUpdate(downloadProgress: DownloadProgress) {
+        downloadProgressFlow.tryEmit(downloadProgress)
     }
 }

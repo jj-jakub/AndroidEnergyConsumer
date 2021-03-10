@@ -2,6 +2,7 @@ package com.jj.androidenergyconsumer.utils
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 class CoroutineScopeProvider {
 
@@ -10,4 +11,6 @@ class CoroutineScopeProvider {
 
     fun getMain(): CoroutineScope = main
     fun getIO(): CoroutineScope = io
+
+    fun getIODispatcher(): CoroutineContext = Dispatchers.IO
 }

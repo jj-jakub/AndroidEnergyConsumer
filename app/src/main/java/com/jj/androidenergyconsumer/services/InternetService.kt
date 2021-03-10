@@ -13,6 +13,7 @@ import com.jj.androidenergyconsumer.utils.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -83,7 +84,6 @@ class InternetService : BaseService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         logAndPingServer("onStartCommand", tag)
-        resetValues()
         when (intent?.action) {
             STOP_INTERNET_SERVICE -> stopSelf()
             else -> onWorkCommandReceived(intent)
@@ -97,6 +97,8 @@ class InternetService : BaseService() {
             onProcessingError("Service is currently doing work")
             return
         }
+
+        resetValues()
 
         when (intent?.action) {
             START_PERIODIC_PINGS -> setupInternetCallCreator(intent)?.let {
@@ -144,20 +146,15 @@ class InternetService : BaseService() {
         acquireWakeLock()
         isWorking.value = true
         coroutineScopeProvider.getIO().launch {
-            fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url,
-                    onDownloadProgressChanged)
+            fileDownloader.observeDownloadProgress().collect { onDownloadProgressChanged(it) }
+            fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url)
         }
     }
 
-    private val onDownloadProgressChanged: (downloadProgress: DownloadProgress) -> Unit =
-        { downloadProgress ->
-            coroutineScopeProvider.getMain().launch {
-                callResponse.tryEmit("${downloadProgress.progressPercentage}% downloaded, " +
-                        "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s")
-                if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
-                else if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
-            }
-        }
+    private fun onDownloadProgressChanged(downloadProgress: DownloadProgress) {
+        if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
+        else if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
+    }
 
     private fun onFileDownloadingCompleted() {
         Log.d(tag, "onFileDownloadingCompleted")

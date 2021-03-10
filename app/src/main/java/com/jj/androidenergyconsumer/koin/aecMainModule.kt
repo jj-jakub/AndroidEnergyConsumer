@@ -18,7 +18,7 @@ val aecMainModule = module {
 
     single { CustomLocationListener() }
 
-    single { FileDownloader() }
+    single { FileDownloader(get()) }
     single { FileManager() }
 
     single { CoroutineScopeProvider() }

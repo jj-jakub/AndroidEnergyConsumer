@@ -13,12 +13,18 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
+import com.jj.androidenergyconsumer.internet.DownloadProgress
+import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
+import com.jj.androidenergyconsumer.utils.roundAsString
 import kotlinx.coroutines.flow.collect
+import org.koin.android.ext.android.inject
 import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class InternetLauncherFragment : BaseLauncherFragment() {
+
+    private val fileDownloader: FileDownloader by inject()
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
     override val activityTitle: String = "Internet launcher"
@@ -32,8 +38,27 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setButtonsListeners()
+        setupFragment()
         context?.apply { bindToInternetService(this) }
+    }
+
+    private fun setupFragment() {
+        setButtonsListeners()
+        observeFileDownloadProgress()
+    }
+
+    private fun observeFileDownloadProgress() {
+        with(lifecycleScope) {
+            launchWhenResumed {
+                fileDownloader.observeDownloadProgress().collect { handleDownloadProgressInfo(it) }
+            }
+        }
+    }
+
+    private fun handleDownloadProgressInfo(downloadProgress: DownloadProgress) {
+        val processedMessage = "${downloadProgress.progressPercentage}% downloaded, " +
+                "${downloadProgress.averageDownloadSpeedKBs.roundAsString()} KB/s"
+        onCallResponseChanged(processedMessage)
     }
 
     private fun setButtonsListeners() {
