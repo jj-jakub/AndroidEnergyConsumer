@@ -6,6 +6,7 @@ import com.jj.androidenergyconsumer.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.notification.NotificationContainer
+import com.jj.androidenergyconsumer.rest.InternetPingCallManager
 import com.jj.androidenergyconsumer.utils.CoroutineScopeProvider
 import com.jj.androidenergyconsumer.utils.FileManager
 import com.jj.androidenergyconsumer.wakelock.WakelockManager
@@ -24,5 +25,6 @@ val aecMainModule = module {
 
     single { CoroutineScopeProvider() }
 
-    single { InternetPingsCreator() }
+    single { InternetPingCallManager() }
+    single { InternetPingsCreator(get()) }
 }

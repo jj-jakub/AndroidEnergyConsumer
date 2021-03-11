@@ -10,7 +10,7 @@ import retrofit2.Callback
 
 data class CallResult(val result: String)
 
-class InternetPingsCreator {
+class InternetPingsCreator(private val internetPingCallManager: InternetPingCallManager) {
 
     companion object {
         const val GOOGLE_URL = "https://google.com"
@@ -18,7 +18,6 @@ class InternetPingsCreator {
 
     private var handlerThread: HandlerThread? = null
     private var stoppableHandler: StoppableLoopedHandler? = null
-    private val internetPingCallManager = InternetPingCallManager()
 
     private val lastCallResultFlow = BufferedMutableSharedFlow<CallResult>()
 
