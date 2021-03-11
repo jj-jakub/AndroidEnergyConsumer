@@ -9,15 +9,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.TimeUnit
 
+@Suppress("MayBeConstant")
 private val serverUrl = BuildConfig.SERVER_URL
 
 class RetrofitClientFactory {
 
-    fun createRetrofit(): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(createHttpClient())
+    companion object {
+        private const val DUMMY_BASE_URL = "http://localhost/"
+    }
+
+    fun createRetrofitToServer(): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(createHttpClient())
         .addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
 
-    fun createRetrofitToUrl(url: String): Retrofit = Retrofit.Builder().baseUrl(url).client(createHttpClient())
-        .addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
+    fun createRetrofitForPings(): Retrofit = Retrofit.Builder().baseUrl(DUMMY_BASE_URL)
+        .client(createHttpClient()).addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
 
     private fun createHttpClient() = OkHttpClient.Builder().apply {
         retryOnConnectionFailure(true)

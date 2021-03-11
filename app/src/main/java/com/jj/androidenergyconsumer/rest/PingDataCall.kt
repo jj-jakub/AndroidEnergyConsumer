@@ -6,7 +6,7 @@ import retrofit2.Callback
 
 object PingDataCall {
 
-    private val retrofitClient = RetrofitClientFactory().createRetrofit()
+    private val retrofitClient = RetrofitClientFactory().createRetrofitToServer()
 
     private val PING_DATA_API: PingDataAPI = retrofitClient.create(PingDataAPI::class.java)
 

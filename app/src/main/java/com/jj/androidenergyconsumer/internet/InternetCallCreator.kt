@@ -2,7 +2,7 @@ package com.jj.androidenergyconsumer.internet
 
 import android.os.HandlerThread
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
-import com.jj.androidenergyconsumer.rest.SampleInternetCallManager
+import com.jj.androidenergyconsumer.rest.InternetPingCallManager
 import okhttp3.ResponseBody
 import retrofit2.Callback
 
@@ -14,7 +14,7 @@ class InternetCallCreator(url: String) {
 
     private val handlerThread: HandlerThread = HandlerThread("InternetThread")
     private val stoppableHandler: StoppableLoopedHandler
-    private val sampleInternetCallManager = SampleInternetCallManager(url)
+    private val sampleInternetCallManager = InternetPingCallManager(url)
 
     init {
         handlerThread.start()
