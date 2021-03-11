@@ -4,6 +4,7 @@ import com.jj.androidenergyconsumer.bluetooth.BluetoothBroadcastReceiver
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.internet.FileDownloader
+import com.jj.androidenergyconsumer.internet.InternetCallCreator
 import com.jj.androidenergyconsumer.notification.NotificationContainer
 import com.jj.androidenergyconsumer.utils.CoroutineScopeProvider
 import com.jj.androidenergyconsumer.utils.FileManager
@@ -22,4 +23,6 @@ val aecMainModule = module {
     single { FileManager() }
 
     single { CoroutineScopeProvider() }
+
+    single { InternetCallCreator() }
 }

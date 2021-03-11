@@ -22,7 +22,7 @@ class InternetService : BaseService() {
     private val coroutineScopeProvider: CoroutineScopeProvider by inject()
 
     private val internetNotification = notificationContainer.getProperNotification(INTERNET)
-    private var latestInternetCallCreator: InternetCallCreator? = null
+    private val internetCallCreator: InternetCallCreator by inject()
     private val fileDownloader: FileDownloader by inject()
     private val fileManager: FileManager by inject()
 
@@ -101,10 +101,10 @@ class InternetService : BaseService() {
         resetValues()
 
         when (intent?.action) {
-            START_PERIODIC_PINGS -> setupInternetCallCreator(intent)?.let {
+            START_PERIODIC_PINGS -> getUrlFromIntent(intent)?.let {
                 startPeriodicPingsToUrl(it, intent)
             }
-            START_ONE_AFTER_ANOTHER_PINGS -> setupInternetCallCreator(intent)?.let {
+            START_ONE_AFTER_ANOTHER_PINGS -> getUrlFromIntent(intent)?.let {
                 startOneAfterAnotherPings(it)
             }
             DOWNLOAD_FILE_ACTION -> onDownloadFileRequested(intent)
@@ -118,22 +118,11 @@ class InternetService : BaseService() {
         } ?: onUrlExtraNull()
     }
 
-    private fun setupInternetCallCreator(intent: Intent): InternetCallCreator? {
-        logAndPingServer("setupInternetCallCreator", tag)
-        intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url -> return createInternetCallCreator(url) }
-            ?: onUrlExtraNull()
-        return null
-    }
-
-    private fun createInternetCallCreator(urlToPing: String): InternetCallCreator? {
-        return try {
-            stopInternetCallCreator()
-            InternetCallCreator(urlToPing).apply { latestInternetCallCreator = this }
-        } catch (iae: IllegalArgumentException) {
-            Log.e(tag, "Exception while creating InternetCallCreator", iae)
-            onProcessingError(iae.message)
-            null
-        }
+    private fun getUrlFromIntent(intent: Intent): String? {
+        logAndPingServer("getUrlFromIntent", tag)
+        val url = intent.getStringExtra(URL_FOR_WORK_EXTRA)
+        if (url == null) onUrlExtraNull()
+        return url
     }
 
     private fun startFileDownload(url: String) {
@@ -170,11 +159,6 @@ class InternetService : BaseService() {
         lastKnownSourceUrl?.let { startFileDownload(it) } ?: stopSelf()
     }
 
-    private fun stopInternetCallCreator() {
-        latestInternetCallCreator?.stopWorking()
-        latestInternetCallCreator = null
-    }
-
     private fun onProcessingError(message: String?) {
         Log.e(tag, "onProcessingError: $message")
         inputErrorMessage.tryEmit(message)
@@ -198,17 +182,17 @@ class InternetService : BaseService() {
         onProcessingError("Failed to remove downloaded file")
     }
 
-    private fun startPeriodicPingsToUrl(internetCallCreator: InternetCallCreator, intent: Intent) {
+    private fun startPeriodicPingsToUrl(url: String, intent: Intent) {
         isWorking.value = true
         logAndPingServer("startPeriodicPingsToUrl", tag)
         val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
-        internetCallCreator.pingGoogleWithPeriod(periodBetweenPingsMs, onCallFinished)
+        internetCallCreator.pingUrlWithPeriod(url, periodBetweenPingsMs, onCallFinished)
         acquireWakeLock()
     }
 
-    private fun startOneAfterAnotherPings(internetCallCreator: InternetCallCreator) {
+    private fun startOneAfterAnotherPings(url: String) {
         isWorking.value = true
-        internetCallCreator.startOneAfterAnotherPings(onCallFinished)
+        internetCallCreator.startOneAfterAnotherPings(url, onCallFinished)
         acquireWakeLock()
     }
 
@@ -230,7 +214,7 @@ class InternetService : BaseService() {
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
         resetValues()
-        stopInternetCallCreator()
+        internetCallCreator.stopWorking()
         stopWorking()
         fileDownloader.cancelDownload()
         internetNotification.cancel()
