@@ -27,13 +27,14 @@ abstract class CustomNotification(private val context: Context, private val noti
 
     fun notify(contentTitle: String = "", contentText: String = "", subText: String = "") {
         val title = contentTitle ifIsEmpty defaultNotificationTitle
-        prepareNotification(title)
+        prepareNotification(title, contentText, subText)
     }
 
     fun cancel() = cancelNotification(notificationId)
 
-    private fun prepareNotification(title: String = defaultNotificationTitle) =
-        createNotification(contentTitle = title, builder = notificationBuilder ?: createBuilder()).apply {
+    private fun prepareNotification(title: String = defaultNotificationTitle, contentText: String = "",
+                                    subText: String = "") =
+        createNotification(title, contentText, subText, notificationBuilder ?: createBuilder()).apply {
             notification = this
             notifyNotification(notificationId, this)
         }
