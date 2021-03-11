@@ -15,6 +15,7 @@ import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.internet.DownloadProgress
 import com.jj.androidenergyconsumer.internet.FileDownloader
+import com.jj.androidenergyconsumer.internet.InternetCallCreator.Companion.GOOGLE_URL
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.roundAsString
@@ -67,7 +68,12 @@ class InternetLauncherFragment : BaseLauncherFragment() {
             constantInternetWorkButton.setOnClickListener { startConstantInternetWork() }
             stopInternetCallsButton.setOnClickListener { stopInternetWork() }
             startFileDownloadButton.setOnClickListener { startFileDownload() }
+            setGoogleUrlButton.setOnClickListener { setGoogleUrlInInput() }
         }
+    }
+
+    private fun setGoogleUrlInInput() {
+        fragmentInternetLauncherBinding.urlInput.setText(GOOGLE_URL)
     }
 
     private fun startPeriodicInternetWork() {
