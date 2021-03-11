@@ -43,6 +43,7 @@
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/request_interval_in_milliseconds"
+        android:text="10"
         android:inputType="numberDecimal"
         app:layout_constraintBottom_toTopOf="@+id/internetIntervalLabel"
         app:layout_constraintEnd_toEndOf="@+id/periodicInternetWorkButton"
