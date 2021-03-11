@@ -15,6 +15,7 @@ import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.internet.DownloadProgress
 import com.jj.androidenergyconsumer.internet.FileDownloader
+import com.jj.androidenergyconsumer.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.internet.InternetPingsCreator.Companion.GOOGLE_URL
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
@@ -26,6 +27,7 @@ import com.jj.androidenergyconsumer.utils.tag as LogTag
 class InternetLauncherFragment : BaseLauncherFragment() {
 
     private val fileDownloader: FileDownloader by inject()
+    private val internetPingsCreator: InternetPingsCreator by inject()
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
     override val activityTitle: String = "Internet launcher"
@@ -45,13 +47,14 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private fun setupFragment() {
         setButtonsListeners()
-        observeFileDownloadProgress()
+        observeInternetResultFlows()
     }
 
-    private fun observeFileDownloadProgress() {
+    private fun observeInternetResultFlows() {
         with(lifecycleScope) {
+            launchWhenResumed { fileDownloader.observeDownloadProgress().collect { handleDownloadProgressInfo(it) } }
             launchWhenResumed {
-                fileDownloader.observeDownloadProgress().collect { handleDownloadProgressInfo(it) }
+                internetPingsCreator.observeLastCallResult().collect { onCallResponseChanged(it.result) }
             }
         }
     }
@@ -78,7 +81,6 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private fun startPeriodicInternetWork() {
         context?.let { context ->
-            resetUrlLabelText()
             val millisIntervalFromInput = getMillisFromInput()
             val urlToPing = getUrlFromInput()
             bindToInternetService(context)
@@ -88,7 +90,6 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private fun startConstantInternetWork() {
         context?.let { context ->
-            resetUrlLabelText()
             val urlToPing = getUrlFromInput()
             bindToInternetService(context)
             InternetService.startOneAfterAnotherPings(context, urlToPing)
@@ -99,12 +100,12 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         context?.let { context ->
             unbindFromService(context)
             InternetService.stopInternetService(context)
+            resetValues()
         }
     }
 
     private fun startFileDownload() {
         context?.let { context ->
-            resetUrlLabelText()
             val urlToDownloadFrom = getUrlFromInput()
             bindToInternetService(context)
             InternetService.startFileDownload(context, urlToDownloadFrom)
@@ -147,7 +148,6 @@ class InternetLauncherFragment : BaseLauncherFragment() {
                 with(lifecycleScope) {
                     launchWhenResumed { service.observeIsWorking().collect { onWorkingStatusChanged(it) } }
                     launchWhenResumed { service.observeInputErrorMessage().collect { onErrorMessageChanged(it) } }
-                    launchWhenResumed { service.observeCallResponse().collect { onCallResponseChanged(it) } }
                 }
             }
         }
@@ -172,12 +172,22 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onErrorMessageChanged(errorMessage: String?) {
-        if (errorMessage != null) {
-            fragmentInternetLauncherBinding.apply {
-                urlToPingOrDownloadLabel.text = errorMessage
-                urlToPingOrDownloadLabel.setTextColor(Color.RED)
-            }
-        } else resetUrlLabelText()
+        fragmentInternetLauncherBinding.apply {
+            urlToPingOrDownloadLabel.text = errorMessage
+            urlToPingOrDownloadLabel.setTextColor(Color.RED)
+        }
+    }
+
+    private fun onCallResponseChanged(callResponse: String) {
+        fragmentInternetLauncherBinding.callResponseInfoLabel.visibility = View.VISIBLE
+        fragmentInternetLauncherBinding.callResponseInfoValue.text = callResponse
+    }
+
+    private fun resetCallResponseLabelAndValue() {
+        fragmentInternetLauncherBinding.apply {
+            callResponseInfoLabel.visibility = View.INVISIBLE
+            callResponseInfoValue.text = ""
+        }
     }
 
     private fun resetUrlLabelText() {
@@ -187,18 +197,9 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun onCallResponseChanged(callResponse: String?) {
-        if (callResponse != null) {
-            fragmentInternetLauncherBinding.callResponseInfoLabel.visibility = View.VISIBLE
-            fragmentInternetLauncherBinding.callResponseInfoValue.text = callResponse
-        } else resetCallResponseLabelAndValue()
-    }
-
-    private fun resetCallResponseLabelAndValue() {
-        fragmentInternetLauncherBinding.apply {
-            callResponseInfoLabel.visibility = View.INVISIBLE
-            callResponseInfoValue.text = ""
-        }
+    private fun resetValues() {
+        resetCallResponseLabelAndValue()
+        resetUrlLabelText()
     }
 
     private fun onWorkingStatusChanged(workingStatus: Boolean?) {

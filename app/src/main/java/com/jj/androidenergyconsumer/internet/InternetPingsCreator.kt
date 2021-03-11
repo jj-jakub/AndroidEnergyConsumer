@@ -3,8 +3,12 @@ package com.jj.androidenergyconsumer.internet
 import android.os.HandlerThread
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
 import com.jj.androidenergyconsumer.rest.InternetPingCallManager
+import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import okhttp3.ResponseBody
 import retrofit2.Callback
+
+data class CallResult(val result: String)
 
 class InternetPingsCreator {
 
@@ -16,23 +20,34 @@ class InternetPingsCreator {
     private var stoppableHandler: StoppableLoopedHandler? = null
     private val internetPingCallManager = InternetPingCallManager()
 
-    fun pingUrlWithPeriod(url: String, periodMs: Long, onCallFinished: (result: String) -> Unit) {
+    private val lastCallResultFlow = BufferedMutableSharedFlow<CallResult>()
+
+    fun observeLastCallResult(): SharedFlow<CallResult> = lastCallResultFlow
+
+    fun pingUrlWithPeriod(url: String, periodMs: Long) {
         restartThreads()
+        val callCallback = CallbackWithAction {
+            lastCallResultFlow.tryEmit(CallResult(it))
+        }
         stoppableHandler?.executeInInfiniteLoop({
-            internetPingCallManager.ping(url, CallbackWithAction(onCallFinished))
+            internetPingCallManager.ping(url, callCallback)
         }, periodMs)
     }
 
-    fun startOneAfterAnotherPings(url: String, onCallFinished: (result: String) -> Unit) {
+    fun startOneAfterAnotherPings(url: String) {
         restartThreads()
-        innerStartOneAfterAnotherPings(url, onCallFinished)
+
+        @Suppress("JoinDeclarationAndAssignment")
+        lateinit var callCallback: CallbackWithAction
+        callCallback = CallbackWithAction { result ->
+            lastCallResultFlow.tryEmit(CallResult(result))
+            innerStartOneAfterAnotherPings(url, callCallback)
+        }
+
+        innerStartOneAfterAnotherPings(url, callCallback)
     }
 
-    private fun innerStartOneAfterAnotherPings(url: String, onCallFinished: (result: String) -> Unit) {
-        val callCallback = CallbackWithAction { result ->
-            onCallFinished(result)
-            innerStartOneAfterAnotherPings(url, onCallFinished)
-        }
+    private fun innerStartOneAfterAnotherPings(url: String, callCallback: CallbackWithAction) {
         ping(url, callCallback)
     }
 

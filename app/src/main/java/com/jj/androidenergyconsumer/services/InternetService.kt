@@ -32,7 +32,6 @@ class InternetService : BaseService() {
 
     private val isWorking = MutableStateFlow(false)
     private val inputErrorMessage = BufferedMutableSharedFlow<String?>()
-    private val callResponse = BufferedMutableSharedFlow<String?>()
 
     companion object : ServiceStarter {
         private const val START_PERIODIC_PINGS = "START_PERIODIC_PINGS"
@@ -71,7 +70,6 @@ class InternetService : BaseService() {
 
     fun observeIsWorking(): StateFlow<Boolean> = isWorking
     fun observeInputErrorMessage(): SharedFlow<String?> = inputErrorMessage
-    fun observeCallResponse(): SharedFlow<String?> = callResponse
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
@@ -80,6 +78,7 @@ class InternetService : BaseService() {
         super.onCreate()
         val notification = internetNotification.get()
         startForeground(INTERNET_NOTIFICATION_ID, notification)
+        observeLastCallResults()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -186,20 +185,23 @@ class InternetService : BaseService() {
         isWorking.value = true
         logAndPingServer("startPeriodicPingsToUrl", tag)
         val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
-        internetPingsCreator.pingUrlWithPeriod(url, periodBetweenPingsMs, onCallFinished)
+        internetPingsCreator.pingUrlWithPeriod(url, periodBetweenPingsMs)
         acquireWakeLock()
     }
 
     private fun startOneAfterAnotherPings(url: String) {
         isWorking.value = true
-        internetPingsCreator.startOneAfterAnotherPings(url, onCallFinished)
+        internetPingsCreator.startOneAfterAnotherPings(url)
         acquireWakeLock()
     }
 
-    private val onCallFinished: (result: String) -> Unit = { result ->
-        if (isWorking.value) {
-            notifyNotification("${getDateStringWithMillis()} $result")
-            callResponse.tryEmit(result)
+    private fun observeLastCallResults() {
+        coroutineScopeProvider.getIO().launch {
+            internetPingsCreator.observeLastCallResult().collect {
+                if (isWorking.value) {
+                    notifyNotification("${getDateStringWithMillis()} ${it.result}")
+                }
+            }
         }
     }
 
@@ -208,7 +210,6 @@ class InternetService : BaseService() {
 
     private fun resetValues() {
         inputErrorMessage.tryEmit(null)
-        callResponse.tryEmit(null)
     }
 
     override fun onDestroy() {
