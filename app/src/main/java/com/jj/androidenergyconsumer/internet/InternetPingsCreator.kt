@@ -6,7 +6,7 @@ import com.jj.androidenergyconsumer.rest.InternetPingCallManager
 import okhttp3.ResponseBody
 import retrofit2.Callback
 
-class InternetCallCreator {
+class InternetPingsCreator {
 
     companion object {
         const val GOOGLE_URL = "https://google.com"

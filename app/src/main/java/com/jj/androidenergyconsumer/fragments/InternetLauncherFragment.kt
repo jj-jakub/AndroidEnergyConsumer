@@ -15,7 +15,7 @@ import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.internet.DownloadProgress
 import com.jj.androidenergyconsumer.internet.FileDownloader
-import com.jj.androidenergyconsumer.internet.InternetCallCreator.Companion.GOOGLE_URL
+import com.jj.androidenergyconsumer.internet.InternetPingsCreator.Companion.GOOGLE_URL
 import com.jj.androidenergyconsumer.services.InternetService
 import com.jj.androidenergyconsumer.services.MyBinder
 import com.jj.androidenergyconsumer.utils.roundAsString

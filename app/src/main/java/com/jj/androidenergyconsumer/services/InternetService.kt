@@ -6,7 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import com.jj.androidenergyconsumer.internet.DownloadProgress
 import com.jj.androidenergyconsumer.internet.FileDownloader
-import com.jj.androidenergyconsumer.internet.InternetCallCreator
+import com.jj.androidenergyconsumer.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.utils.*
@@ -22,7 +22,7 @@ class InternetService : BaseService() {
     private val coroutineScopeProvider: CoroutineScopeProvider by inject()
 
     private val internetNotification = notificationContainer.getProperNotification(INTERNET)
-    private val internetCallCreator: InternetCallCreator by inject()
+    private val internetPingsCreator: InternetPingsCreator by inject()
     private val fileDownloader: FileDownloader by inject()
     private val fileManager: FileManager by inject()
 
@@ -186,13 +186,13 @@ class InternetService : BaseService() {
         isWorking.value = true
         logAndPingServer("startPeriodicPingsToUrl", tag)
         val periodBetweenPingsMs = intent.getLongExtra(PERIOD_MS_BETWEEN_PINGS_EXTRA, 1000)
-        internetCallCreator.pingUrlWithPeriod(url, periodBetweenPingsMs, onCallFinished)
+        internetPingsCreator.pingUrlWithPeriod(url, periodBetweenPingsMs, onCallFinished)
         acquireWakeLock()
     }
 
     private fun startOneAfterAnotherPings(url: String) {
         isWorking.value = true
-        internetCallCreator.startOneAfterAnotherPings(url, onCallFinished)
+        internetPingsCreator.startOneAfterAnotherPings(url, onCallFinished)
         acquireWakeLock()
     }
 
@@ -214,7 +214,7 @@ class InternetService : BaseService() {
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
         resetValues()
-        internetCallCreator.stopWorking()
+        internetPingsCreator.stopWorking()
         stopWorking()
         fileDownloader.cancelDownload()
         internetNotification.cancel()
