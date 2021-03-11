@@ -1,7 +1,6 @@
 package com.jj.androidenergyconsumer.internet
 
-import android.os.HandlerThread
-import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
+import com.jj.androidenergyconsumer.handlers.StoppableLoopedThread
 import com.jj.androidenergyconsumer.rest.InternetPingCallManager
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -10,36 +9,30 @@ import retrofit2.Callback
 
 data class CallResult(val result: String)
 
-class InternetPingsCreator(private val internetPingCallManager: InternetPingCallManager) {
+class InternetPingsCreator(private val internetPingCallManager: InternetPingCallManager,
+                           private val stoppableLoopedThread: StoppableLoopedThread = StoppableLoopedThread()) {
 
     companion object {
         const val GOOGLE_URL = "https://google.com"
     }
-
-    private var handlerThread: HandlerThread? = null
-    private var stoppableHandler: StoppableLoopedHandler? = null
 
     private val lastCallResultFlow = BufferedMutableSharedFlow<CallResult>()
 
     fun observeLastCallResult(): SharedFlow<CallResult> = lastCallResultFlow
 
     fun pingUrlWithPeriod(url: String, periodMs: Long) {
-        restartThreads()
-        val callCallback = CallbackWithAction {
-            lastCallResultFlow.tryEmit(CallResult(it))
-        }
-        stoppableHandler?.executeInInfiniteLoop({
-            internetPingCallManager.ping(url, callCallback)
-        }, periodMs)
+        restartThread()
+        val callCallback = CallbackWithAction { result -> handleCallResult(result) }
+        stoppableLoopedThread.executeInInfiniteLoop({ internetPingCallManager.ping(url, callCallback) }, periodMs)
     }
 
     fun startOneAfterAnotherPings(url: String) {
-        restartThreads()
+        restartThread()
 
         @Suppress("JoinDeclarationAndAssignment")
         lateinit var callCallback: CallbackWithAction
         callCallback = CallbackWithAction { result ->
-            lastCallResultFlow.tryEmit(CallResult(result))
+            handleCallResult(result)
             innerStartOneAfterAnotherPings(url, callCallback)
         }
 
@@ -50,24 +43,15 @@ class InternetPingsCreator(private val internetPingCallManager: InternetPingCall
         ping(url, callCallback)
     }
 
-    private fun restartThreads() {
-        stopWorking()
-        handlerThread = HandlerThread("InternetThread").apply {
-            start()
-            stoppableHandler = StoppableLoopedHandler(looper)
-        }
+    private fun restartThread() {
+        stoppableLoopedThread.restartThread()
     }
 
     private fun ping(url: String, callback: Callback<ResponseBody>) {
-        stoppableHandler?.post { internetPingCallManager.ping(url, callback) }
+        stoppableLoopedThread.post { internetPingCallManager.ping(url, callback) }
     }
 
-    fun stopWorking() {
-        stoppableHandler?.quitHandler()
-        stoppableHandler = null
-        handlerThread?.apply {
-            looper?.quit()
-            quit()
-        }
-    }
+    private fun handleCallResult(result: String) = lastCallResultFlow.tryEmit(CallResult(result))
+
+    fun stopWorking() = stoppableLoopedThread.stopThread()
 }
