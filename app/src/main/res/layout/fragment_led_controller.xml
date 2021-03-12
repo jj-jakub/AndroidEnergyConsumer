@@ -139,5 +139,17 @@
             app:layout_constraintStart_toStartOf="@+id/ledNodeIpField"
             app:layout_constraintTop_toBottomOf="@+id/ledNodeIpField" />
 
+        <Button
+            android:id="@+id/rainbowLedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="41dp"
+            android:layout_marginEnd="27dp"
+            android:text="Rainbow"
+            app:layout_constraintBottom_toBottomOf="@+id/cyanLedButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/cyanLedButton"
+            app:layout_constraintTop_toTopOf="@+id/cyanLedButton" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

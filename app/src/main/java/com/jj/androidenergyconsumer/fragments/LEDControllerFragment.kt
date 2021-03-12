@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.collect
 import org.koin.android.ext.android.inject
 
 enum class AvailableLedColors {
-    RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, CYAN
+    RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, CYAN, RAINBOW
 }
 
 class LEDControllerFragment : BaseLauncherFragment() {
@@ -56,6 +56,7 @@ class LEDControllerFragment : BaseLauncherFragment() {
             whiteLedButton.setOnClickListener { switchLeds(AvailableLedColors.WHITE) }
             purpleLedButton.setOnClickListener { switchLeds(AvailableLedColors.PURPLE) }
             cyanLedButton.setOnClickListener { switchLeds(AvailableLedColors.CYAN) }
+            rainbowLedButton.setOnClickListener { switchLeds(AvailableLedColors.RAINBOW) }
 
             sendBrightnessButton.setOnClickListener { switchLedsBrightness() }
         }
