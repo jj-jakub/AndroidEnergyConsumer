@@ -11,7 +11,9 @@ import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.databinding.FragmentLedControllerBinding
 import com.jj.androidenergyconsumer.utils.showShortToast
 import com.jj.androidenergyconsumer.viewmodels.LedControllerViewModel
+import com.jj.androidenergyconsumer.viewmodels.ViewModelFactory
 import kotlinx.coroutines.flow.collect
+import org.koin.android.ext.android.inject
 
 enum class AvailableLedColors {
     RED, GREEN, BLUE, YELLOW, WHITE, PURPLE, CYAN
@@ -25,7 +27,8 @@ class LEDControllerFragment : BaseLauncherFragment() {
 
     private lateinit var fragmentLedControllerBinding: FragmentLedControllerBinding
 
-    private val ledControllerViewModel: LedControllerViewModel by viewModels()
+    private val viewModelFactory: ViewModelFactory by inject()
+    private val ledControllerViewModel: LedControllerViewModel by viewModels { viewModelFactory }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentLedControllerBinding = FragmentLedControllerBinding.inflate(inflater, container, false)
