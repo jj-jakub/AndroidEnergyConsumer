@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.jj.androidenergyconsumer.fragments.AvailableLedColors
 import com.jj.androidenergyconsumer.rest.InternetPingCallManager
-import com.jj.androidenergyconsumer.rest.LedBrightnessCallManager
+import com.jj.androidenergyconsumer.rest.LedControlCallManager
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.utils.tag
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,13 +39,18 @@ class LedControllerViewModel(private val internetPingCallManager: InternetPingCa
 
     fun sendBrightnessRequest(brightness: Int, ip: String) {
         val url = "http://$ip"
-        createLedBrightnessCallManager(url)?.sendBrightness(brightness, callCallback)
+        createLedControlCallManager(url)?.sendBrightness(brightness, callCallback)
     }
 
-    private fun createLedBrightnessCallManager(url: String): LedBrightnessCallManager? = try {
-        LedBrightnessCallManager(url)
+    fun sendRainbowSpeedRequest(rainbowSpeed: Int, ip: String) {
+        val url = "http://$ip"
+        createLedControlCallManager(url)?.sendRainbowSpeed(rainbowSpeed, callCallback)
+    }
+
+    private fun createLedControlCallManager(url: String): LedControlCallManager? = try {
+        LedControlCallManager(url)
     } catch (iae: IllegalArgumentException) {
-        Log.e(tag, "Exception while creating LedBrightnessCallManager", iae)
+        Log.e(tag, "Exception while creating LedControlCallManager", iae)
         errorMessage.tryEmit(iae.message ?: "URL Error")
         null
     }

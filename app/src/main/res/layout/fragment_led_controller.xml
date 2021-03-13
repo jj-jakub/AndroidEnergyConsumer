@@ -87,7 +87,7 @@
             app:layout_constraintTop_toBottomOf="@+id/purpleLedButton" />
 
         <EditText
-            android:id="@+id/brightnessField"
+            android:id="@+id/brightnessOrSpeedField"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -100,12 +100,12 @@
             tools:text="255" />
 
         <TextView
-            android:id="@+id/brightnessLabel"
+            android:id="@+id/brightnessOrSpeedLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Brightness"
-            app:layout_constraintStart_toStartOf="@+id/brightnessField"
-            app:layout_constraintTop_toBottomOf="@+id/brightnessField" />
+            android:text="Brightness / Rainbow speed ms"
+            app:layout_constraintStart_toStartOf="@+id/brightnessOrSpeedField"
+            app:layout_constraintTop_toBottomOf="@+id/brightnessOrSpeedField" />
 
         <Button
             android:id="@+id/sendBrightnessButton"
@@ -113,9 +113,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Change brightness"
-            app:layout_constraintEnd_toEndOf="@+id/brightnessField"
-            app:layout_constraintStart_toStartOf="@+id/brightnessField"
-            app:layout_constraintTop_toBottomOf="@+id/brightnessLabel" />
+            app:layout_constraintStart_toStartOf="@+id/brightnessOrSpeedField"
+            app:layout_constraintTop_toBottomOf="@+id/brightnessOrSpeedLabel" />
 
         <EditText
             android:id="@+id/ledNodeIpField"
@@ -125,11 +124,10 @@
             android:ems="10"
 
             android:inputType="textPersonName"
-            android:text="http://192.168.43.71"
+            android:text="192.168.43.205"
             app:layout_constraintEnd_toEndOf="@+id/sendBrightnessButton"
             app:layout_constraintStart_toStartOf="@+id/sendBrightnessButton"
-            app:layout_constraintTop_toBottomOf="@+id/sendBrightnessButton"
-            tools:text="192.168.43.71" />
+            app:layout_constraintTop_toBottomOf="@+id/sendBrightnessButton" />
 
         <TextView
             android:id="@+id/ledNodeIpLabel"
@@ -150,6 +148,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cyanLedButton"
             app:layout_constraintTop_toTopOf="@+id/cyanLedButton" />
+
+        <Button
+            android:id="@+id/sendRainbowSpeedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change rainbow speed"
+            app:layout_constraintEnd_toEndOf="@+id/sendBrightnessButton"
+            app:layout_constraintStart_toStartOf="@+id/sendBrightnessButton"
+            app:layout_constraintTop_toBottomOf="@+id/sendBrightnessButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

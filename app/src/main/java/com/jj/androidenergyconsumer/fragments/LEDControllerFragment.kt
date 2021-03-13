@@ -59,6 +59,7 @@ class LEDControllerFragment : BaseLauncherFragment() {
             rainbowLedButton.setOnClickListener { switchLeds(AvailableLedColors.RAINBOW) }
 
             sendBrightnessButton.setOnClickListener { switchLedsBrightness() }
+            sendRainbowSpeedButton.setOnClickListener { switchRainbowSpeed() }
         }
     }
 
@@ -69,25 +70,32 @@ class LEDControllerFragment : BaseLauncherFragment() {
     }
 
     private fun switchLedsBrightness() {
-        getBrightnessFromInput()?.let { brightness ->
+        getBrightnessOrSpeedValueFromInput()?.let { brightness ->
             getIpFromInput()?.let { ip ->
                 ledControllerViewModel.sendBrightnessRequest(brightness, ip)
             }
         }
     }
 
-    private fun getBrightnessFromInput(): Int? = try {
-        fragmentLedControllerBinding.brightnessField.text.toString().toInt()
+    private fun getBrightnessOrSpeedValueFromInput(): Int? = try {
+        fragmentLedControllerBinding.brightnessOrSpeedField.text.toString().toInt()
     } catch (e: Exception) {
-        Log.e(tag, "Exception while getting brightness from input")
-        onBrightnessInputError()
+        Log.e(tag, "Exception while getting brightness or speed from input")
+        onBrightnessOrSpeedInputError()
         null
     }
 
-    private fun onBrightnessInputError() {
-        onInputError("Wrong brightness input")
+    private fun onBrightnessOrSpeedInputError() {
+        onInputError("Wrong brightness or speed input")
     }
 
+    private fun switchRainbowSpeed() {
+        getBrightnessOrSpeedValueFromInput()?.let { rainbowSpeed ->
+            getIpFromInput()?.let { ip ->
+                ledControllerViewModel.sendRainbowSpeedRequest(rainbowSpeed, ip)
+            }
+        }
+    }
 
     private fun getIpFromInput(): String? =
         try {
