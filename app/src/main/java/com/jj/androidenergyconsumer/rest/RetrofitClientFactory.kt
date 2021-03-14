@@ -18,10 +18,11 @@ class RetrofitClientFactory {
         private const val DUMMY_BASE_URL = "http://localhost/"
     }
 
-    fun createRetrofitToServer(): Retrofit = Retrofit.Builder().baseUrl(serverUrl).client(createHttpClient())
-        .addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
+    fun createRetrofitToServer(): Retrofit = createRetrofit(serverUrl)
+    fun createRetrofitForPings(): Retrofit = createRetrofit(DUMMY_BASE_URL)
+    fun createRetrofitToUrl(url: String): Retrofit = createRetrofit(url)
 
-    fun createRetrofitForPings(): Retrofit = Retrofit.Builder().baseUrl(DUMMY_BASE_URL)
+    private fun createRetrofit(baseUrl: String): Retrofit = Retrofit.Builder().baseUrl(baseUrl)
         .client(createHttpClient()).addConverterFactory(JacksonConverterFactory.create(createMapper())).build()
 
     private fun createHttpClient() = OkHttpClient.Builder().apply {
