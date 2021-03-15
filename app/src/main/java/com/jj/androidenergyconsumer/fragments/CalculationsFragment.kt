@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
+import com.jj.androidenergyconsumer.calculations.CalculationsOrchestrator
+import com.jj.androidenergyconsumer.calculations.CalculationsResult
 import com.jj.androidenergyconsumer.calculations.CalculationsType
 import com.jj.androidenergyconsumer.databinding.FragmentCalculationsLauncherBinding
 import com.jj.androidenergyconsumer.services.CalculationsService
@@ -19,9 +21,12 @@ import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAU
 import com.jj.androidenergyconsumer.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
 import com.jj.androidenergyconsumer.services.MyBinder
 import kotlinx.coroutines.flow.collect
+import org.koin.android.ext.android.inject
 import com.jj.androidenergyconsumer.utils.tag as LogTag
 
 class CalculationsFragment : BaseLauncherFragment() {
+
+    private val calculationsOrchestrator: CalculationsOrchestrator by inject()
 
     private lateinit var fragmentCalculationsLauncherBinding: FragmentCalculationsLauncherBinding
     override val activityTitle: String = "Calculations launcher"
@@ -37,6 +42,18 @@ class CalculationsFragment : BaseLauncherFragment() {
         super.onViewCreated(view, savedInstanceState)
         setButtonsListeners()
         context?.let { context -> bindToCalculationsService(context) }
+        observeCalculationsResult()
+    }
+
+    private fun observeCalculationsResult() {
+        lifecycleScope.launchWhenResumed {
+            calculationsOrchestrator.observeCalculationsResult().collect { onCalculationsResultChanged(it) }
+        }
+    }
+
+    private fun onCalculationsResultChanged(result: CalculationsResult) {
+        val labelString = "handlerId: ${result.handlerId}, variable = ${result.variable}"
+        fragmentCalculationsLauncherBinding.calculationsResultValueLabel.text = labelString
     }
 
     private fun setButtonsListeners() {
@@ -45,7 +62,10 @@ class CalculationsFragment : BaseLauncherFragment() {
             performMultiplicationsButton.setOnClickListener {
                 startCalculationsService(CalculationsType.MULTIPLICATION)
             }
-            abortCalculationsButton.setOnClickListener { abortCalculationsService() }
+            abortCalculationsButton.setOnClickListener {
+                abortCalculationsService()
+                clearCalculationsResultValue()
+            }
         }
     }
 
@@ -68,6 +88,10 @@ class CalculationsFragment : BaseLauncherFragment() {
             unbindFromService(context)
             CalculationsService.stopCalculations(context)
         }
+    }
+
+    private fun clearCalculationsResultValue() {
+        fragmentCalculationsLauncherBinding.calculationsResultValueLabel.text = ""
     }
 
     private fun getAmountOfHandlersFromInput() = try {
