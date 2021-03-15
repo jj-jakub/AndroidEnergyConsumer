@@ -5,36 +5,28 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import com.jj.androidenergyconsumer.calculations.CalculationsCallback
-import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
+import com.jj.androidenergyconsumer.calculations.CalculationsOrchestrator
+import com.jj.androidenergyconsumer.calculations.CalculationsResult
 import com.jj.androidenergyconsumer.calculations.CalculationsType
-import com.jj.androidenergyconsumer.handlers.HandlersOrchestrator
 import com.jj.androidenergyconsumer.notification.CALCULATIONS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.CALCULATIONS
-import com.jj.androidenergyconsumer.utils.getDateStringWithMillis
-import com.jj.androidenergyconsumer.utils.logAndPingServer
-import com.jj.androidenergyconsumer.utils.showShortToast
-import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.utils.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class CalculationsService : BaseService() {
 
-    private val handlersOrchestrator = HandlersOrchestrator()
+    private val calculationsOrchestrator: CalculationsOrchestrator by inject()
+    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
 
     private val calculationsNotification = notificationContainer.getProperNotification(CALCULATIONS)
 
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"
 
     private val calculationsRunning = MutableStateFlow(false)
-
-    private val calculationsCallback = object : CalculationsCallback {
-        override fun onThresholdAchieved(variable: Int, handlerId: Int) {
-            calculationsNotification.notify("CalculationsService notification",
-                    "handlerId: $handlerId ${getDateStringWithMillis()} - variable = $variable")
-            logAndPingServer("handlerId: $handlerId, variable = $variable", tag)
-        }
-    }
 
     companion object : ServiceStarter {
         private const val START_CALCULATIONS_ACTION = "START_CALCULATIONS_ACTION"
@@ -71,6 +63,19 @@ class CalculationsService : BaseService() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
         startForeground(CALCULATIONS_NOTIFICATION_ID, calculationsNotification.get())
+        observeCalculationsResult()
+    }
+
+    private fun observeCalculationsResult() {
+        coroutineScopeProvider.getIO().launch {
+            calculationsOrchestrator.observeCalculationsResult().collect { onCalculationResultReceived(it) }
+        }
+    }
+
+    private fun onCalculationResultReceived(result: CalculationsResult) {
+        calculationsNotification.notify("CalculationsService notification",
+                "handlerId: ${result.handlerId} ${getDateStringWithMillis()} - variable = ${result.variable}")
+        logAndPingServer("handlerId: ${result.handlerId}, variable = ${result.variable}", tag)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -89,10 +94,7 @@ class CalculationsService : BaseService() {
     @SuppressLint("WakelockTimeout")
     private fun onStartCalculationsAction(intent: Intent) {
         try {
-            val amountOfHandlers = getAmountOfHandlers(intent)
-            val calculationsProvider =
-                CalculationsProviderFactory.createCalculationsProvider(intent, calculationsCallback)
-            handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
+            setupCalculationsOrchestrator(intent)
             calculationsRunning.value = true
             acquireWakeLock()
         } catch (iae: IllegalArgumentException) {
@@ -105,9 +107,22 @@ class CalculationsService : BaseService() {
     private fun getAmountOfHandlers(intent: Intent): Int =
         intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
 
+    private fun setupCalculationsOrchestrator(intent: Intent) {
+        val amountOfHandlers = getAmountOfHandlers(intent)
+        val calculationsType = getCalculationsType(intent)
+        val factor = getCalculationsFactor(intent)
+        calculationsOrchestrator.startCalculations(calculationsType, factor, amountOfHandlers)
+    }
+
+    private fun getCalculationsType(intent: Intent): CalculationsType =
+        (intent.getSerializableExtra(CALCULATIONS_TYPE_EXTRA) ?: DEFAULT_CALCULATIONS_TYPE) as CalculationsType
+
+    private fun getCalculationsFactor(intent: Intent): Int =
+        intent.getIntExtra(CALCULATIONS_FACTOR_EXTRA, DEFAULT_CALCULATIONS_FACTOR)
+
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
-        handlersOrchestrator.abortHandlers()
+        calculationsOrchestrator.abortCalculations()
         calculationsNotification.cancel()
         releaseWakeLock()
         calculationsRunning.value = false

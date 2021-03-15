@@ -2,6 +2,8 @@ package com.jj.androidenergyconsumer.koin
 
 import com.jj.androidenergyconsumer.bluetooth.BluetoothBroadcastReceiver
 import com.jj.androidenergyconsumer.bluetooth.BluetoothScanner
+import com.jj.androidenergyconsumer.calculations.CalculationsOrchestrator
+import com.jj.androidenergyconsumer.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.internet.FileDownloader
 import com.jj.androidenergyconsumer.internet.InternetPingsCreator
@@ -27,4 +29,7 @@ val aecMainModule = module {
 
     single { InternetPingCallManager() }
     single { InternetPingsCreator(get()) }
+
+    single { CalculationsProviderFactory() }
+    single { CalculationsOrchestrator(get(), get()) }
 }

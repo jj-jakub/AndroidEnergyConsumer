@@ -2,12 +2,14 @@ package com.jj.androidenergyconsumer.calculations
 
 import android.util.Log
 import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
+import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlin.math.abs
 
-class AdditionCalculationsProvider(private val calculationsCallback: CalculationsCallback, factor: Int) :
-    CalculationsProvider {
+class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
 
     private val calculationsFactor: Int
+    override val calculationsResultFlow: MutableSharedFlow<CalculationsResult> = BufferedMutableSharedFlow()
 
     init {
         if (factor == 0) throw IllegalArgumentException("Factor cannot be equal to 0")
@@ -21,7 +23,7 @@ class AdditionCalculationsProvider(private val calculationsCallback: Calculation
             if (abs(variable) > 100000000) {
                 Log.d("ABAB", "handlerId: $handlerId variable: $variable")
                 if (stoppableHandler.isHandlerStopped().not()) {
-                    calculationsCallback.onThresholdAchieved(variable, handlerId)
+                    calculationsResultFlow.tryEmit(CalculationsResult(variable, handlerId))
                 }
                 break
             }
