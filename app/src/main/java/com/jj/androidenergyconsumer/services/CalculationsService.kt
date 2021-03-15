@@ -12,6 +12,7 @@ import com.jj.androidenergyconsumer.notification.CALCULATIONS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.notification.NotificationType.CALCULATIONS
 import com.jj.androidenergyconsumer.utils.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -26,7 +27,8 @@ class CalculationsService : BaseService() {
 
     override val wakelockTag = "AEC:CalculationsServiceWakeLock"
 
-    private val calculationsRunning = MutableStateFlow(false)
+    private val serviceRunning = MutableStateFlow(false)
+    private val errorMessage = BufferedMutableSharedFlow<String?>()
 
     companion object : ServiceStarter {
         private const val START_CALCULATIONS_ACTION = "START_CALCULATIONS_ACTION"
@@ -55,7 +57,8 @@ class CalculationsService : BaseService() {
         fun stopCalculations(context: Context) = start(context, STOP_CALCULATIONS_ACTION)
     }
 
-    fun observeCalculationsRunning(): StateFlow<Boolean> = calculationsRunning
+    fun observeServiceRunning(): StateFlow<Boolean> = serviceRunning
+    fun observeErrorMessage(): SharedFlow<String?> = errorMessage
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
@@ -94,12 +97,12 @@ class CalculationsService : BaseService() {
     @SuppressLint("WakelockTimeout")
     private fun onStartCalculationsAction(intent: Intent) {
         try {
+            resetErrorMessage()
             setupCalculationsOrchestrator(intent)
-            calculationsRunning.value = true
+            serviceRunning.value = true
             acquireWakeLock()
         } catch (iae: IllegalArgumentException) {
-            Log.e(tag, "Exception when starting calculations", iae)
-            showShortToast("Exception: ${iae.message}") // TODO Unify - create error label in fragment
+            onProcessingError(iae)
         }
         logAndPingServer("After onStartCalculationsAction", tag)
     }
@@ -120,12 +123,21 @@ class CalculationsService : BaseService() {
     private fun getCalculationsFactor(intent: Intent): Int =
         intent.getIntExtra(CALCULATIONS_FACTOR_EXTRA, DEFAULT_CALCULATIONS_FACTOR)
 
+    private fun onProcessingError(exception: Exception) {
+        Log.e(tag, "Exception when starting calculations", exception)
+        errorMessage.tryEmit(exception.message)
+    }
+
+    private fun resetErrorMessage() {
+        errorMessage.tryEmit(null)
+    }
+
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
         calculationsOrchestrator.abortCalculations()
         calculationsNotification.cancel()
         releaseWakeLock()
-        calculationsRunning.value = false
+        serviceRunning.value = false
         super.onDestroy()
     }
 }

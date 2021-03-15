@@ -16,6 +16,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/calculationsErrorMessageLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:textColor="@color/red"
+        app:layout_constraintBottom_toTopOf="@+id/performAdditionsButton"
+        app:layout_constraintEnd_toEndOf="@+id/performAdditionsButton"
+        app:layout_constraintStart_toStartOf="@+id/performAdditionsButton"
+        tools:text="Error message" />
+
     <Button
         android:id="@+id/performAdditionsButton"
         android:layout_width="wrap_content"

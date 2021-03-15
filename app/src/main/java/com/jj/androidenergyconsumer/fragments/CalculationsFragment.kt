@@ -64,7 +64,7 @@ class CalculationsFragment : BaseLauncherFragment() {
             }
             abortCalculationsButton.setOnClickListener {
                 abortCalculationsService()
-                clearCalculationsResultValue()
+                clearInfoLabels()
             }
         }
     }
@@ -90,8 +90,11 @@ class CalculationsFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun clearCalculationsResultValue() {
-        fragmentCalculationsLauncherBinding.calculationsResultValueLabel.text = ""
+    private fun clearInfoLabels() {
+        with(fragmentCalculationsLauncherBinding) {
+            calculationsResultValueLabel.text = ""
+            calculationsErrorMessageLabel.text = ""
+        }
     }
 
     private fun getAmountOfHandlersFromInput() = try {
@@ -118,8 +121,9 @@ class CalculationsFragment : BaseLauncherFragment() {
             (binder?.getService() as CalculationsService?)?.let { service ->
                 calculationsService = service
                 serviceBound.set(true)
-                lifecycleScope.launchWhenResumed {
-                    service.observeCalculationsRunning().collect { onCalculationsStatusChanged(it) }
+                with(lifecycleScope) {
+                    launchWhenResumed { service.observeServiceRunning().collect { onCalculationsStatusChanged(it) } }
+                    launchWhenResumed { service.observeErrorMessage().collect { onErrorMessageChanged(it) } }
                 }
             }
         }
@@ -153,5 +157,9 @@ class CalculationsFragment : BaseLauncherFragment() {
                 calculationsStatusValueLabel.setTextColor(Color.GREEN)
             }
         }
+    }
+
+    private fun onErrorMessageChanged(errorMessage: String?) {
+        fragmentCalculationsLauncherBinding.calculationsErrorMessageLabel.text = errorMessage ?: ""
     }
 }
