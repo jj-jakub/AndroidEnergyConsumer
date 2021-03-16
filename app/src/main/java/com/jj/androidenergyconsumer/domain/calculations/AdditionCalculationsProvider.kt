@@ -9,6 +9,8 @@ import kotlin.math.abs
 class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
 
     private val calculationsFactor: Int
+
+    //TODO Emit states of calculations? BEFORE, CALCULATING, AFTER?
     override val calculationsResultFlow: MutableSharedFlow<CalculationsResult> = BufferedMutableSharedFlow()
 
     init {
