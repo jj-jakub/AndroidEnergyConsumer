@@ -1,7 +1,8 @@
 package com.jj.androidenergyconsumer.calculations
 
 import android.content.Intent
-import com.jj.androidenergyconsumer.services.CalculationsService
+import com.jj.androidenergyconsumer.app.services.CalculationsService
+import com.jj.androidenergyconsumer.domain.calculations.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource

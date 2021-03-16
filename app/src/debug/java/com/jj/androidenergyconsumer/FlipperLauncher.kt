@@ -9,7 +9,7 @@ import com.facebook.flipper.plugins.inspector.InspectorFlipperPlugin
 import com.facebook.flipper.plugins.network.FlipperOkhttpInterceptor
 import com.facebook.flipper.plugins.network.NetworkFlipperPlugin
 import com.facebook.soloader.SoLoader
-import com.jj.androidenergyconsumer.utils.tag
+import com.jj.androidenergyconsumer.domain.tag
 import okhttp3.OkHttpClient
 
 object FlipperLauncher {

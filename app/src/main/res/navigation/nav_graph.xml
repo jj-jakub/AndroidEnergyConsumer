@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/chooseLauncherFragment"
-        android:name="com.jj.androidenergyconsumer.fragments.ChooseLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.app.fragments.ChooseLauncherFragment"
         android:label="ChooseLauncherFragment"
         tools:layout="@layout/fragment_gps_launcher">
         <action
@@ -25,22 +25,22 @@
     </fragment>
     <fragment
         android:id="@+id/bluetoothLauncherFragment"
-        android:name="com.jj.androidenergyconsumer.fragments.BluetoothLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.app.fragments.BluetoothLauncherFragment"
         android:label="BluetoothLauncherFragment"
         tools:layout="@layout/fragment_bluetooth_launcher"/>
     <fragment
         android:id="@+id/calculationsFragment"
-        android:name="com.jj.androidenergyconsumer.fragments.CalculationsFragment"
+        android:name="com.jj.androidenergyconsumer.app.fragments.CalculationsFragment"
         android:label="CalculationsFragment"
         tools:layout="@layout/fragment_calculations_launcher"/>
     <fragment
         android:id="@+id/GPSLauncherFragment"
-        android:name="com.jj.androidenergyconsumer.fragments.GPSLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.app.fragments.GPSLauncherFragment"
         android:label="GPSLauncherFragment"
         tools:layout="@layout/fragment_gps_launcher"/>
     <fragment
         android:id="@+id/internetLauncherFragment"
-        android:name="com.jj.androidenergyconsumer.fragments.InternetLauncherFragment"
+        android:name="com.jj.androidenergyconsumer.app.fragments.InternetLauncherFragment"
         android:label="InternetLauncherFragment"
         tools:layout="@layout/fragment_internet_launcher"/>
 </navigation>

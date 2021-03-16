@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
-        android:name=".AECApplication"
+        android:name=".app.AECApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -24,7 +24,7 @@
         android:theme="@style/Theme.AndroidEnergyConsumer"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".activities.MainActivity">
+        <activity android:name="com.jj.androidenergyconsumer.app.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,12 +32,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.CalculationsService" />
-        <service android:name=".services.BluetoothService" />
+        <service android:name="com.jj.androidenergyconsumer.app.services.CalculationsService" />
+        <service android:name="com.jj.androidenergyconsumer.app.services.BluetoothService" />
         <service
-            android:name=".services.GPSService"
+            android:name="com.jj.androidenergyconsumer.app.services.GPSService"
             android:foregroundServiceType="location" />
-        <service android:name=".services.InternetService" />
+        <service android:name="com.jj.androidenergyconsumer.app.services.InternetService" />
     </application>
 
 </manifest>

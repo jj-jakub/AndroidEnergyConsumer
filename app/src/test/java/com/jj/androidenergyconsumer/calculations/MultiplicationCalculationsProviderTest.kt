@@ -1,9 +1,11 @@
 package com.jj.androidenergyconsumer.calculations
 
-import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
+import com.jj.androidenergyconsumer.app.handlers.StoppableLoopedHandler
+import com.jj.androidenergyconsumer.domain.calculations.CalculationsCallback
+import com.jj.androidenergyconsumer.domain.calculations.CalculationsProvider
+import com.jj.androidenergyconsumer.domain.calculations.MultiplicationCalculationsProvider
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock

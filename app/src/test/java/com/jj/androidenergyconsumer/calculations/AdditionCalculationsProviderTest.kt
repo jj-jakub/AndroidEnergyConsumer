@@ -1,6 +1,9 @@
 package com.jj.androidenergyconsumer.calculations
 
-import com.jj.androidenergyconsumer.handlers.StoppableLoopedHandler
+import com.jj.androidenergyconsumer.app.handlers.StoppableLoopedHandler
+import com.jj.androidenergyconsumer.domain.calculations.AdditionCalculationsProvider
+import com.jj.androidenergyconsumer.domain.calculations.CalculationsCallback
+import com.jj.androidenergyconsumer.domain.calculations.CalculationsProvider
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
