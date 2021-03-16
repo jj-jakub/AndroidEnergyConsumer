@@ -52,8 +52,8 @@ class GPSLauncherFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun setupFragment(context: Context) {
-        bindToGPSService(context)
+    private fun setupFragment() {
+        bindToGPSService()
         setButtonsListeners()
         observeGPSResults()
     }
@@ -87,16 +87,14 @@ class GPSLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun startConstantGPSWork() {
-        context?.let { context ->
-            bindToGPSService(context)
-            GPSService.startConstantUpdates(context)
-        }
+        bindToGPSService()
+        context?.let { context -> GPSService.startConstantUpdates(context) }
     }
 
     private fun startPeriodicGPSWork() {
+        bindToGPSService()
         context?.let { context ->
             val millisIntervalFromInput = getMillisFromInput()
-            bindToGPSService(context)
             GPSService.startPeriodicUpdates(context, millisIntervalFromInput)
         }
     }
@@ -109,16 +107,16 @@ class GPSLauncherFragment : BaseLauncherFragment() {
             0
         }
 
-    private fun bindToGPSService(context: Context) {
-        val serviceIntent = GPSService.getServiceIntent(context)
-        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    private fun bindToGPSService() {
+        context?.let { context ->
+            val serviceIntent = GPSService.getServiceIntent(context)
+            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun stopGPSUpdates() {
-        context?.let { context ->
-            unbindFromService(context)
-            GPSService.stopGpsService(context)
-        }
+        unbindFromService()
+        context?.let { context -> GPSService.stopGpsService(context) }
     }
 
     override val serviceConnection = object : ServiceConnection {
@@ -178,7 +176,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onPermissionGranted() {
-        context?.let { setupFragment(it) }
+        setupFragment()
         fragmentGpsLauncherBinding.apply {
             gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
             gpsWorkingStatusValueLabel.text = getString(R.string.not_running)

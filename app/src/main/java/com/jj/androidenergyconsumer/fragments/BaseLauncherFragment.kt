@@ -22,12 +22,12 @@ abstract class BaseLauncherFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        context?.apply { unbindFromService(this) }
+        unbindFromService()
     }
 
-    protected fun unbindFromService(context: Context) {
+    protected fun unbindFromService() {
         if (serviceBound.compareAndSet(true, false)) {
-            context.unbindService(serviceConnection)
+            context?.unbindService(serviceConnection)
         }
     }
 }

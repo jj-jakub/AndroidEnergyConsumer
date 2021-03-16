@@ -42,7 +42,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupFragment()
-        context?.apply { bindToInternetService(this) }
+        bindToInternetService()
     }
 
     private fun setupFragment() {
@@ -80,34 +80,32 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun startPeriodicInternetWork() {
+        bindToInternetService()
         context?.let { context ->
             val millisIntervalFromInput = getMillisFromInput()
             val urlToPing = getUrlFromInput()
-            bindToInternetService(context)
             InternetService.startPeriodicPings(context, millisIntervalFromInput, urlToPing)
         }
     }
 
     private fun startConstantInternetWork() {
+        bindToInternetService()
         context?.let { context ->
             val urlToPing = getUrlFromInput()
-            bindToInternetService(context)
             InternetService.startOneAfterAnotherPings(context, urlToPing)
         }
     }
 
     private fun stopInternetWork() {
-        context?.let { context ->
-            unbindFromService(context)
-            InternetService.stopInternetService(context)
-            resetValues()
-        }
+        unbindFromService()
+        context?.let { context -> InternetService.stopInternetService(context) }
+        resetValues()
     }
 
     private fun startFileDownload() {
+        bindToInternetService()
         context?.let { context ->
             val urlToDownloadFrom = getUrlFromInput()
-            bindToInternetService(context)
             InternetService.startFileDownload(context, urlToDownloadFrom)
         }
     }
@@ -133,9 +131,11 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         fragmentInternetLauncherBinding.urlToPingOrDownloadLabel.text = getString(R.string.url_conversion_error)
     }
 
-    private fun bindToInternetService(context: Context) {
-        val serviceIntent = InternetService.getServiceIntent(context)
-        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    private fun bindToInternetService() {
+        context?.let { context ->
+            val serviceIntent = InternetService.getServiceIntent(context)
+            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     override val serviceConnection = object : ServiceConnection {

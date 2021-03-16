@@ -41,7 +41,7 @@ class CalculationsFragment : BaseLauncherFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setButtonsListeners()
-        context?.let { context -> bindToCalculationsService(context) }
+        bindToCalculationsService()
         observeCalculationsResult()
     }
 
@@ -72,22 +72,20 @@ class CalculationsFragment : BaseLauncherFragment() {
     private fun startCalculationsService(type: CalculationsType) {
         val amountOfHandlers = getAmountOfHandlersFromInput()
         val factor = getFactorFromInput()
-        context?.let { context ->
-            bindToCalculationsService(context)
-            CalculationsService.startCalculations(context, type, amountOfHandlers, factor)
-        }
+        bindToCalculationsService()
+        context?.let { context -> CalculationsService.startCalculations(context, type, amountOfHandlers, factor) }
     }
 
-    private fun bindToCalculationsService(context: Context) {
-        val serviceIntent = CalculationsService.getServiceIntent(context)
-        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    private fun bindToCalculationsService() {
+        context?.let { context ->
+            val serviceIntent = CalculationsService.getServiceIntent(context)
+            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun abortCalculationsService() {
-        context?.let { context ->
-            unbindFromService(context)
-            CalculationsService.stopCalculations(context)
-        }
+        unbindFromService()
+        context?.let { context -> CalculationsService.stopCalculations(context) }
     }
 
     private fun clearInfoLabels() {

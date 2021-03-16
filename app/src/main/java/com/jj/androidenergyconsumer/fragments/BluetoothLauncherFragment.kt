@@ -54,11 +54,11 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onPermissionGranted() {
-        context?.let { setupFragment(it) }
+        setupFragment()
     }
 
-    private fun setupFragment(context: Context) {
-        bindToBluetoothService(context)
+    private fun setupFragment() {
+        bindToBluetoothService()
         observeBluetoothResults()
         setButtonsListeners()
         fragmentBluetoothLauncherBinding.apply {
@@ -67,9 +67,11 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun bindToBluetoothService(context: Context) {
-        val serviceIntent = BluetoothService.getServiceIntent(context)
-        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    private fun bindToBluetoothService() {
+        context?.let { context ->
+            val serviceIntent = BluetoothService.getServiceIntent(context)
+            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun setButtonsListeners() {
@@ -102,17 +104,13 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun startBluetoothService() {
-        context?.let { context ->
-            bindToBluetoothService(context)
-            BluetoothService.startScanning(context)
-        }
+        bindToBluetoothService()
+        context?.let { context -> BluetoothService.startScanning(context) }
     }
 
     private fun abortBluetoothService() {
-        context?.let { context ->
-            unbindFromService(context)
-            BluetoothService.stopScanning(context)
-        }
+        unbindFromService()
+        context?.let { context -> BluetoothService.stopScanning(context) }
     }
 
     private fun onPermissionNotGranted() {
