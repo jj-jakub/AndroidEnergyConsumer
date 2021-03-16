@@ -1,12 +1,9 @@
-package com.jj.androidenergyconsumer.calculations
+package com.jj.androidenergyconsumer.domain.calculations
 
-import android.content.Intent
 import com.jj.androidenergyconsumer.app.services.CalculationsService
-import com.jj.androidenergyconsumer.domain.calculations.*
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mockito
 
 class CalculationsProviderFactoryTest {
 
@@ -37,16 +34,8 @@ class CalculationsProviderFactoryTest {
     @MethodSource("calculationsTypesAndExpectedResults")
     fun `factory should return addition calculations provider`(typeAndResult: Pair<CalculationsType,
             Class<out CalculationsProvider>>) {
-        val intentMock = Mockito.mock(Intent::class.java)
-        Mockito.`when`(intentMock.getIntExtra(CalculationsService.CALCULATIONS_FACTOR_EXTRA,
-                CalculationsService.DEFAULT_CALCULATIONS_FACTOR))
-            .thenReturn(CalculationsService.DEFAULT_CALCULATIONS_FACTOR)
 
-        val calculationsCallbackMock = Mockito.mock(CalculationsCallback::class.java)
-
-        Mockito.`when`(intentMock.getSerializableExtra(CalculationsService.CALCULATIONS_TYPE_EXTRA))
-            .thenReturn(typeAndResult.first)
-        assertTrue(CalculationsProviderFactory.createCalculationsProvider(intentMock,
-                calculationsCallbackMock)::class.java == typeAndResult.second)
+        assertTrue(CalculationsProviderFactory().createCalculationsProvider(typeAndResult.first,
+                CalculationsService.DEFAULT_CALCULATIONS_FACTOR)::class.java == typeAndResult.second)
     }
 }
