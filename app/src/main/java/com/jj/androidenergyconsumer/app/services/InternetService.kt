@@ -8,7 +8,7 @@ import com.jj.androidenergyconsumer.app.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.app.utils.FileManager
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
-import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis
 import com.jj.androidenergyconsumer.domain.internet.DownloadProgress
 import com.jj.androidenergyconsumer.domain.internet.FileDownloader
@@ -24,7 +24,7 @@ import org.koin.android.ext.android.inject
 
 class InternetService : BaseService() {
 
-    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
+    private val coroutineScopeProvider: ICoroutineScopeProvider by inject()
 
     private val internetNotification = notificationContainer.getProperNotification(INTERNET)
     private val internetPingsCreator: InternetPingsCreator by inject()

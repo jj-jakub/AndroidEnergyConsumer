@@ -1,7 +1,7 @@
 package com.jj.androidenergyconsumer.domain.internet
 
 import android.util.Log
-import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.tag
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 data class DownloadProgress(val progressPercentage: Int, val averageDownloadSpeedKBs: Float,
                             val downloadFinished: Boolean, val exception: Exception? = null)
 
-class FileDownloader(private val coroutineScopeProvider: CoroutineScopeProvider) {
+class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider) {
 
     companion object {
         private const val DOWNLOAD_BUFFER_SIZE = 16384

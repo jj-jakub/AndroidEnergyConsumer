@@ -11,7 +11,7 @@ import com.jj.androidenergyconsumer.app.gps.LocationListenerResult
 import com.jj.androidenergyconsumer.app.notification.GPS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.GPS
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
-import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis
 import com.jj.androidenergyconsumer.domain.tag
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
@@ -24,7 +24,7 @@ import org.koin.android.ext.android.inject
 
 class GPSService : BaseService() {
 
-    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
+    private val coroutineScopeProvider: ICoroutineScopeProvider by inject()
 
     private val gpsNotification = notificationContainer.getProperNotification(GPS)
     private var locationManager: LocationManager? = null

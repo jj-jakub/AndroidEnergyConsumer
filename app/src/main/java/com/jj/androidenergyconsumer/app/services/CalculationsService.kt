@@ -11,7 +11,7 @@ import com.jj.androidenergyconsumer.app.utils.logAndPingServer
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsResult
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsType
-import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis
 import com.jj.androidenergyconsumer.domain.tag
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
@@ -25,7 +25,7 @@ import org.koin.android.ext.android.inject
 class CalculationsService : BaseService() {
 
     private val calculationsOrchestrator: CalculationsOrchestrator by inject()
-    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
+    private val coroutineScopeProvider: ICoroutineScopeProvider by inject()
 
     private val calculationsNotification = notificationContainer.getProperNotification(CALCULATIONS)
 

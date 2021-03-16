@@ -1,7 +1,7 @@
 package com.jj.androidenergyconsumer.domain.calculations
 
 import com.jj.androidenergyconsumer.app.handlers.HandlersOrchestrator
-import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharedFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 data class CalculationsResult(val variable: Int, val handlerId: Int)
 
 class CalculationsOrchestrator(private val calculationsProviderFactory: CalculationsProviderFactory,
-                               private val coroutineScopeProvider: CoroutineScopeProvider) {
+                               private val coroutineScopeProvider: ICoroutineScopeProvider) {
 
     private lateinit var currentCalculationsProvider: CalculationsProvider
     private var resultsCollectingJob: Job? = null

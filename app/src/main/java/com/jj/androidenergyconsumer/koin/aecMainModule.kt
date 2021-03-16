@@ -10,6 +10,7 @@ import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.internet.FileDownloader
 import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
 import org.koin.dsl.module
@@ -25,7 +26,7 @@ val aecMainModule = module {
     single { FileDownloader(get()) }
     single { FileManager() }
 
-    single { CoroutineScopeProvider() }
+    single<ICoroutineScopeProvider> { CoroutineScopeProvider() }
 
     single { InternetPingCallManager() }
     single { InternetPingsCreator(get()) }

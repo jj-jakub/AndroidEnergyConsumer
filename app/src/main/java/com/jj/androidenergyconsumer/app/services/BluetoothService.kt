@@ -10,7 +10,7 @@ import com.jj.androidenergyconsumer.app.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.app.notification.BLUETOOTH_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.BLUETOOTH
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
-import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis
 import com.jj.androidenergyconsumer.domain.tag
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class BluetoothService : BaseService() {
 
-    private val coroutineScopeProvider: CoroutineScopeProvider by inject()
+    private val coroutineScopeProvider: ICoroutineScopeProvider by inject()
 
     private val bluetoothNotification = notificationContainer.getProperNotification(BLUETOOTH)
     private val bluetoothScanner: BluetoothScanner by inject()
