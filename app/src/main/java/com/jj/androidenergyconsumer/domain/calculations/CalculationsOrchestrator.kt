@@ -1,39 +1,36 @@
 package com.jj.androidenergyconsumer.domain.calculations
 
 import com.jj.androidenergyconsumer.app.handlers.HandlersOrchestrator
+import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainer
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-data class CalculationsResult(val variable: Int, val handlerId: Int)
-
 class CalculationsOrchestrator(private val calculationsProviderFactory: CalculationsProviderFactory,
-                               private val coroutineScopeProvider: ICoroutineScopeProvider) {
-
-    private lateinit var currentCalculationsProvider: CalculationsProvider
-    private var resultsCollectingJob: Job? = null
-
-    private val handlersOrchestrator = HandlersOrchestrator()
+                               private val coroutineScopeProvider: ICoroutineScopeProvider,
+                               private val coroutineJobContainer: CoroutineJobContainer = CoroutineJobContainer(),
+                               private val handlersOrchestrator: HandlersOrchestrator = HandlersOrchestrator()) {
 
     private val calculationsResultFlow = BufferedMutableSharedFlow<CalculationsResult>()
     fun observeCalculationsResult(): SharedFlow<CalculationsResult> = calculationsResultFlow
 
     fun startCalculations(calculationsType: CalculationsType, factor: Int, amountOfHandlers: Int) {
         abortCalculations()
-        currentCalculationsProvider = calculationsProviderFactory.createCalculationsProvider(calculationsType, factor)
+        val calculationsProvider = calculationsProviderFactory.createCalculationsProvider(calculationsType, factor)
 
-        resultsCollectingJob = coroutineScopeProvider.getIO().launch {
-            currentCalculationsProvider.observeCalculationsResult().collect { calculationsResultFlow.tryEmit(it) }
+        val resultsCollectingJob = coroutineScopeProvider.getIO().launch {
+            calculationsProvider.observeCalculationsResult().collect { calculationsResultFlow.tryEmit(it) }
         }
 
-        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, currentCalculationsProvider)
+        coroutineJobContainer.setCurrentJob(resultsCollectingJob)
+
+        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
     }
 
     fun abortCalculations() {
         handlersOrchestrator.abortHandlers()
-        resultsCollectingJob?.cancel()
+        coroutineJobContainer.cancelJob()
     }
 }
