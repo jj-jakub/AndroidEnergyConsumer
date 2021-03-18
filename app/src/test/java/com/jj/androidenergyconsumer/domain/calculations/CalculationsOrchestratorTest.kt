@@ -11,6 +11,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
 import org.mockito.Mock
@@ -73,29 +75,39 @@ class CalculationsOrchestratorTest {
         verify(coroutineJobContainerMock).cancelJob()
     }
 
-    //TODO parameterized, split assertions
-    @Test
-    fun `starting new calculations should create calculations provider with proper parameters`() {
-        val calculationsType = CalculationsType.MULTIPLICATION
-        val calculationsFactor = 5
+    @ParameterizedTest
+    @MethodSource("calculationsTypes")
+    fun `starting new calculations should create calculations provider with proper calculations type`(
+            type: CalculationsType) {
+        calculationsOrchestrator.startCalculations(type, 1, 10)
 
-        calculationsOrchestrator.startCalculations(calculationsType, calculationsFactor, 10)
-
-        verify(calculationsProviderFactory).createCalculationsProvider(capture(calculationsTypeCaptor),
-                capture(calculationsFactorCaptor))
-        assertEquals(calculationsType, calculationsTypeCaptor.value)
-        assertEquals(calculationsFactor, calculationsFactorCaptor.value)
+        verify(calculationsProviderFactory).createCalculationsProvider(capture(calculationsTypeCaptor), any())
+        assertEquals(type, calculationsTypeCaptor.value)
     }
 
-    //TODO Split assertions
+    @ParameterizedTest
+    @MethodSource("calculationsFactors")
+    fun `starting new calculations should create calculations provider with calculations factor`(factor: Int) {
+        calculationsOrchestrator.startCalculations(CalculationsType.MULTIPLICATION, factor, 10)
+
+        verify(calculationsProviderFactory).createCalculationsProvider(any(), capture(calculationsFactorCaptor))
+        assertEquals(factor, calculationsFactorCaptor.value)
+    }
+
     @Test
     fun `starting new calculations should launch handlers infinite loop`() {
-        val handlersAmount = 10
-
-        calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, handlersAmount)
+        calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, 1)
 
         verify(handlersOrchestratorMock).launchInEveryHandlerInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
-        assertEquals(handlersAmount, handlersAmountCaptor.value)
+    }
+
+    @ParameterizedTest
+    @MethodSource("amountOfHandlers")
+    fun `starting new calculations should launch handlers with proper amount parameter`(amount: Int) {
+        calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, amount)
+
+        verify(handlersOrchestratorMock).launchInEveryHandlerInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
+        assertEquals(amount, handlersAmountCaptor.value)
     }
 
     @Test
@@ -111,4 +123,15 @@ class CalculationsOrchestratorTest {
 
     private fun createCalculationsOrchestrator() = CalculationsOrchestrator(calculationsProviderFactory,
             coroutineScopeProvider, coroutineJobContainerMock, handlersOrchestratorMock)
+
+    companion object {
+        @JvmStatic
+        private fun calculationsTypes() = CalculationsType.values().toList()
+
+        @JvmStatic
+        private fun calculationsFactors() = IntRange(1, 10)
+
+        @JvmStatic
+        private fun amountOfHandlers() = IntRange(1, 10)
+    }
 }
