@@ -2,7 +2,7 @@ package com.jj.androidenergyconsumer.domain.internet
 
 import com.jj.androidenergyconsumer.app.handlers.StoppableLoopedThread
 import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import okhttp3.ResponseBody
 import retrofit2.Callback

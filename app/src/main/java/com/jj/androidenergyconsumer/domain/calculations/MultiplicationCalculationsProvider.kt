@@ -2,7 +2,7 @@ package com.jj.androidenergyconsumer.domain.calculations
 
 import android.util.Log
 import com.jj.androidenergyconsumer.app.handlers.StoppableLoopedHandler
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlin.math.abs
 

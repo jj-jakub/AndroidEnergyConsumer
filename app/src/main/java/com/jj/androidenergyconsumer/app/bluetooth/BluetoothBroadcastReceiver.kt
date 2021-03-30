@@ -9,8 +9,8 @@ import android.content.IntentFilter
 import com.jj.androidenergyconsumer.app.utils.CustomBroadcastReceiver
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
 import com.jj.androidenergyconsumer.app.utils.safelyUnregisterReceiver
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.tag
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import java.util.concurrent.atomic.AtomicBoolean
 

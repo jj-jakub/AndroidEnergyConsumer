@@ -1,9 +1,9 @@
 package com.jj.androidenergyconsumer.domain.internet
 
 import android.util.Log
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.tag
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream

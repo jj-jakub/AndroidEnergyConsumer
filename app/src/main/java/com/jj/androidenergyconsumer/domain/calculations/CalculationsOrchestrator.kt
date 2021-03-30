@@ -1,9 +1,9 @@
 package com.jj.androidenergyconsumer.domain.calculations
 
 import com.jj.androidenergyconsumer.app.handlers.HandlersOrchestrator
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainer
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

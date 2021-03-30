@@ -1,4 +1,4 @@
-package com.jj.androidenergyconsumer.utils
+package com.jj.androidenergyconsumer.domain.coroutines
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow

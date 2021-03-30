@@ -10,10 +10,10 @@ import com.jj.androidenergyconsumer.app.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.app.notification.BLUETOOTH_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.BLUETOOTH
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis
 import com.jj.androidenergyconsumer.domain.tag
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow

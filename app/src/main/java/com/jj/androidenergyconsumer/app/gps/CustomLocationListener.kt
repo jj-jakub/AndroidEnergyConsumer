@@ -4,8 +4,8 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Bundle
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
+import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.tag
-import com.jj.androidenergyconsumer.utils.BufferedMutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 sealed class LocationListenerResult {
