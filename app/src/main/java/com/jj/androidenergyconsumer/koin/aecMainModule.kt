@@ -7,6 +7,7 @@ import com.jj.androidenergyconsumer.app.notification.NotificationContainer
 import com.jj.androidenergyconsumer.app.utils.FileManager
 import com.jj.androidenergyconsumer.app.wakelock.WakelockManager
 import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
+import com.jj.androidenergyconsumer.data.rest.RetrofitClientFactory
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsProviderFactory
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
@@ -28,7 +29,8 @@ val aecMainModule = module {
 
     single<ICoroutineScopeProvider> { CoroutineScopeProvider() }
 
-    single { InternetPingCallManager() }
+    single { RetrofitClientFactory() }
+    single { InternetPingCallManager(get()) }
     single { InternetPingsCreator(get()) }
 
     single { CalculationsProviderFactory() }
