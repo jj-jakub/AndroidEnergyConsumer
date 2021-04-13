@@ -17,6 +17,7 @@ class BluetoothScanner(private val bluetoothBroadcastReceiver: BluetoothBroadcas
         bluetoothBroadcastReceiver.register()
         val startedDiscovery = bluetoothAdapter?.startDiscovery() ?: false
         if (!startedDiscovery) stopScanning()
+        logAndPingServer("bluetoothAdapter.startDiscovery() = $startedDiscovery", tag)
         return startedDiscovery
     }
 
