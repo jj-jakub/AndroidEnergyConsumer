@@ -14,6 +14,8 @@ import com.jj.androidenergyconsumer.databinding.FragmentChooseLauncherBinding
 class ChooseLauncherFragment : Fragment() {
 
     private lateinit var navController: NavController
+
+    // TODO set this field to null at onDestroyView
     private lateinit var fragmentChooseLauncherBinding: FragmentChooseLauncherBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
