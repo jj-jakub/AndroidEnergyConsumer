@@ -115,7 +115,7 @@ class BluetoothService : BaseService() {
 
     private fun onStartScanningError() {
         isScanningFlag.set(false)
-        errorMessage.tryEmit("Start scanning error. Check if bluetooth is turned on.")
+        errorMessage.tryEmit("Start scanning error. Check if bluetooth is turned on and all permissions are granted.")
     }
 
     private fun resetErrorMessage() {
