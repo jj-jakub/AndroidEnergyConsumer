@@ -3,6 +3,15 @@ plugins {
     id 'kotlin-android'
 }
 
+def getCurrentRevisionHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().substring(0, 8)
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.0"
@@ -14,6 +23,7 @@ android {
         versionCode 1
         versionName "1.0"
 
+        buildConfigField "String", "currentRevisionHash", "\"${getCurrentRevisionHash()}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
