@@ -9,9 +9,9 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.jj.androidenergyconsumer.app.utils.isAndroid6OrHigher
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 
-class PermissionManager {
+class PermissionManager(private val systemVersionChecker: SystemVersionChecker) {
 
     companion object {
         const val FINE_LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
@@ -30,7 +30,7 @@ class PermissionManager {
     fun isFineLocationPermissionGranted(context: Context): Boolean = checkPermission(context, FINE_LOCATION_PERMISSION)
 
     private fun isBackgroundLocationPermissionGranted(context: Context): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (systemVersionChecker.isAndroid10OrAbove()) {
             checkPermission(context, BACKGROUND_LOCATION_PERMISSION)
         } else true
 
@@ -52,7 +52,7 @@ class PermissionManager {
     }
 
     fun requestWriteExternalStoragePermission(activity: Activity) {
-        if (!isWriteExternalStoragePermissionGranted(activity) && isAndroid6OrHigher()) {
+        if (!isWriteExternalStoragePermissionGranted(activity) && systemVersionChecker.isAndroid6OrAbove()) {
             activity.requestPermissions(arrayOf(WRITE_EXTERNAL_STORAGE_PERMISSION),
                     WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE)
         }

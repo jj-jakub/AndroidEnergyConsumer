@@ -12,11 +12,15 @@ import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager.Companion.BACKGROUND_LOCATION_PERMISSION_REQUEST_CODE
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager.Companion.FINE_LOCATION_PERMISSION_REQUEST_CODE
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
+import org.koin.android.ext.android.inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class BaseLauncherFragment : Fragment() {
 
-    private val permissionManager = PermissionManager()
+    private val permissionManager: PermissionManager by inject()
+    private val systemVersionChecker: SystemVersionChecker by inject()
+
     protected var serviceBound = AtomicBoolean(false)
     protected abstract val serviceConnection: ServiceConnection
     protected abstract val activityTitle: String
@@ -44,10 +48,9 @@ abstract class BaseLauncherFragment : Fragment() {
             } else {
                 onPermissionsNotGranted()
                 val finePermissionGranted = permissionManager.isFineLocationPermissionGranted(activity)
-                val isAndroid10OrAbove = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
                 @SuppressLint("NewApi")
-                if (finePermissionGranted && isAndroid10OrAbove) {
+                if (finePermissionGranted && systemVersionChecker.isAndroid10OrAbove()) {
                     showBackgroundPermissionAbbreviationDialog()
                 } else if (!finePermissionGranted) {
                     permissionManager.requestFineLocationPermission(this)
@@ -89,10 +92,7 @@ abstract class BaseLauncherFragment : Fragment() {
         grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
 
     private fun onFinePermissionGranted() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            showBackgroundPermissionAbbreviationDialog()
-        } else {
-            onAllLocationPermissionsGranted()
-        }
+        if (systemVersionChecker.isAndroid10OrAbove()) showBackgroundPermissionAbbreviationDialog()
+        else onAllLocationPermissionsGranted()
     }
 }

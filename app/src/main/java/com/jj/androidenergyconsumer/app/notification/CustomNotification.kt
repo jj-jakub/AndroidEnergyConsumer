@@ -11,13 +11,14 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.activities.MainActivity
-import com.jj.androidenergyconsumer.app.utils.isAndroid8OrHigher
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 import com.jj.androidenergyconsumer.domain.ifIsEmpty
 
 abstract class CustomNotification(private val context: Context, private val notificationId: Int,
                                   private val notificationChannelId: String,
                                   private val notificationChannelName: String,
-                                  private val defaultNotificationTitle: String) {
+                                  private val defaultNotificationTitle: String,
+                                  private val systemVersionChecker: SystemVersionChecker) {
 
     private var notificationBuilder: NotificationCompat.Builder? = null
 
@@ -74,7 +75,7 @@ abstract class CustomNotification(private val context: Context, private val noti
 
     @Suppress("SameParameterValue")
     private fun createNotificationChannel(context: Context, channelId: String, channelName: String) {
-        if (isAndroid8OrHigher()) {
+        if (systemVersionChecker.isAndroid8OrAbove()) {
             val channel = NotificationChannel(channelId, channelName, IMPORTANCE_HIGH)
             context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }

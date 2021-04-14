@@ -3,13 +3,15 @@ package com.jj.androidenergyconsumer.app.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import com.jj.androidenergyconsumer.app.utils.isAndroid8OrHigher
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 
 interface ServiceStarter {
 
+
     fun startService(context: Context, intent: Intent) {
+        val systemVersionChecker = SystemVersionChecker() //TODO Get me from DI
         when {
-            isAndroid8OrHigher() -> context.startForegroundService(intent)
+            systemVersionChecker.isAndroid8OrAbove() -> context.startForegroundService(intent)
             else -> context.startService(intent)
         }
     }

@@ -4,13 +4,17 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.utils.BatterySettingsLauncher
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 import com.jj.androidenergyconsumer.databinding.ActivityMainBinding
+import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding
 
-    private val permissionManager = PermissionManager()
+    private val permissionManager: PermissionManager by inject()
+    private val systemVersionChecker: SystemVersionChecker by inject()
+
     private lateinit var batterySettingsLauncher: BatterySettingsLauncher
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(activityMainBinding.root)
 
         permissionManager.requestWriteExternalStoragePermission(this)
-        batterySettingsLauncher = BatterySettingsLauncher(this)
+        batterySettingsLauncher = BatterySettingsLauncher(this, systemVersionChecker)
 
         manageBatteryOptimizationsSettings()
     }

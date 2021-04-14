@@ -1,6 +1,7 @@
 package com.jj.androidenergyconsumer.app.notification
 
 import android.content.Context
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 
 enum class NotificationType {
     BLUETOOTH,
@@ -10,13 +11,13 @@ enum class NotificationType {
     UNIVERSAL
 }
 
-class NotificationContainer(context: Context) {
+class NotificationContainer(context: Context, systemVersionChecker: SystemVersionChecker) {
 
-    private val bluetoothNotification = BluetoothNotification(context)
-    private val calculationsNotification = CalculationsNotification(context)
-    private val gpsNotification = GPSNotification(context)
-    private val internetNotification = InternetNotification(context)
-    private val universalNotification = UniversalNotification(context)
+    private val bluetoothNotification = BluetoothNotification(context, systemVersionChecker)
+    private val calculationsNotification = CalculationsNotification(context, systemVersionChecker)
+    private val gpsNotification = GPSNotification(context, systemVersionChecker)
+    private val internetNotification = InternetNotification(context, systemVersionChecker)
+    private val universalNotification = UniversalNotification(context, systemVersionChecker)
 
     fun getProperNotification(notificationType: NotificationType): CustomNotification =
         when (notificationType) {

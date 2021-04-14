@@ -4,7 +4,9 @@ import com.jj.androidenergyconsumer.app.bluetooth.BluetoothBroadcastReceiver
 import com.jj.androidenergyconsumer.app.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.app.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.app.notification.NotificationContainer
+import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.utils.FileManager
+import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 import com.jj.androidenergyconsumer.app.wakelock.WakelockManager
 import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
 import com.jj.androidenergyconsumer.data.rest.RetrofitClientFactory
@@ -17,7 +19,7 @@ import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
 import org.koin.dsl.module
 
 val aecMainModule = module {
-    single { NotificationContainer(get()) }
+    single { NotificationContainer(get(), get()) }
     single { WakelockManager(get()) }
 
     single { BluetoothScanner(BluetoothBroadcastReceiver(get())) }
@@ -35,4 +37,7 @@ val aecMainModule = module {
 
     single { CalculationsProviderFactory() }
     single { CalculationsOrchestrator(get(), get()) }
+
+    single { PermissionManager(get()) }
+    single { SystemVersionChecker() }
 }
