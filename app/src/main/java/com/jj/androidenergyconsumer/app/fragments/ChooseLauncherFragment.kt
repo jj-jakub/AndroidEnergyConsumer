@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.jj.androidenergyconsumer.BuildConfig
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.databinding.FragmentChooseLauncherBinding
 
@@ -23,12 +24,18 @@ class ChooseLauncherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setActivityTitle()
+        setCommitHashLabel()
         navController = Navigation.findNavController(fragmentChooseLauncherBinding.root)
         setButtonsListeners()
     }
 
     private fun setActivityTitle() {
         activity?.title = getString(R.string.app_name)
+    }
+
+    private fun setCommitHashLabel() {
+        val labelText = "Revision: ${BuildConfig.currentRevisionHash}"
+        fragmentChooseLauncherBinding.currentRevisionHashLabel.text = labelText
     }
 
     private fun setButtonsListeners() {
