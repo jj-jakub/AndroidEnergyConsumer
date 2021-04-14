@@ -3,7 +3,6 @@ package com.jj.androidenergyconsumer.app.fragments
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
@@ -15,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.app.gps.LocationListenerResult
-import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.services.GPSService
 import com.jj.androidenergyconsumer.app.services.MyBinder
 import com.jj.androidenergyconsumer.databinding.FragmentGpsLauncherBinding
@@ -41,21 +39,32 @@ class GPSLauncherFragment : BaseLauncherFragment() {
         manageLocationPermission()
     }
 
-    private fun manageLocationPermission() {
-        activity?.let { activity ->
-            if (permissionManager.areLocationsPermissionGranted(activity)) {
-                onPermissionGranted()
-            } else {
-                onPermissionNotGranted()
-                permissionManager.requestFineLocationPermission(this)
-            }
+    override fun onAllLocationPermissionsGranted() {
+        setupFragment()
+    }
+
+    override fun onPermissionsNotGranted() {
+        fragmentGpsLauncherBinding.apply {
+            gpsWorkingStatusValueLabel.text = getString(R.string.permission_not_granted)
+            gpsWorkingStatusValueLabel.setTextColor(Color.RED)
         }
     }
 
     private fun setupFragment() {
         bindToGPSService()
-        setButtonsListeners()
         observeGPSResults()
+        setButtonsListeners()
+        fragmentGpsLauncherBinding.apply {
+            gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
+            gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
+        }
+    }
+
+    private fun bindToGPSService() {
+        context?.let { context ->
+            val serviceIntent = GPSService.getServiceIntent(context)
+            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun observeGPSResults() {
@@ -106,13 +115,6 @@ class GPSLauncherFragment : BaseLauncherFragment() {
             Log.e(tag, "Exception while converting input interval", e)
             0
         }
-
-    private fun bindToGPSService() {
-        context?.let { context ->
-            val serviceIntent = GPSService.getServiceIntent(context)
-            context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-        }
-    }
 
     private fun stopGPSUpdates() {
         unbindFromService()
@@ -166,28 +168,5 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     private fun onErrorMessageChanged(errorMessage: String?) {
         fragmentGpsLauncherBinding.gpsErrorMessageLabel.text = errorMessage ?: ""
-    }
-
-    private fun onPermissionNotGranted() {
-        fragmentGpsLauncherBinding.apply {
-            gpsWorkingStatusValueLabel.text = getString(R.string.permission_not_granted)
-            gpsWorkingStatusValueLabel.setTextColor(Color.RED)
-        }
-    }
-
-    private fun onPermissionGranted() {
-        setupFragment()
-        fragmentGpsLauncherBinding.apply {
-            gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
-            gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PermissionManager.FINE_LOCATION_PERMISSION_REQUEST_CODE
-            && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            onPermissionGranted()
-        }
     }
 }
