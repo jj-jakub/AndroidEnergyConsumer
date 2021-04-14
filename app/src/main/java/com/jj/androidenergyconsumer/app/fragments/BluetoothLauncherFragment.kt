@@ -1,17 +1,21 @@
 package com.jj.androidenergyconsumer.app.fragments
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.bluetooth.BluetoothDevice
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.bluetooth.BluetoothBroadcastResult
@@ -44,16 +48,24 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     private fun manageLocationPermission() {
         activity?.let { activity ->
-            if (permissionManager.isLocationPermissionGranted(activity)) {
-                onPermissionGranted()
+            if (permissionManager.areLocationsPermissionGranted(activity)) {
+                onAllLocationPermissionsGranted()
             } else {
                 onPermissionNotGranted()
-                permissionManager.requestLocationPermission(this)
+                val finePermissionGranted = permissionManager.isFineLocationPermissionGranted(activity)
+                val isAndroid10OrAbove = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
+                @SuppressLint("NewApi")
+                if (finePermissionGranted && isAndroid10OrAbove) {
+                    showBackgroundPermissionAbbreviationDialog()
+                } else if (!finePermissionGranted) {
+                    permissionManager.requestFineLocationPermission(this)
+                }
             }
         }
     }
 
-    private fun onPermissionGranted() {
+    private fun onAllLocationPermissionsGranted() {
         setupFragment()
     }
 
@@ -171,9 +183,30 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PermissionManager.LOCATION_PERMISSION_REQUEST_CODE
+        if (requestCode == PermissionManager.FINE_LOCATION_PERMISSION_REQUEST_CODE
             && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            onPermissionGranted()
+            onFinePermissionGranted()
         }
+        if (requestCode == PermissionManager.BACKGROUND_LOCATION_PERMISSION_REQUEST_CODE
+            && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            onAllLocationPermissionsGranted()
+        }
+    }
+
+    private fun onFinePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            showBackgroundPermissionAbbreviationDialog()
+        } else {
+            onAllLocationPermissionsGranted()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun showBackgroundPermissionAbbreviationDialog() {
+        AlertDialog.Builder(requireContext()).setTitle("Background location").setMessage(
+                "In next step select 'Allow all the time'. App needs this permission for bluetooth scans while it is in background.")
+            .setPositiveButton("Next") { _, _ ->
+                permissionManager.requestBackgroundLocationPermission(this)
+            }.create().show()
     }
 }

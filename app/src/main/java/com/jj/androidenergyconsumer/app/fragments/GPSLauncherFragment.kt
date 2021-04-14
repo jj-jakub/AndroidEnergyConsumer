@@ -43,11 +43,11 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     private fun manageLocationPermission() {
         activity?.let { activity ->
-            if (permissionManager.isLocationPermissionGranted(activity)) {
+            if (permissionManager.areLocationsPermissionGranted(activity)) {
                 onPermissionGranted()
             } else {
                 onPermissionNotGranted()
-                permissionManager.requestLocationPermission(this)
+                permissionManager.requestFineLocationPermission(this)
             }
         }
     }
@@ -185,7 +185,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PermissionManager.LOCATION_PERMISSION_REQUEST_CODE
+        if (requestCode == PermissionManager.FINE_LOCATION_PERMISSION_REQUEST_CODE
             && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             onPermissionGranted()
         }
