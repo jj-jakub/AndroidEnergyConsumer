@@ -1,14 +1,12 @@
 package com.jj.androidenergyconsumer.app.fragments
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import com.jj.androidenergyconsumer.app.permissions.BackgroundPermissionAbbreviationDialog
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager.Companion.BACKGROUND_LOCATION_PERMISSION_REQUEST_CODE
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager.Companion.FINE_LOCATION_PERMISSION_REQUEST_CODE
@@ -24,6 +22,9 @@ abstract class BaseLauncherFragment : Fragment() {
     protected var serviceBound = AtomicBoolean(false)
     protected abstract val serviceConnection: ServiceConnection
     protected abstract val activityTitle: String
+
+    private val backgroundPermissionAbbreviationDialog =
+        if (systemVersionChecker.isAndroid10OrAbove()) BackgroundPermissionAbbreviationDialog() else null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,10 +51,10 @@ abstract class BaseLauncherFragment : Fragment() {
                 val finePermissionGranted = permissionManager.isFineLocationPermissionGranted(activity)
 
                 @SuppressLint("NewApi")
-                if (finePermissionGranted && systemVersionChecker.isAndroid10OrAbove()) {
-                    showBackgroundPermissionAbbreviationDialog()
-                } else if (!finePermissionGranted) {
+                if (!finePermissionGranted) {
                     permissionManager.requestFineLocationPermission(this)
+                } else if (finePermissionGranted && systemVersionChecker.isAndroid10OrAbove()) {
+                    backgroundPermissionAbbreviationDialog?.show(this, permissionManager)
                 }
             }
         }
@@ -65,15 +66,6 @@ abstract class BaseLauncherFragment : Fragment() {
 
     open fun onPermissionsNotGranted() {
         /* no-op */
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun showBackgroundPermissionAbbreviationDialog() {
-        AlertDialog.Builder(requireContext()).setTitle("Background location").setMessage(
-                "In next step select 'Allow all the time'. App needs this permission for bluetooth scans while it is in background.")
-            .setPositiveButton("Next") { _, _ ->
-                permissionManager.requestBackgroundLocationPermission(this)
-            }.create().show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -92,7 +84,8 @@ abstract class BaseLauncherFragment : Fragment() {
         grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
 
     private fun onFinePermissionGranted() {
-        if (systemVersionChecker.isAndroid10OrAbove()) showBackgroundPermissionAbbreviationDialog()
-        else onAllLocationPermissionsGranted()
+        if (systemVersionChecker.isAndroid10OrAbove()) {
+            backgroundPermissionAbbreviationDialog?.show(this, permissionManager)
+        } else onAllLocationPermissionsGranted()
     }
 }
