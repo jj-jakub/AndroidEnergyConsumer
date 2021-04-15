@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
+import com.jj.androidenergyconsumer.domain.tag
 
 class PermissionManager(private val systemVersionChecker: SystemVersionChecker) {
 
@@ -46,7 +47,7 @@ class PermissionManager(private val systemVersionChecker: SystemVersionChecker) 
 
     @RequiresApi(Build.VERSION_CODES.Q)
     fun requestBackgroundLocationPermission(fragment: Fragment) {
-        Log.d("ABAB", "Request BACKGROUND_LOCATION_PERMISSION")
+        Log.d(tag, "Request BACKGROUND_LOCATION_PERMISSION")
         fragment.requestPermissions(arrayOf(BACKGROUND_LOCATION_PERMISSION),
                 BACKGROUND_LOCATION_PERMISSION_REQUEST_CODE)
     }
