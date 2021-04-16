@@ -1,17 +1,14 @@
 package com.jj.androidenergyconsumer
 
+import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiSelector
-import com.jj.androidenergyconsumer.app.activities.MainActivity
+import com.jj.androidenergyconsumer.app.fragments.CalculationsFragment
 import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
-import com.jj.androidenergyconsumer.app.utils.BatterySettingsLauncher
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsResult
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsType
@@ -24,24 +21,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext.loadKoinModules
 import org.koin.core.context.GlobalContext.unloadKoinModules
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent.inject
 
 @RunWith(AndroidJUnit4::class)
 class CalculationsFragmentInstrumentedTest {
-
-    companion object {
-        private const val ENERGY_OPTIMIZATION_DIALOG_TIMEOUT = 5000L
-    }
-
-    @get:Rule
-    var rule: ActivityScenarioRule<MainActivity> = ActivityScenarioRule(MainActivity::class.java)
 
     @RelaxedMockK
     private lateinit var calculationsOrchestrator: CalculationsOrchestrator
@@ -50,27 +38,17 @@ class CalculationsFragmentInstrumentedTest {
 
     private lateinit var mockModule: Module
 
-    private lateinit var mDevice: UiDevice
-
-    private val batterySettingsLauncher: BatterySettingsLauncher by inject(BatterySettingsLauncher::class.java)
-
     @Before
     fun setup() {
         setupMocks()
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        handleEnergyOptimizationDialog()
-        goToCalculationsFragment()
+        launchFragmentInContainer<CalculationsFragment>()
     }
 
     private fun setupMocks() {
         MockKAnnotations.init(this)
         calculationsResultFlow = BufferedMutableSharedFlow()
         every { calculationsOrchestrator.observeCalculationsResult() } returns calculationsResultFlow
-
-        mockModule = module {
-            single(override = true) { calculationsOrchestrator }
-        }
-
+        mockModule = module { single(override = true) { calculationsOrchestrator } }
         loadKoinModules(mockModule)
     }
 
@@ -142,22 +120,9 @@ class CalculationsFragmentInstrumentedTest {
         onView(withId(R.id.abortCalculationsButton)).perform(click())
     }
 
-    private fun goToCalculationsFragment() {
-        onView(withId(R.id.calculationsButton)).perform(click())
-    }
-
     private fun setupFactorAndHandlersInputs(factor: Int, handlers: Int) {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(factor.toString()))
         onView(withId(R.id.calculationsHandlersNOInput)).perform(typeText(handlers.toString()), closeSoftKeyboard())
-    }
-
-    private fun handleEnergyOptimizationDialog() {
-        if (batterySettingsLauncher.isAppIgnoringBatteryOptimizations()) {
-            mDevice.findObject(UiSelector().textMatches("(?i)\\bAllow\\b")).apply {
-                waitForExists(ENERGY_OPTIMIZATION_DIALOG_TIMEOUT)
-                click()
-            }
-        }
     }
 
     @After
