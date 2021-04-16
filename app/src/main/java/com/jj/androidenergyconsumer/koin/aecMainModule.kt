@@ -5,6 +5,7 @@ import com.jj.androidenergyconsumer.app.bluetooth.BluetoothScanner
 import com.jj.androidenergyconsumer.app.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.app.notification.NotificationContainer
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager
+import com.jj.androidenergyconsumer.app.utils.BatterySettingsLauncher
 import com.jj.androidenergyconsumer.app.utils.FileManager
 import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 import com.jj.androidenergyconsumer.app.wakelock.WakelockManager
@@ -40,4 +41,5 @@ val aecMainModule = module {
 
     single { PermissionManager(get()) }
     single { SystemVersionChecker() }
+    single { BatterySettingsLauncher(get(), get()) }
 }
