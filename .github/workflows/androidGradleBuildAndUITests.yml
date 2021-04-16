@@ -1,0 +1,41 @@
+name: Android Gradle Build and UI Tests
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  Unit_tests_and_build_by_Gradle:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build
+
+  UI_tests:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        # With Android P, instrumentation tests may use full power of inline instrumentation,
+        # so object mocks, static mocks and mocking of final classes are supported.
+        # Before Android P, only subclassing can be employed, so you will need the ‘all-open’ plugin.
+        api-level: [29]
+        target: [default, google_apis]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run instrumentation tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          script: ./gradlew connectedCheck
