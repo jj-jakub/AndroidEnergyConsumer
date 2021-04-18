@@ -197,7 +197,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     private fun resetFileDownloadCountLabelAndValue() {
         fragmentInternetLauncherBinding.apply {
             fileDownloadCountLabel.visibility = View.INVISIBLE
-            fileDownloadCountLabel.text = ""
+            fileDownloadCountValue.text = ""
         }
     }
 

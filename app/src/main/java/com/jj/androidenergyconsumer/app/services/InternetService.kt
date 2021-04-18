@@ -87,6 +87,7 @@ class InternetService : BaseService() {
         val notification = internetNotification.get()
         startForeground(INTERNET_NOTIFICATION_ID, notification)
         observeLastCallResults()
+        observingDownloadProgressJob = observeDownloadProgress()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -143,7 +144,6 @@ class InternetService : BaseService() {
 
         acquireWakeLock()
         isWorking.value = true
-        observingDownloadProgressJob = observeDownloadProgress()
         coroutineScopeProvider.getIO().launch {
             fileDownloader.downloadFile(url)
         }
@@ -159,7 +159,7 @@ class InternetService : BaseService() {
     private fun onDownloadProgressChanged(downloadProgress: DownloadProgress) {
         Log.d(tag, "downloadProgress: $downloadProgress")
         if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
-        else if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
+        if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
     }
 
     private fun onFileDownloadingCompleted() {
@@ -184,7 +184,6 @@ class InternetService : BaseService() {
 
     private fun onDownloadException(exception: Exception?) {
         onProcessingError(exception?.message ?: "Exception while downloading file")
-        stopWorking()
     }
 
     private fun onUrlExtraNull() {
