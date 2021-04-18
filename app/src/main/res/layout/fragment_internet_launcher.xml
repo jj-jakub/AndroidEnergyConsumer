@@ -67,7 +67,7 @@
         android:text="@string/call_response"
         android:visibility="invisible"
         android:gravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintBottom_toTopOf="@+id/fileDownloadCountLabel"
         app:layout_constraintEnd_toStartOf="@+id/callResponseInfoValue"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
@@ -86,6 +86,32 @@
         tools:text="Response" />
 
     <TextView
+        android:id="@+id/fileDownloadCountLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:gravity="end"
+        android:text="@string/file_download_count"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/internetWorkingStatusInfoLabel"
+        app:layout_constraintEnd_toStartOf="@+id/fileDownloadCountValue"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/callResponseInfoLabel"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/fileDownloadCountValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/fileDownloadCountLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/fileDownloadCountLabel"
+        app:layout_constraintTop_toTopOf="@+id/fileDownloadCountLabel"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Count" />
+
+    <TextView
         android:id="@+id/internetWorkingStatusInfoLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -94,7 +120,7 @@
         app:layout_constraintBottom_toTopOf="@+id/stopInternetCallsButton"
         app:layout_constraintEnd_toStartOf="@+id/internetWorkingStatusValue"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/callResponseInfoLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/fileDownloadCountLabel" />
 
     <TextView
         android:id="@+id/internetWorkingStatusValue"

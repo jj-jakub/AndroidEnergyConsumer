@@ -14,6 +14,7 @@ import com.jj.androidenergyconsumer.domain.internet.DownloadProgress
 import com.jj.androidenergyconsumer.domain.internet.FileDownloader
 import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.domain.tag
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,12 +30,15 @@ class InternetService : BaseService() {
     private val internetPingsCreator: InternetPingsCreator by inject()
     private val fileDownloader: FileDownloader by inject()
 
+    private var fileDownloadsCount = 0
     private var lastKnownSourceUrl: String? = null
 
     override val wakelockTag = "AEC:InternetServiceWakeLock"
 
     private val isWorking = MutableStateFlow(false)
     private val inputErrorMessage = BufferedMutableSharedFlow<String?>()
+    private val fileDownloadsCountFlow = BufferedMutableSharedFlow<Int>()
+    private var observingDownloadProgressJob: Job? = null
 
     companion object : ServiceStarter {
         private const val START_PERIODIC_PINGS = "START_PERIODIC_PINGS"
@@ -73,6 +77,7 @@ class InternetService : BaseService() {
 
     fun observeIsWorking(): StateFlow<Boolean> = isWorking
     fun observeInputErrorMessage(): SharedFlow<String?> = inputErrorMessage
+    fun observeDownloadsCount(): SharedFlow<Int> = fileDownloadsCountFlow
 
     override fun onBind(intent: Intent?): IBinder = MyBinder(this)
 
@@ -116,8 +121,14 @@ class InternetService : BaseService() {
     private fun onDownloadFileRequested(intent: Intent) {
         intent.getStringExtra(URL_FOR_WORK_EXTRA)?.let { url ->
             lastKnownSourceUrl = url
+            resetFileDownloadsCount()
             startFileDownload(url)
         } ?: onUrlExtraNull()
+    }
+
+    private fun resetFileDownloadsCount() {
+        fileDownloadsCount = 0
+        fileDownloadsCountFlow.tryEmit(fileDownloadsCount)
     }
 
     private fun getUrlFromIntent(intent: Intent): String? {
@@ -132,22 +143,34 @@ class InternetService : BaseService() {
 
         acquireWakeLock()
         isWorking.value = true
-        coroutineScopeProvider.getIO().launch {
-            fileDownloader.observeDownloadProgress().collect { onDownloadProgressChanged(it) }
-        }
+        observingDownloadProgressJob = observeDownloadProgress()
         coroutineScopeProvider.getIO().launch {
             fileDownloader.downloadFile(url)
         }
     }
 
+    private fun observeDownloadProgress(): Job {
+        observingDownloadProgressJob?.cancel()
+        return coroutineScopeProvider.getIO().launch {
+            fileDownloader.observeDownloadProgress().collect { onDownloadProgressChanged(it) }
+        }
+    }
+
     private fun onDownloadProgressChanged(downloadProgress: DownloadProgress) {
+        Log.d(tag, "downloadProgress: $downloadProgress")
         if (downloadProgress.exception != null) onDownloadException(downloadProgress.exception)
         else if (downloadProgress.downloadFinished) onFileDownloadingCompleted()
     }
 
     private fun onFileDownloadingCompleted() {
         Log.d(tag, "onFileDownloadingCompleted")
+        incrementFileDownloadsCount()
         restartFileDownload()
+    }
+
+    private fun incrementFileDownloadsCount() {
+        fileDownloadsCount++
+        fileDownloadsCountFlow.tryEmit(fileDownloadsCount)
     }
 
     private fun restartFileDownload() {
@@ -201,6 +224,7 @@ class InternetService : BaseService() {
 
     override fun onDestroy() {
         logAndPingServer("onDestroy", tag)
+        observingDownloadProgressJob?.cancel()
         resetValues()
         internetPingsCreator.stopWorking()
         stopWorking()

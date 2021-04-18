@@ -148,6 +148,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
                 with(lifecycleScope) {
                     launchWhenResumed { service.observeIsWorking().collect { onWorkingStatusChanged(it) } }
                     launchWhenResumed { service.observeInputErrorMessage().collect { onErrorMessageChanged(it) } }
+                    launchWhenResumed { service.observeDownloadsCount().collect { onDownloadsCountChanged(it) } }
                 }
             }
         }
@@ -178,8 +179,11 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
     }
 
+    private fun onDownloadsCountChanged(downloadsCount: Int) {
+        fragmentInternetLauncherBinding.fileDownloadCountValue.text = downloadsCount.toString()
+    }
+
     private fun onCallResponseChanged(callResponse: String) {
-        fragmentInternetLauncherBinding.callResponseInfoLabel.visibility = View.VISIBLE
         fragmentInternetLauncherBinding.callResponseInfoValue.text = callResponse
     }
 
@@ -187,6 +191,13 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         fragmentInternetLauncherBinding.apply {
             callResponseInfoLabel.visibility = View.INVISIBLE
             callResponseInfoValue.text = ""
+        }
+    }
+
+    private fun resetFileDownloadCountLabelAndValue() {
+        fragmentInternetLauncherBinding.apply {
+            fileDownloadCountLabel.visibility = View.INVISIBLE
+            fileDownloadCountLabel.text = ""
         }
     }
 
@@ -199,6 +210,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private fun resetValues() {
         resetCallResponseLabelAndValue()
+        resetFileDownloadCountLabelAndValue()
         resetUrlLabelText()
     }
 
@@ -207,6 +219,8 @@ class InternetLauncherFragment : BaseLauncherFragment() {
             if (workingStatus == true) {
                 internetWorkingStatusValue.text = getString(R.string.running)
                 internetWorkingStatusValue.setTextColor(Color.RED)
+                callResponseInfoLabel.visibility = View.VISIBLE
+                fileDownloadCountLabel.visibility = View.VISIBLE
             } else {
                 internetWorkingStatusValue.text = getString(R.string.not_running)
                 internetWorkingStatusValue.setTextColor(Color.GREEN)
