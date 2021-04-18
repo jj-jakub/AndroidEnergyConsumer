@@ -15,12 +15,15 @@ import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.services.InternetService
 import com.jj.androidenergyconsumer.app.services.MyBinder
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
+import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.internet.DownloadProgress
 import com.jj.androidenergyconsumer.domain.internet.FileDownloader
 import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator.Companion.GOOGLE_URL
 import com.jj.androidenergyconsumer.domain.roundAsString
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import com.jj.androidenergyconsumer.domain.tag as LogTag
 
@@ -28,11 +31,14 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private val fileDownloader: FileDownloader by inject()
     private val internetPingsCreator: InternetPingsCreator by inject()
+    private val coroutineScopeProvider: ICoroutineScopeProvider by inject()
 
     private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
     override val activityTitle: String = "Internet launcher"
 
     private var internetService: InternetService? = null
+    private var observingDownloadProgressJob: Job? = null
+    private var observingLastCallResultJob: Job? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         fragmentInternetLauncherBinding = FragmentInternetLauncherBinding.inflate(inflater, container, false)
@@ -50,13 +56,27 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         observeInternetResultFlows()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        cancelInternetResultFlows()
+    }
+
     private fun observeInternetResultFlows() {
-        with(lifecycleScope) {
-            launchWhenResumed { fileDownloader.observeDownloadProgress().collect { handleDownloadProgressInfo(it) } }
-            launchWhenResumed {
-                internetPingsCreator.observeLastCallResult().collect { onCallResponseChanged(it.result) }
-            }
+        observingDownloadProgressJob?.cancel()
+        observingDownloadProgressJob = coroutineScopeProvider.getIO().launch {
+            fileDownloader.observeDownloadProgress()
+                .collect { coroutineScopeProvider.getMain().launch { handleDownloadProgressInfo(it) } }
         }
+        observingLastCallResultJob?.cancel()
+        observingLastCallResultJob = coroutineScopeProvider.getIO().launch {
+            internetPingsCreator.observeLastCallResult()
+                .collect { coroutineScopeProvider.getMain().launch { onCallResponseChanged(it.result) } }
+        }
+    }
+
+    private fun cancelInternetResultFlows() {
+        observingDownloadProgressJob?.cancel()
+        observingLastCallResultJob?.cancel()
     }
 
     private fun handleDownloadProgressInfo(downloadProgress: DownloadProgress) {
