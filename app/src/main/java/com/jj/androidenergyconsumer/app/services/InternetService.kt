@@ -6,7 +6,6 @@ import android.os.IBinder
 import android.util.Log
 import com.jj.androidenergyconsumer.app.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.INTERNET
-import com.jj.androidenergyconsumer.app.utils.FileManager
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
@@ -29,7 +28,6 @@ class InternetService : BaseService() {
     private val internetNotification = notificationContainer.getProperNotification(INTERNET)
     private val internetPingsCreator: InternetPingsCreator by inject()
     private val fileDownloader: FileDownloader by inject()
-    private val fileManager: FileManager by inject()
 
     private var lastKnownSourceUrl: String? = null
 
@@ -130,17 +128,15 @@ class InternetService : BaseService() {
     }
 
     private fun startFileDownload(url: String) {
-        val destinationDir = FileManager.downloadDestinationDir
-        if (destinationDir == null) {
-            onDestinationDirNull()
-            return
-        }
+        Log.d(tag, "startFileDownload")
 
         acquireWakeLock()
         isWorking.value = true
         coroutineScopeProvider.getIO().launch {
             fileDownloader.observeDownloadProgress().collect { onDownloadProgressChanged(it) }
-            fileDownloader.downloadFile(destinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME, url)
+        }
+        coroutineScopeProvider.getIO().launch {
+            fileDownloader.downloadFile(url)
         }
     }
 
@@ -151,13 +147,8 @@ class InternetService : BaseService() {
 
     private fun onFileDownloadingCompleted() {
         Log.d(tag, "onFileDownloadingCompleted")
-        val successfullyDeleted = deleteDownloadedFile()
-        if (!successfullyDeleted) onFileDeleteFailed()
-        else restartFileDownload()
+        restartFileDownload()
     }
-
-    private fun deleteDownloadedFile() =
-        fileManager.deleteFile(FileManager.downloadDestinationDir, FileManager.FILE_FOR_DOWNLOAD_NAME)
 
     private fun restartFileDownload() {
         lastKnownSourceUrl?.let { startFileDownload(it) } ?: stopSelf()
@@ -171,19 +162,10 @@ class InternetService : BaseService() {
     private fun onDownloadException(exception: Exception?) {
         onProcessingError(exception?.message ?: "Exception while downloading file")
         stopWorking()
-        deleteDownloadedFile()
     }
 
     private fun onUrlExtraNull() {
         onProcessingError("Url extra is null")
-    }
-
-    private fun onDestinationDirNull() {
-        onProcessingError("Fatal error - destination dir is null")
-    }
-
-    private fun onFileDeleteFailed() {
-        onProcessingError("Failed to remove downloaded file")
     }
 
     private fun startPeriodicPingsToUrl(url: String, intent: Intent) {

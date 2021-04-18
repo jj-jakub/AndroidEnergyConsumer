@@ -7,8 +7,6 @@ import com.jj.androidenergyconsumer.domain.tag
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 import java.util.concurrent.atomic.AtomicBoolean
@@ -35,7 +33,8 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
         downloadCancelled.set(true)
     }
 
-    suspend fun downloadFile(destinationDirPath: File, fileForDownloadName: String, sourceUrl: String) {
+    suspend fun downloadFile(sourceUrl: String) {
+        Log.d(tag, "downloadFile start")
         withContext(coroutineScopeProvider.getIODispatcher()) {
             var totalBytesReceived = 0L
             try {
@@ -50,9 +49,6 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
                 // download the file
                 val input = BufferedInputStream(connection.getInputStream())
 
-                val fileToSave = File(destinationDirPath, fileForDownloadName)
-                val output = FileOutputStream(fileToSave)
-
                 val buffer = ByteArray(DOWNLOAD_BUFFER_SIZE)
                 var receivedBytes: Int
 
@@ -61,12 +57,11 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
                     receivedBytes = input.read(buffer)
                     val downloadCancelled = downloadCancelled.get()
                     if (receivedBytes == -1 || downloadCancelled) {
-                        onDownloadEnd(input, output, downloadCancelled)
+                        onDownloadEnd(input, downloadCancelled)
                         return@withContext
                     }
                     totalBytesReceived += receivedBytes
 
-                    output.write(buffer, 0, receivedBytes)
                     Thread {
                         averageDownloadSpeedKBs =
                             (totalBytesReceived / 1000F) / ((System.currentTimeMillis() - downloadStartTime) / 1000F)
@@ -84,10 +79,7 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
         }
     }
 
-    private fun onDownloadEnd(input: BufferedInputStream, output: FileOutputStream, downloadCancelled: Boolean) {
-        // close streams
-        output.flush()
-        output.close()
+    private fun onDownloadEnd(input: BufferedInputStream, downloadCancelled: Boolean) {
         input.close()
 
         if (!downloadCancelled) {
