@@ -5,10 +5,12 @@ import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.tag
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.net.URL
+import java.net.URLConnection
 import java.util.concurrent.atomic.AtomicBoolean
 
 data class DownloadProgress(val progressPercentage: Int, val averageDownloadSpeedKBs: Float,
@@ -23,9 +25,9 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
     private val downloadProgressFlow = BufferedMutableSharedFlow<DownloadProgress>()
     private val downloadCancelled = AtomicBoolean(false)
 
-    private var downloadStartTime: Long = 0
     private var averageDownloadSpeedKBs: Float = 0F
     private var progressPercentage: Int = 0
+    private var totalBytesReceived = 0L
 
     fun observeDownloadProgress(): SharedFlow<DownloadProgress> = downloadProgressFlow
 
@@ -36,39 +38,28 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
     suspend fun downloadFile(sourceUrl: String) {
         Log.d(tag, "downloadFile start")
         withContext(coroutineScopeProvider.getIODispatcher()) {
-            var totalBytesReceived = 0L
+            totalBytesReceived = 0L
             try {
-                val url = URL(sourceUrl)
-                val connection = url.openConnection()
-                connection.connect()
+                val connection = makeConnection(sourceUrl)
 
                 // this will be useful so that you can show a typical 0-100% progress bar
                 val fileLength = connection.contentLength
+                val input = BufferedInputStream(connection.getInputStream())
+                val buffer = ByteArray(DOWNLOAD_BUFFER_SIZE)
+                var receivedBytesAmount: Int
                 Log.d(tag, "File requested for download has size in bytes: ${fileLength}B")
 
-                // download the file
-                val input = BufferedInputStream(connection.getInputStream())
-
-                val buffer = ByteArray(DOWNLOAD_BUFFER_SIZE)
-                var receivedBytes: Int
-
-                downloadStartTime = System.currentTimeMillis()
+                val downloadStartTime = System.currentTimeMillis()
                 while (true) {
-                    receivedBytes = input.read(buffer)
+                    receivedBytesAmount = input.read(buffer)
                     val downloadCancelled = downloadCancelled.get()
-                    if (receivedBytes == -1 || downloadCancelled) {
+                    if (receivedBytesAmount == -1 || downloadCancelled) {
                         onDownloadEnd(input, downloadCancelled)
                         return@withContext
                     }
-                    totalBytesReceived += receivedBytes
+                    totalBytesReceived += receivedBytesAmount
 
-                    Thread {
-                        averageDownloadSpeedKBs =
-                            (totalBytesReceived / 1000F) / ((System.currentTimeMillis() - downloadStartTime) / 1000F)
-                        progressPercentage = (totalBytesReceived * 100 / fileLength).toInt()
-                        val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, false)
-                        onProgressUpdate(downloadProgress)
-                    }.start()
+                    broadcastProgressUpdate(downloadStartTime, fileLength)
                 }
 
             } catch (e: IOException) {
@@ -76,6 +67,21 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
                 val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, true, e)
                 onProgressUpdate(downloadProgress)
             }
+        }
+    }
+
+    private fun makeConnection(sourceUrl: String): URLConnection {
+        val url = URL(sourceUrl)
+        return url.openConnection().apply { connect() }
+    }
+
+    private fun broadcastProgressUpdate(downloadStartTime: Long, fileLength: Int) {
+        coroutineScopeProvider.getIO().launch {
+            averageDownloadSpeedKBs =
+                (totalBytesReceived / 1000F) / ((System.currentTimeMillis() - downloadStartTime) / 1000F)
+            progressPercentage = (totalBytesReceived * 100 / fileLength).toInt()
+            val downloadProgress = DownloadProgress(progressPercentage, averageDownloadSpeedKBs, false)
+            onProgressUpdate(downloadProgress)
         }
     }
 
