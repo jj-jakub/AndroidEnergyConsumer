@@ -28,14 +28,20 @@ class CalculationsFragment : BaseLauncherFragment() {
 
     private val calculationsOrchestrator: CalculationsOrchestrator by inject()
 
-    private lateinit var fragmentCalculationsLauncherBinding: FragmentCalculationsLauncherBinding
+    private var fragmentCalculationsLauncherBinding: FragmentCalculationsLauncherBinding? = null
     override val activityTitle: String = "Calculations launcher"
 
     private var calculationsService: CalculationsService? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        fragmentCalculationsLauncherBinding = FragmentCalculationsLauncherBinding.inflate(inflater, container, false)
-        return fragmentCalculationsLauncherBinding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentCalculationsLauncherBinding.inflate(inflater, container, false).let { binding ->
+            fragmentCalculationsLauncherBinding = binding
+            binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        fragmentCalculationsLauncherBinding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,11 +59,11 @@ class CalculationsFragment : BaseLauncherFragment() {
 
     private fun onCalculationsResultChanged(result: CalculationsResult) {
         val labelString = "handlerId: ${result.handlerId}, variable = ${result.variable}"
-        fragmentCalculationsLauncherBinding.calculationsResultValueLabel.text = labelString
+        fragmentCalculationsLauncherBinding?.calculationsResultValueLabel?.text = labelString
     }
 
     private fun setButtonsListeners() {
-        fragmentCalculationsLauncherBinding.apply {
+        fragmentCalculationsLauncherBinding?.apply {
             performAdditionsButton.setOnClickListener { startCalculationsService(CalculationsType.ADDITION) }
             performMultiplicationsButton.setOnClickListener {
                 startCalculationsService(CalculationsType.MULTIPLICATION)
@@ -89,14 +95,14 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun clearInfoLabels() {
-        with(fragmentCalculationsLauncherBinding) {
+        fragmentCalculationsLauncherBinding?.apply {
             calculationsResultValueLabel.text = ""
             calculationsErrorMessageLabel.text = ""
         }
     }
 
     private fun getAmountOfHandlersFromInput() = try {
-        fragmentCalculationsLauncherBinding.calculationsHandlersNOInput.text.toString().toInt().apply {
+        fragmentCalculationsLauncherBinding?.calculationsHandlersNOInput?.text.toString().toInt().apply {
             if (this > 0) return this
             else DEFAULT_NUMBER_OF_HANDLERS
         }
@@ -106,7 +112,7 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun getFactorFromInput() = try {
-        fragmentCalculationsLauncherBinding.calculationsFactorInput.text.toString().toInt()
+        fragmentCalculationsLauncherBinding?.calculationsFactorInput?.text.toString().toInt()
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
         DEFAULT_CALCULATIONS_FACTOR
@@ -146,7 +152,7 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun onCalculationsStatusChanged(calculationsStatus: Boolean) {
-        fragmentCalculationsLauncherBinding.apply {
+        fragmentCalculationsLauncherBinding?.apply {
             if (calculationsStatus) {
                 calculationsStatusValueLabel.text = getString(R.string.running)
                 calculationsStatusValueLabel.setTextColor(Color.RED)
@@ -158,6 +164,6 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun onErrorMessageChanged(errorMessage: String?) {
-        fragmentCalculationsLauncherBinding.calculationsErrorMessageLabel.text = errorMessage ?: ""
+        fragmentCalculationsLauncherBinding?.calculationsErrorMessageLabel?.text = errorMessage ?: ""
     }
 }

@@ -24,15 +24,21 @@ import com.jj.androidenergyconsumer.domain.tag as LogTag
 
 class BluetoothLauncherFragment : BaseLauncherFragment() {
 
-    private lateinit var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding
+    private var fragmentBluetoothLauncherBinding: FragmentBluetoothLauncherBinding? = null
     override val activityTitle: String = "Bluetooth launcher"
 
     private val bluetoothScanner: BluetoothScanner by inject()
     private var bluetoothService: BluetoothService? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        fragmentBluetoothLauncherBinding = FragmentBluetoothLauncherBinding.inflate(inflater, container, false)
-        return fragmentBluetoothLauncherBinding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentBluetoothLauncherBinding.inflate(inflater, container, false).let { binding ->
+            fragmentBluetoothLauncherBinding = binding
+            binding.root
+        }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        fragmentBluetoothLauncherBinding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,7 +51,7 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     override fun onPermissionsNotGranted() {
-        fragmentBluetoothLauncherBinding.apply {
+        fragmentBluetoothLauncherBinding?.apply {
             bluetoothScanningStatusValueLabel.text = getString(R.string.permission_not_granted)
             bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
         }
@@ -55,7 +61,7 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
         bindToBluetoothService()
         observeBluetoothResults()
         setButtonsListeners()
-        fragmentBluetoothLauncherBinding.apply {
+        fragmentBluetoothLauncherBinding?.apply {
             bluetoothScanningStatusValueLabel.setTextColor(Color.GREEN)
             bluetoothScanningStatusValueLabel.text = getString(R.string.not_running)
         }
@@ -69,7 +75,7 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun setButtonsListeners() {
-        fragmentBluetoothLauncherBinding.apply {
+        fragmentBluetoothLauncherBinding?.apply {
             startBluetoothScanningButton.setOnClickListener { startBluetoothService() }
             abortBluetoothScanningButton.setOnClickListener { abortBluetoothService() }
         }
@@ -89,12 +95,12 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onDeviceFound(device: BluetoothDevice) {
-        fragmentBluetoothLauncherBinding.lastScanningResultValue.text =
-            "device: ${device.name} - ${device.bluetoothClass?.deviceClass}"
+        val resultText = "device: ${device.name} - ${device.bluetoothClass?.deviceClass}"
+        fragmentBluetoothLauncherBinding?.lastScanningResultValue?.text = resultText
     }
 
     private fun onScanningFinished() {
-        fragmentBluetoothLauncherBinding.lastScanningResultValue.text = "Scanning finished"
+        fragmentBluetoothLauncherBinding?.lastScanningResultValue?.text = getString(R.string.scanning_finished)
     }
 
     private fun startBluetoothService() {
@@ -141,7 +147,7 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onScanningStatusChanged(scanningStatus: Boolean) {
-        fragmentBluetoothLauncherBinding.apply {
+        fragmentBluetoothLauncherBinding?.apply {
             if (scanningStatus) {
                 bluetoothScanningStatusValueLabel.text = getString(R.string.running)
                 bluetoothScanningStatusValueLabel.setTextColor(Color.RED)
@@ -153,6 +159,6 @@ class BluetoothLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onErrorMessageChanged(errorMessage: String?) {
-        fragmentBluetoothLauncherBinding.bluetoothErrorMessageLabel.text = errorMessage ?: ""
+        fragmentBluetoothLauncherBinding?.bluetoothErrorMessageLabel?.text = errorMessage ?: ""
     }
 }

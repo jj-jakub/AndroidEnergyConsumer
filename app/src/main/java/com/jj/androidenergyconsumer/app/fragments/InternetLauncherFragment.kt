@@ -33,17 +33,18 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     private val internetPingsCreator: InternetPingsCreator by inject()
     private val coroutineScopeProvider: ICoroutineScopeProvider by inject()
 
-    private lateinit var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding
+    private var fragmentInternetLauncherBinding: FragmentInternetLauncherBinding? = null
     override val activityTitle: String = "Internet launcher"
 
     private var internetService: InternetService? = null
     private var observingDownloadProgressJob: Job? = null
     private var observingLastCallResultJob: Job? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        fragmentInternetLauncherBinding = FragmentInternetLauncherBinding.inflate(inflater, container, false)
-        return fragmentInternetLauncherBinding.root
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentInternetLauncherBinding.inflate(inflater, container, false).let { binding ->
+            fragmentInternetLauncherBinding = binding
+            binding.root
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -58,6 +59,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        fragmentInternetLauncherBinding = null
         cancelInternetResultFlows()
     }
 
@@ -86,7 +88,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun setButtonsListeners() {
-        fragmentInternetLauncherBinding.apply {
+        fragmentInternetLauncherBinding?.apply {
             periodicInternetWorkButton.setOnClickListener { startPeriodicInternetWork() }
             constantInternetWorkButton.setOnClickListener { startConstantInternetWork() }
             stopInternetCallsButton.setOnClickListener { stopInternetWork() }
@@ -96,7 +98,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun setGoogleUrlInInput() {
-        fragmentInternetLauncherBinding.urlInput.setText(GOOGLE_URL)
+        fragmentInternetLauncherBinding?.urlInput?.setText(GOOGLE_URL)
     }
 
     private fun startPeriodicInternetWork() {
@@ -132,7 +134,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private fun getMillisFromInput(): Long =
         try {
-            fragmentInternetLauncherBinding.internetIntervalInput.text.toString().toLong()
+            fragmentInternetLauncherBinding?.internetIntervalInput?.text.toString().toLong()
         } catch (e: Exception) {
             Log.e(tag, "Exception while converting input interval", e)
             0
@@ -140,7 +142,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
 
     private fun getUrlFromInput(): String =
         try {
-            fragmentInternetLauncherBinding.urlInput.text.toString()
+            fragmentInternetLauncherBinding?.urlInput?.text.toString()
         } catch (e: Exception) {
             Log.e(tag, "Exception while converting input url", e)
             onWrongUrlInput()
@@ -148,7 +150,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
         }
 
     private fun onWrongUrlInput() {
-        fragmentInternetLauncherBinding.urlToPingOrDownloadLabel.text = getString(R.string.url_conversion_error)
+        fragmentInternetLauncherBinding?.urlToPingOrDownloadLabel?.text = getString(R.string.url_conversion_error)
     }
 
     private fun bindToInternetService() {
@@ -193,36 +195,36 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onErrorMessageChanged(errorMessage: String?) {
-        fragmentInternetLauncherBinding.apply {
+        fragmentInternetLauncherBinding?.apply {
             urlToPingOrDownloadLabel.text = errorMessage
             urlToPingOrDownloadLabel.setTextColor(Color.RED)
         }
     }
 
     private fun onDownloadsCountChanged(downloadsCount: Int) {
-        fragmentInternetLauncherBinding.fileDownloadCountValue.text = downloadsCount.toString()
+        fragmentInternetLauncherBinding?.fileDownloadCountValue?.text = downloadsCount.toString()
     }
 
     private fun onCallResponseChanged(callResponse: String) {
-        fragmentInternetLauncherBinding.callResponseInfoValue.text = callResponse
+        fragmentInternetLauncherBinding?.callResponseInfoValue?.text = callResponse
     }
 
     private fun resetCallResponseLabelAndValue() {
-        fragmentInternetLauncherBinding.apply {
+        fragmentInternetLauncherBinding?.apply {
             callResponseInfoLabel.visibility = View.INVISIBLE
             callResponseInfoValue.text = ""
         }
     }
 
     private fun resetFileDownloadCountLabelAndValue() {
-        fragmentInternetLauncherBinding.apply {
+        fragmentInternetLauncherBinding?.apply {
             fileDownloadCountLabel.visibility = View.INVISIBLE
             fileDownloadCountValue.text = ""
         }
     }
 
     private fun resetUrlLabelText() {
-        fragmentInternetLauncherBinding.apply {
+        fragmentInternetLauncherBinding?.apply {
             urlToPingOrDownloadLabel.text = getString(R.string.url_to_ping_or_download)
             urlToPingOrDownloadLabel.setTextColor(Color.GRAY)
         }
@@ -235,7 +237,7 @@ class InternetLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onWorkingStatusChanged(workingStatus: Boolean?) {
-        fragmentInternetLauncherBinding.apply {
+        fragmentInternetLauncherBinding?.apply {
             if (workingStatus == true) {
                 internetWorkingStatusValue.text = getString(R.string.running)
                 internetWorkingStatusValue.setTextColor(Color.RED)

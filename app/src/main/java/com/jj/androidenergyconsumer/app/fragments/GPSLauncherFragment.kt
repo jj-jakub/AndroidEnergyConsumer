@@ -23,15 +23,21 @@ import com.jj.androidenergyconsumer.domain.tag as LogTag
 
 class GPSLauncherFragment : BaseLauncherFragment() {
 
-    private lateinit var fragmentGpsLauncherBinding: FragmentGpsLauncherBinding
+    private var fragmentGpsLauncherBinding: FragmentGpsLauncherBinding? = null
     private val customLocationListener: CustomLocationListener by inject()
     override val activityTitle: String = "GPS launcher"
 
     private var gpsService: GPSService? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        fragmentGpsLauncherBinding = FragmentGpsLauncherBinding.inflate(inflater, container, false)
-        return fragmentGpsLauncherBinding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentGpsLauncherBinding.inflate(inflater, container, false).let { binding ->
+            fragmentGpsLauncherBinding = binding
+            binding.root
+        }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        fragmentGpsLauncherBinding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,7 +50,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
     }
 
     override fun onPermissionsNotGranted() {
-        fragmentGpsLauncherBinding.apply {
+        fragmentGpsLauncherBinding?.apply {
             gpsWorkingStatusValueLabel.text = getString(R.string.permission_not_granted)
             gpsWorkingStatusValueLabel.setTextColor(Color.RED)
         }
@@ -54,7 +60,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
         bindToGPSService()
         observeGPSResults()
         setButtonsListeners()
-        fragmentGpsLauncherBinding.apply {
+        fragmentGpsLauncherBinding?.apply {
             gpsWorkingStatusValueLabel.setTextColor(Color.GREEN)
             gpsWorkingStatusValueLabel.text = getString(R.string.not_running)
         }
@@ -84,11 +90,11 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     private fun onLocationChanged(result: LocationListenerResult.LocationChanged) {
         val coordinates = "lat: ${result.location.latitude}, lon: ${result.location.longitude}"
-        fragmentGpsLauncherBinding.lastGpsResultValue.text = coordinates
+        fragmentGpsLauncherBinding?.lastGpsResultValue?.text = coordinates
     }
 
     private fun setButtonsListeners() {
-        fragmentGpsLauncherBinding.apply {
+        fragmentGpsLauncherBinding?.apply {
             constantGPSWorkButton.setOnClickListener { startConstantGPSWork() }
             periodicGPSWorkButton.setOnClickListener { startPeriodicGPSWork() }
             stopGpsUpdatesButton.setOnClickListener { stopGPSUpdates() }
@@ -110,7 +116,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
 
     private fun getMillisFromInput(): Long =
         try {
-            fragmentGpsLauncherBinding.gpsIntervalInput.text.toString().toLong()
+            fragmentGpsLauncherBinding?.gpsIntervalInput?.text.toString().toLong()
         } catch (e: Exception) {
             Log.e(tag, "Exception while converting input interval", e)
             0
@@ -155,7 +161,7 @@ class GPSLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onWorkingStatusChanged(workingStatus: Boolean) {
-        fragmentGpsLauncherBinding.apply {
+        fragmentGpsLauncherBinding?.apply {
             if (workingStatus) {
                 gpsWorkingStatusValueLabel.text = getString(R.string.running)
                 gpsWorkingStatusValueLabel.setTextColor(Color.RED)
@@ -167,6 +173,6 @@ class GPSLauncherFragment : BaseLauncherFragment() {
     }
 
     private fun onErrorMessageChanged(errorMessage: String?) {
-        fragmentGpsLauncherBinding.gpsErrorMessageLabel.text = errorMessage ?: ""
+        fragmentGpsLauncherBinding?.gpsErrorMessageLabel?.text = errorMessage ?: ""
     }
 }

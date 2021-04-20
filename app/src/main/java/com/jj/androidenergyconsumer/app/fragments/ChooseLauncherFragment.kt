@@ -13,21 +13,26 @@ import com.jj.androidenergyconsumer.databinding.FragmentChooseLauncherBinding
 
 class ChooseLauncherFragment : Fragment() {
 
-    private lateinit var navController: NavController
+    private var navController: NavController? = null
 
-    // TODO set this field to null at onDestroyView
-    private lateinit var fragmentChooseLauncherBinding: FragmentChooseLauncherBinding
+    private var fragmentChooseLauncherBinding: FragmentChooseLauncherBinding? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        fragmentChooseLauncherBinding = FragmentChooseLauncherBinding.inflate(inflater, container, false)
-        return fragmentChooseLauncherBinding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+        FragmentChooseLauncherBinding.inflate(inflater, container, false).let { binding ->
+            fragmentChooseLauncherBinding = binding
+            binding.root
+        }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        fragmentChooseLauncherBinding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setActivityTitle()
         setCommitHashLabel()
-        navController = Navigation.findNavController(fragmentChooseLauncherBinding.root)
+        fragmentChooseLauncherBinding?.root?.let { navController = Navigation.findNavController(it) }
         setButtonsListeners()
     }
 
@@ -37,22 +42,22 @@ class ChooseLauncherFragment : Fragment() {
 
     private fun setCommitHashLabel() {
         val labelText = "Revision: ${BuildConfig.currentRevisionHash}"
-        fragmentChooseLauncherBinding.currentRevisionHashLabel.text = labelText
+        fragmentChooseLauncherBinding?.currentRevisionHashLabel?.text = labelText
     }
 
     private fun setButtonsListeners() {
-        fragmentChooseLauncherBinding.apply {
+        fragmentChooseLauncherBinding?.apply {
             gpsModuleLauncherButton.setOnClickListener {
-                navController.navigate(R.id.action_chooseLauncherFragment_to_GPSLauncherFragment)
+                navController?.navigate(R.id.action_chooseLauncherFragment_to_GPSLauncherFragment)
             }
             internetModuleLauncherButton.setOnClickListener {
-                navController.navigate(R.id.action_chooseLauncherFragment_to_internetLauncherFragment)
+                navController?.navigate(R.id.action_chooseLauncherFragment_to_internetLauncherFragment)
             }
             calculationsButton.setOnClickListener {
-                navController.navigate(R.id.action_chooseLauncherFragment_to_calculationsFragment)
+                navController?.navigate(R.id.action_chooseLauncherFragment_to_calculationsFragment)
             }
             bluetoothModuleLauncherButton.setOnClickListener {
-                navController.navigate(R.id.action_chooseLauncherFragment_to_bluetoothLauncherFragment)
+                navController?.navigate(R.id.action_chooseLauncherFragment_to_bluetoothLauncherFragment)
             }
         }
     }

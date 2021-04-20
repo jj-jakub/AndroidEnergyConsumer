@@ -41,4 +41,5 @@
     <string name="stop_gps_updates">Stop GPS updates</string>
     <string name="calculations_result">Calculations result:</string>
     <string name="file_download_count">File download count:</string>
+    <string name="scanning_finished">Scanning finished</string>
 </resources>
