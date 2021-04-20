@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/request_periodic_internet_calls"
-        app:layout_constraintBottom_toTopOf="@+id/internetIntervalLabel"
+        app:layout_constraintBottom_toTopOf="@+id/internetIntervalInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constantInternetWorkButton" />
@@ -45,6 +45,7 @@
         android:hint="@string/request_interval_in_milliseconds"
         android:text="10"
         android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@+id/periodicInternetWorkButton"
         app:layout_constraintBottom_toTopOf="@+id/internetIntervalLabel"
         app:layout_constraintEnd_toEndOf="@+id/periodicInternetWorkButton"
         app:layout_constraintStart_toStartOf="@+id/periodicInternetWorkButton" />
@@ -57,7 +58,7 @@
         android:text="@string/request_interval_in_milliseconds"
         app:layout_constraintBottom_toTopOf="@+id/callResponseInfoLabel"
         app:layout_constraintStart_toStartOf="@+id/internetIntervalInput"
-        app:layout_constraintTop_toBottomOf="@+id/periodicInternetWorkButton" />
+        app:layout_constraintTop_toBottomOf="@+id/internetIntervalInput" />
 
     <TextView
         android:id="@+id/callResponseInfoLabel"
