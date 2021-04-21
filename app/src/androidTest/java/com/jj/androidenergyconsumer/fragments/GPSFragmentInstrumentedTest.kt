@@ -4,7 +4,6 @@ import android.location.LocationManager
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,6 +12,7 @@ import com.jj.androidenergyconsumer.app.fragments.GPSLauncherFragment
 import com.jj.androidenergyconsumer.app.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.utils.SystemServicesProvider
+import com.jj.androidenergyconsumer.utils.performClick
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
@@ -116,10 +116,6 @@ class GPSFragmentInstrumentedTest {
     @After
     fun unloadKoin() {
 //       unloadKoinModules(mockModule)
-    }
-
-    private fun performClick(viewId: Int) {
-        onView(withId(viewId)).perform(click())
     }
 
     private fun setupRequestIntervalInput(requestInterval: Long) {

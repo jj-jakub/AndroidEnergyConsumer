@@ -2,7 +2,8 @@ package com.jj.androidenergyconsumer.fragments
 
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -14,6 +15,7 @@ import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsResult
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsType
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
+import com.jj.androidenergyconsumer.utils.performClick
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
@@ -61,26 +63,26 @@ class CalculationsFragmentInstrumentedTest {
     @Test
     fun checkIfAdditionCalculationsAreLaunchedWithProperParameters() {
         setupFactorAndHandlersInputs(2, 16)
-        onView(withId(R.id.performAdditionsButton)).perform(click())
+        performClick(R.id.performAdditionsButton)
 
         verify { calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 2, 16) }
-        onView(withId(R.id.abortCalculationsButton)).perform(click())
+        performClick(R.id.abortCalculationsButton)
     }
 
     @Test
     fun checkIfMultiplicationCalculationsAreLaunchedWithProperParameters() {
         setupFactorAndHandlersInputs(4, 32)
-        onView(withId(R.id.performMultiplicationsButton)).perform(click())
+        performClick(R.id.performMultiplicationsButton)
 
         verify { calculationsOrchestrator.startCalculations(CalculationsType.MULTIPLICATION, 4, 32) }
-        onView(withId(R.id.abortCalculationsButton)).perform(click())
+        performClick(R.id.abortCalculationsButton)
     }
 
     @Test
     fun checkIfAdditionCalculationsAreAbortedSuccessfully() {
         setupFactorAndHandlersInputs(4, 32)
-        onView(withId(R.id.performAdditionsButton)).perform(click())
-        onView(withId(R.id.abortCalculationsButton)).perform(click())
+        performClick(R.id.performAdditionsButton)
+        performClick(R.id.abortCalculationsButton)
 
         verify { calculationsOrchestrator.abortCalculations() }
     }
@@ -88,8 +90,8 @@ class CalculationsFragmentInstrumentedTest {
     @Test
     fun checkIfMultiplicationCalculationsAreAbortedSuccessfully() {
         setupFactorAndHandlersInputs(4, 32)
-        onView(withId(R.id.performMultiplicationsButton)).perform(click())
-        onView(withId(R.id.abortCalculationsButton)).perform(click())
+        performClick(R.id.performMultiplicationsButton)
+        performClick(R.id.abortCalculationsButton)
 
         verify { calculationsOrchestrator.abortCalculations() }
     }
@@ -98,26 +100,26 @@ class CalculationsFragmentInstrumentedTest {
     fun checkIfAdditionCalculationsWillLaunchWithDefaultParametersIfInputsAreBlank() {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(""))
         onView(withId(R.id.calculationsHandlersNOInput)).perform(typeText(""), closeSoftKeyboard())
-        onView(withId(R.id.performAdditionsButton)).perform(click())
+        performClick(R.id.performAdditionsButton)
 
         verify {
             calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, DEFAULT_CALCULATIONS_FACTOR,
                     DEFAULT_NUMBER_OF_HANDLERS)
         }
-        onView(withId(R.id.abortCalculationsButton)).perform(click())
+        performClick(R.id.abortCalculationsButton)
     }
 
     @Test
     fun checkIfMultiplicationCalculationsWillLaunchWithDefaultParametersIfInputsAreBlank() {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(""))
         onView(withId(R.id.calculationsHandlersNOInput)).perform(typeText(""), closeSoftKeyboard())
-        onView(withId(R.id.performMultiplicationsButton)).perform(click())
+        performClick(R.id.performMultiplicationsButton)
 
         verify {
             calculationsOrchestrator.startCalculations(CalculationsType.MULTIPLICATION, DEFAULT_CALCULATIONS_FACTOR,
                     DEFAULT_NUMBER_OF_HANDLERS)
         }
-        onView(withId(R.id.abortCalculationsButton)).perform(click())
+        performClick(R.id.abortCalculationsButton)
     }
 
     private fun setupFactorAndHandlersInputs(factor: Int, handlers: Int) {
