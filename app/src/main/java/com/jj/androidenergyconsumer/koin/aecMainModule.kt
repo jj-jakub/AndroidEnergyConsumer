@@ -6,6 +6,7 @@ import com.jj.androidenergyconsumer.app.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.app.notification.NotificationContainer
 import com.jj.androidenergyconsumer.app.permissions.PermissionManager
 import com.jj.androidenergyconsumer.app.utils.BatterySettingsLauncher
+import com.jj.androidenergyconsumer.app.utils.SystemServicesProvider
 import com.jj.androidenergyconsumer.app.utils.SystemVersionChecker
 import com.jj.androidenergyconsumer.app.wakelock.WakelockManager
 import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
@@ -40,4 +41,6 @@ val aecMainModule = module {
     single { PermissionManager(get()) }
     single { SystemVersionChecker() }
     single { BatterySettingsLauncher(get(), get()) }
+
+    single { SystemServicesProvider() }
 }

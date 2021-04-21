@@ -10,6 +10,7 @@ import com.jj.androidenergyconsumer.app.gps.CustomLocationListener
 import com.jj.androidenergyconsumer.app.gps.LocationListenerResult
 import com.jj.androidenergyconsumer.app.notification.GPS_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.GPS
+import com.jj.androidenergyconsumer.app.utils.SystemServicesProvider
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
@@ -29,6 +30,7 @@ class GPSService : BaseService() {
     private val gpsNotification = notificationContainer.getProperNotification(GPS)
     private var locationManager: LocationManager? = null
     private val locationListener: CustomLocationListener by inject()
+    private val systemServicesProvider: SystemServicesProvider by inject()
 
     override val wakelockTag = "AEC:GPSServiceWakeLock"
 
@@ -70,7 +72,7 @@ class GPSService : BaseService() {
     override fun onCreate() {
         logAndPingServer("onCreate", tag)
         super.onCreate()
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+        locationManager = systemServicesProvider.getLocationManager(this)
         val notification = gpsNotification.get()
         startForeground(GPS_NOTIFICATION_ID, notification)
     }
