@@ -2,7 +2,6 @@
     <string name="app_name">AndroidEnergyConsumer</string>
     <string name="gps_module_launcher">GPS Module launcher</string>
     <string name="internet_module_launcher">Internet module launcher</string>
-    <string name="sensors_launcher">Sensors launcher</string>
     <string name="calculations_launcher">Calculations launcher</string>
     <string name="gps_launcher">GPS launcher</string>
     <string name="constant_gps_work">Constant GPS work</string>

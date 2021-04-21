@@ -42,11 +42,10 @@ class MainActivityTest {
     }
 
     @Test
-    fun allFiveButtonsShouldBeVisible() {
+    fun allFourButtonsShouldBeVisible() {
         onView(withId(R.id.calculationsButton)).check(matches(isDisplayed()))
         onView(withId(R.id.gpsModuleLauncherButton)).check(matches(isDisplayed()))
         onView(withId(R.id.internetModuleLauncherButton)).check(matches(isDisplayed()))
-        onView(withId(R.id.sensorsModuleLauncherButton)).check(matches(isDisplayed()))
         onView(withId(R.id.bluetoothModuleLauncherButton)).check(matches(isDisplayed()))
     }
 
