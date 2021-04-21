@@ -22,13 +22,6 @@ jobs:
 
   UI_tests:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        # With Android P, instrumentation tests may use full power of inline instrumentation,
-        # so object mocks, static mocks and mocking of final classes are supported.
-        # Before Android P, only subclassing can be employed, so you will need the ‘all-open’ plugin.
-        api-level: [29]
-        target: [default, google_apis]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,6 +29,7 @@ jobs:
       - name: Run instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
+          api-level: 29
+          arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: ./gradlew connectedCheck --stacktrace
