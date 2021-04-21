@@ -1,5 +1,6 @@
 package com.jj.androidenergyconsumer
 
+import android.util.Log
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -8,9 +9,11 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
 import com.jj.androidenergyconsumer.app.activities.MainActivity
 import com.jj.androidenergyconsumer.app.utils.BatterySettingsLauncher
+import com.jj.androidenergyconsumer.domain.tag
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,10 +51,14 @@ class MainActivityTest {
     }
 
     private fun handleEnergyOptimizationDialog() {
-        if (batterySettingsLauncher.isAppIgnoringBatteryOptimizations()) {
-            mDevice.findObject(UiSelector().textMatches(ALLOW_STRING_REGEX)).apply {
-                waitForExists(ENERGY_OPTIMIZATION_DIALOG_TIMEOUT)
-                click()
+        if (!batterySettingsLauncher.isAppIgnoringBatteryOptimizations()) {
+            try {
+                mDevice.findObject(UiSelector().textMatches(ALLOW_STRING_REGEX)).apply {
+                    waitForExists(ENERGY_OPTIMIZATION_DIALOG_TIMEOUT)
+                    click()
+                }
+            } catch (e: UiObjectNotFoundException) {
+                Log.e(tag, "handleEnergyOptimizationDialog exception", e)
             }
         }
     }
