@@ -1,4 +1,4 @@
-package com.jj.androidenergyconsumer
+package com.jj.androidenergyconsumer.fragments
 
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView
@@ -6,6 +6,7 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.fragments.CalculationsFragment
 import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
 import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
