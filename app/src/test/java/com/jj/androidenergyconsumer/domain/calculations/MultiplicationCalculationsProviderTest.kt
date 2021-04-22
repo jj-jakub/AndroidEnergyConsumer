@@ -1,7 +1,6 @@
 package com.jj.androidenergyconsumer.domain.calculations
 
 import com.jj.androidenergyconsumer.TestCoroutineScopeProvider
-import com.jj.androidenergyconsumer.app.handlers.StoppableLoopedHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -11,8 +10,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
 @ExperimentalCoroutinesApi
@@ -32,9 +29,6 @@ class MultiplicationCalculationsProviderTest {
         fun illegalFactors() = listOf(-1, 0, 1)
     }
 
-    @Mock
-    private lateinit var stoppableLoopedHandlerMock: StoppableLoopedHandler
-
     private val testCoroutineScopeProvider = TestCoroutineScopeProvider()
     private val mainTestScope = testCoroutineScopeProvider.getMain()
 
@@ -50,7 +44,6 @@ class MultiplicationCalculationsProviderTest {
     @MethodSource("factors")
     fun `calculationsTask should eventually emit calculations result if handler was not stopped`(factor: Int) =
         mainTestScope.runBlockingTest {
-            Mockito.`when`(stoppableLoopedHandlerMock.isHandlerStopped()).thenReturn(false)
             val multiplicationCalculationsProvider = createMultiplicationCalculationsProvider(factor)
             val resultsList = mutableListOf<CalculationsResult>()
 
@@ -58,7 +51,7 @@ class MultiplicationCalculationsProviderTest {
                 multiplicationCalculationsProvider.observeCalculationsResult().toList(resultsList)
             }
 
-            multiplicationCalculationsProvider.calculationsTask(0, stoppableLoopedHandlerMock)
+            multiplicationCalculationsProvider.startCalculationsTask(0)
             assertEquals(1, resultsList.size)
             collectingJob.cancel()
         }
@@ -67,15 +60,15 @@ class MultiplicationCalculationsProviderTest {
     @MethodSource("factors")
     fun `calculationsTask should not emit calculations result if handler was stopped`(factor: Int) =
         mainTestScope.runBlockingTest {
-            Mockito.`when`(stoppableLoopedHandlerMock.isHandlerStopped()).thenReturn(true)
             val multiplicationCalculationsProvider = createMultiplicationCalculationsProvider(factor)
+            multiplicationCalculationsProvider.abortCalculationsTask()
             val resultsList = mutableListOf<CalculationsResult>()
 
             val collectingJob = launch {
                 multiplicationCalculationsProvider.observeCalculationsResult().toList(resultsList)
             }
 
-            multiplicationCalculationsProvider.calculationsTask(0, stoppableLoopedHandlerMock)
+            multiplicationCalculationsProvider.startCalculationsTask(0)
             assertEquals(0, resultsList.size)
             collectingJob.cancel()
         }

@@ -1,8 +1,8 @@
 package com.jj.androidenergyconsumer.domain.calculations
 
 import com.jj.androidenergyconsumer.TestCoroutineScopeProvider
-import com.jj.androidenergyconsumer.app.handlers.HandlersOrchestrator
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainer
+import com.jj.androidenergyconsumer.domain.multithreading.ThreadsOrchestrator
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.capture
@@ -31,10 +31,10 @@ class CalculationsOrchestratorTest {
     private val coroutineScopeProvider = TestCoroutineScopeProvider()
 
     @Mock
-    private lateinit var coroutineJobContainerMock: CoroutineJobContainer
+    private lateinit var threadsOrchestrator: ThreadsOrchestrator
 
     @Mock
-    private lateinit var handlersOrchestratorMock: HandlersOrchestrator
+    private lateinit var coroutineJobContainerMock: CoroutineJobContainer
 
     @Captor
     private lateinit var calculationsTypeCaptor: ArgumentCaptor<CalculationsType>
@@ -54,7 +54,7 @@ class CalculationsOrchestratorTest {
     @Test
     fun `starting new calculations should abort handlers`() {
         calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, 1)
-        verify(handlersOrchestratorMock).abortThreads()
+        verify(threadsOrchestrator).abortThreads()
     }
 
     @Test
@@ -66,7 +66,7 @@ class CalculationsOrchestratorTest {
     @Test
     fun `aborting calculations should abort handlers`() {
         calculationsOrchestrator.abortCalculations()
-        verify(handlersOrchestratorMock).abortThreads()
+        verify(threadsOrchestrator).abortThreads()
     }
 
     @Test
@@ -98,7 +98,7 @@ class CalculationsOrchestratorTest {
     fun `starting new calculations should launch handlers infinite loop`() {
         calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, 1)
 
-        verify(handlersOrchestratorMock).launchInThreadsInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
+        verify(threadsOrchestrator).launchInThreadsInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
     }
 
     @ParameterizedTest
@@ -106,7 +106,7 @@ class CalculationsOrchestratorTest {
     fun `starting new calculations should launch handlers with proper amount parameter`(amount: Int) {
         calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, amount)
 
-        verify(handlersOrchestratorMock).launchInThreadsInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
+        verify(threadsOrchestrator).launchInThreadsInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
         assertEquals(amount, handlersAmountCaptor.value)
     }
 
@@ -122,7 +122,7 @@ class CalculationsOrchestratorTest {
     }
 
     private fun createCalculationsOrchestrator() = CalculationsOrchestrator(calculationsProviderFactory,
-            coroutineScopeProvider, coroutineJobContainerMock, handlersOrchestratorMock)
+            coroutineScopeProvider, coroutineJobContainerMock, threadsOrchestrator)
 
     companion object {
         @JvmStatic
