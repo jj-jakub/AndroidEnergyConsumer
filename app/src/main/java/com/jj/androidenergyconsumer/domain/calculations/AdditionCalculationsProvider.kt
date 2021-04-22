@@ -1,7 +1,6 @@
 package com.jj.androidenergyconsumer.domain.calculations
 
 import android.util.Log
-import com.jj.androidenergyconsumer.app.handlers.StoppableLoopedHandler
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.tag
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,15 +18,13 @@ class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
         calculationsFactor = factor
     }
 
-    override fun calculationsTask(handlerId: Int, stoppableHandler: StoppableLoopedHandler) {
+    override fun calculationsTask(threadId: Int) {
         var variable = 0
         while (true) {
             variable += calculationsFactor
             if (abs(variable) > 100000000) {
-                Log.d(tag, "handlerId: $handlerId variable: $variable")
-                if (stoppableHandler.isHandlerStopped().not()) {
-                    calculationsResultFlow.tryEmit(CalculationsResult(variable, handlerId))
-                }
+                Log.d(tag, "threadId: $threadId variable: $variable")
+                calculationsResultFlow.tryEmit(CalculationsResult(variable, threadId))
                 break
             }
         }

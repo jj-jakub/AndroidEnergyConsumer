@@ -26,11 +26,13 @@ class CalculationsOrchestrator(private val calculationsProviderFactory: Calculat
 
         coroutineJobContainer.setCurrentJob(resultsCollectingJob)
 
-        handlersOrchestrator.launchInEveryHandlerInInfiniteLoop(amountOfHandlers, calculationsProvider)
+        handlersOrchestrator.launchInThreadsInInfiniteLoop(amountOfHandlers) { id ->
+            calculationsProvider.calculationsTask(id)
+        }
     }
 
     fun abortCalculations() {
-        handlersOrchestrator.abortHandlers()
+        handlersOrchestrator.abortThreads()
         coroutineJobContainer.cancelJob()
     }
 }

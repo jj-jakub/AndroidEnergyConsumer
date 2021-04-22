@@ -1,9 +1,8 @@
 package com.jj.androidenergyconsumer.app.handlers
 
 import android.os.HandlerThread
-import com.jj.androidenergyconsumer.domain.calculations.CalculationsProvider
 
-class HandlersOrchestrator {
+class HandlersOrchestrator : ThreadsOrchestrator {
 
     private val blockLock = Any()
 
@@ -11,13 +10,11 @@ class HandlersOrchestrator {
     private var handlerThreads: List<HandlerThread> = listOf()
     private var stoppableHandlers: List<StoppableLoopedHandler> = listOf()
 
-    fun launchInEveryHandlerInInfiniteLoop(amountOfHandlers: Int, calculationsProvider: CalculationsProvider) {
-        restartHandlers(amountOfHandlers)
+    override fun launchInThreadsInInfiniteLoop(threadsAmount: Int, task: (index: Int) -> Unit) {
+        restartHandlers(threadsAmount)
         synchronized(blockLock) {
             stoppableHandlers.forEachIndexed { index, stoppableHandler ->
-                stoppableHandler.executeInInfiniteLoop({
-                    calculationsProvider.calculationsTask(index, stoppableHandler)
-                })
+                stoppableHandler.executeInInfiniteLoop( { task(index) })
             }
         }
     }
@@ -65,7 +62,7 @@ class HandlersOrchestrator {
         return mutableListOfHandlers.toList()
     }
 
-    fun abortHandlers() {
+    override fun abortThreads() {
         disposeHandlers()
     }
 }

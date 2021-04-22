@@ -54,7 +54,7 @@ class CalculationsOrchestratorTest {
     @Test
     fun `starting new calculations should abort handlers`() {
         calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, 1)
-        verify(handlersOrchestratorMock).abortHandlers()
+        verify(handlersOrchestratorMock).abortThreads()
     }
 
     @Test
@@ -66,7 +66,7 @@ class CalculationsOrchestratorTest {
     @Test
     fun `aborting calculations should abort handlers`() {
         calculationsOrchestrator.abortCalculations()
-        verify(handlersOrchestratorMock).abortHandlers()
+        verify(handlersOrchestratorMock).abortThreads()
     }
 
     @Test
@@ -98,7 +98,7 @@ class CalculationsOrchestratorTest {
     fun `starting new calculations should launch handlers infinite loop`() {
         calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, 1)
 
-        verify(handlersOrchestratorMock).launchInEveryHandlerInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
+        verify(handlersOrchestratorMock).launchInThreadsInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
     }
 
     @ParameterizedTest
@@ -106,7 +106,7 @@ class CalculationsOrchestratorTest {
     fun `starting new calculations should launch handlers with proper amount parameter`(amount: Int) {
         calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, 1, amount)
 
-        verify(handlersOrchestratorMock).launchInEveryHandlerInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
+        verify(handlersOrchestratorMock).launchInThreadsInInfiniteLoop(capture(handlersAmountCaptor), anyOrNull())
         assertEquals(amount, handlersAmountCaptor.value)
     }
 
