@@ -17,6 +17,8 @@ import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.internet.FileDownloader
 import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
+import com.jj.androidenergyconsumer.domain.multithreading.CoroutinesOrchestrator
+import com.jj.androidenergyconsumer.domain.multithreading.ThreadsOrchestrator
 import org.koin.dsl.module
 
 val aecMainModule = module {
@@ -33,14 +35,15 @@ val aecMainModule = module {
 
     single { RetrofitClientFactory() }
     single { InternetPingCallManager(get()) }
-    single { InternetPingsCreator(get()) }
+    single { InternetPingsCreator(get(), get(), get()) }
 
     single { CalculationsProviderFactory() }
-    single { CalculationsOrchestrator(get(), get()) }
+    single { CalculationsOrchestrator(get(), get(), coroutinesOrchestrator = get()) }
 
     single { PermissionManager(get()) }
     single { SystemVersionChecker() }
     single { BatterySettingsLauncher(get(), get()) }
 
     single { SystemServicesProvider() }
+    factory<ThreadsOrchestrator> { CoroutinesOrchestrator(get()) }
 }

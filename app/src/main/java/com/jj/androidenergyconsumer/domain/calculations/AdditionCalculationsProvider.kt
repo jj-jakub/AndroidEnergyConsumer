@@ -9,6 +9,7 @@ import kotlin.math.abs
 class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
 
     private val calculationsFactor: Int
+    override var calculationsAborted: Boolean = false
 
     //TODO Emit states of calculations? BEFORE, CALCULATING, AFTER?
     override val calculationsResultFlow: MutableSharedFlow<CalculationsResult> = BufferedMutableSharedFlow()
@@ -18,9 +19,10 @@ class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
         calculationsFactor = factor
     }
 
-    override fun calculationsTask(threadId: Int) {
+    override fun startCalculationsTask(threadId: Int) {
         var variable = 0
         while (true) {
+            if (calculationsAborted) break
             variable += calculationsFactor
             if (abs(variable) > 100000000) {
                 Log.d(tag, "threadId: $threadId variable: $variable")

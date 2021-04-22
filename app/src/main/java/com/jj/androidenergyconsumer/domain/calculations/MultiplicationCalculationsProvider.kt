@@ -9,6 +9,7 @@ import kotlin.math.abs
 class MultiplicationCalculationsProvider(factor: Int) : CalculationsProvider {
 
     private val calculationsFactor: Int
+    override var calculationsAborted: Boolean = false
     override val calculationsResultFlow: MutableSharedFlow<CalculationsResult> = BufferedMutableSharedFlow()
 
     init {
@@ -16,9 +17,10 @@ class MultiplicationCalculationsProvider(factor: Int) : CalculationsProvider {
         calculationsFactor = factor
     }
 
-    override fun calculationsTask(threadId: Int) {
+    override fun startCalculationsTask(threadId: Int) {
         var variable = 1
         while (true) {
+            if (calculationsAborted) break
             variable *= calculationsFactor
             if (abs(variable) > 100000000) {
                 Log.d(tag, "threadId: $threadId variable: $variable")

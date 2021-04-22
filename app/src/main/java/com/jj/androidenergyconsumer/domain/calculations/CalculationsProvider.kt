@@ -4,8 +4,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 interface CalculationsProvider {
+
+    var calculationsAborted: Boolean
     val calculationsResultFlow: MutableSharedFlow<CalculationsResult>
+
     fun observeCalculationsResult(): SharedFlow<CalculationsResult> = calculationsResultFlow
 
-    fun calculationsTask(threadId: Int)
+    fun startCalculationsTask(threadId: Int)
+
+    fun abortCalculationsTask() {
+        calculationsAborted = true
+    }
 }
