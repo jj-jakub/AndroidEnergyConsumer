@@ -29,7 +29,7 @@ val aecMainModule = module {
 
     single { FileDownloader(get()) }
 
-    single<ICoroutineScopeProvider> { CoroutineScopeProvider() }
+    factory<ICoroutineScopeProvider> { CoroutineScopeProvider() }
 
     single { RetrofitClientFactory() }
     single { InternetPingCallManager(get()) }
