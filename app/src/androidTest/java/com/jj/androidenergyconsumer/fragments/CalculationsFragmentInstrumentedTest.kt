@@ -10,7 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.fragments.CalculationsFragment
 import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
-import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
+import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_THREADS
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsResult
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsType
@@ -99,12 +99,12 @@ class CalculationsFragmentInstrumentedTest {
     @Test
     fun checkIfAdditionCalculationsWillLaunchWithDefaultParametersIfInputsAreBlank() {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(""))
-        onView(withId(R.id.calculationsHandlersNOInput)).perform(typeText(""), closeSoftKeyboard())
+        onView(withId(R.id.calculationsThreadsNOInput)).perform(typeText(""), closeSoftKeyboard())
         performClick(R.id.performAdditionsButton)
 
         verify {
             calculationsOrchestrator.startCalculations(CalculationsType.ADDITION, DEFAULT_CALCULATIONS_FACTOR,
-                    DEFAULT_NUMBER_OF_HANDLERS)
+                    DEFAULT_NUMBER_OF_THREADS)
         }
         performClick(R.id.abortCalculationsButton)
     }
@@ -112,19 +112,19 @@ class CalculationsFragmentInstrumentedTest {
     @Test
     fun checkIfMultiplicationCalculationsWillLaunchWithDefaultParametersIfInputsAreBlank() {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(""))
-        onView(withId(R.id.calculationsHandlersNOInput)).perform(typeText(""), closeSoftKeyboard())
+        onView(withId(R.id.calculationsThreadsNOInput)).perform(typeText(""), closeSoftKeyboard())
         performClick(R.id.performMultiplicationsButton)
 
         verify {
             calculationsOrchestrator.startCalculations(CalculationsType.MULTIPLICATION, DEFAULT_CALCULATIONS_FACTOR,
-                    DEFAULT_NUMBER_OF_HANDLERS)
+                    DEFAULT_NUMBER_OF_THREADS)
         }
         performClick(R.id.abortCalculationsButton)
     }
 
     private fun setupFactorAndHandlersInputs(factor: Int, handlers: Int) {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(factor.toString()))
-        onView(withId(R.id.calculationsHandlersNOInput)).perform(typeText(handlers.toString()), closeSoftKeyboard())
+        onView(withId(R.id.calculationsThreadsNOInput)).perform(typeText(handlers.toString()), closeSoftKeyboard())
     }
 
     @After

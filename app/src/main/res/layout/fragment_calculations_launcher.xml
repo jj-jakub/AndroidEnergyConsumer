@@ -44,19 +44,19 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/perform_multiplication_calculations"
-        app:layout_constraintBottom_toTopOf="@id/calculationsHandlersNOInput"
+        app:layout_constraintBottom_toTopOf="@id/calculationsThreadsNOInput"
         app:layout_constraintEnd_toEndOf="@+id/performAdditionsButton"
         app:layout_constraintStart_toStartOf="@+id/performAdditionsButton"
         app:layout_constraintTop_toBottomOf="@+id/performAdditionsButton" />
 
     <EditText
-        android:id="@+id/calculationsHandlersNOInput"
+        android:id="@+id/calculationsThreadsNOInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:autofillHints=""
         android:ems="10"
-        android:hint="@string/handlers"
+        android:hint="@string/threads"
         android:inputType="number"
         app:layout_constraintBottom_toTopOf="@+id/calculationsStatusInfoLabel"
         app:layout_constraintEnd_toStartOf="@+id/calculationsFactorInput"
@@ -72,25 +72,25 @@
         android:ems="10"
         android:hint="@string/factor"
         android:inputType="number"
-        app:layout_constraintBottom_toBottomOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintBottom_toBottomOf="@+id/calculationsThreadsNOInput"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/calculationsHandlersNOInput"
-        app:layout_constraintTop_toTopOf="@+id/calculationsHandlersNOInput" />
+        app:layout_constraintStart_toEndOf="@+id/calculationsThreadsNOInput"
+        app:layout_constraintTop_toTopOf="@+id/calculationsThreadsNOInput" />
 
     <TextView
-        android:id="@+id/calculationsHandlersNOLabel"
+        android:id="@+id/calculationsThreadsNOLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/number_of_handlers"
-        app:layout_constraintStart_toStartOf="@+id/calculationsHandlersNOInput"
-        app:layout_constraintTop_toBottomOf="@+id/calculationsHandlersNOInput" />
+        android:text="@string/number_of_threads"
+        app:layout_constraintStart_toStartOf="@+id/calculationsThreadsNOInput"
+        app:layout_constraintTop_toBottomOf="@+id/calculationsThreadsNOInput" />
 
     <TextView
         android:id="@+id/calculationsFactorLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/factor"
-        app:layout_constraintStart_toEndOf="@+id/calculationsHandlersNOInput"
+        app:layout_constraintStart_toEndOf="@+id/calculationsThreadsNOInput"
         app:layout_constraintTop_toBottomOf="@+id/calculationsFactorInput" />
 
     <TextView
@@ -105,7 +105,7 @@
         app:layout_constraintEnd_toStartOf="@+id/calculationsStatusValueLabel"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calculationsHandlersNOInput" />
+        app:layout_constraintTop_toBottomOf="@+id/calculationsThreadsNOInput" />
 
     <TextView
         android:id="@+id/calculationsStatusValueLabel"

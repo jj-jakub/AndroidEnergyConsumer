@@ -23,8 +23,8 @@ Dependencies and technologies used in project:
 
 
 ## Available features:
-- Perform CPU load by doing calculations operations with given amount of handlers (threads)
-- CPU load by doing multiplications operations with given amount of handlers (threads)
+- Perform CPU load by doing calculations operations with given amount of threads
+- CPU load by doing multiplications operations with given amount of threads
 - Bluetooth module load by performing continuous scanning in search of other bluetooth devices
 - GPS module load by requesting continuous location updates 
 - GPS module load by requesting location updates
@@ -58,13 +58,13 @@ On the main screen of application click "Calculations launcher" button to procee
 |<p align="center"><img src="https://github.com/jj-jakub/AndroidEnergyConsumer/blob/develop/readmeImages/MainScreen.webp" width="250"/></p>|
 
 This is Calculations fragment. You can control the parameters that running algorithm will use, i.e. 
-- "Number of handlers" - number of threads that will be launched for calculations
+- "Number of threads" - number of threads that will be launched for calculations
 - "Factor" - number that will be used for additions/multiplications of variables
 
 You can run addition algorithm or multiplication algorithm by clicking "Perform addition calculations" or "Perform multiplication calculations" respectively.
 
 Calculations status label indicates if any algorithm is currently running or not.
-Calculations result label shows the latest information about calculations. It is mainly log from the handler which about finishing some part of operations.
+Calculations result label shows the latest information about calculations. It is mainly log from the thread which about finishing some part of operations.
 
 If you want to stop running calculations click "Abort calculations" button.
 
@@ -72,7 +72,7 @@ If you want to stop running calculations click "Abort calculations" button.
 |-----|
 |<p align="center"><img src="https://github.com/jj-jakub/AndroidEnergyConsumer/blob/develop/readmeImages/CalculationsFragment.webp" width="250"/></p>|
 
-In this picture you can see parameters fields filled. Now calculations are ready to run. If you will not specify any values in the fields or values will be invalid, then default ones will be used (Number of handlers = 4, Factor = 2).
+In this picture you can see parameters fields filled. Now calculations are ready to run. If you will not specify any values in the fields or values will be invalid, then default ones will be used (Number of threads = 4, Factor = 2).
 
 |Calculations fragment with set up parameters|
 |-----|

@@ -37,8 +37,8 @@ class CalculationsService : BaseService() {
     companion object : ServiceStarter {
         private const val START_CALCULATIONS_ACTION = "START_CALCULATIONS_ACTION"
         private const val STOP_CALCULATIONS_ACTION = "STOP_CALCULATIONS_ACTION"
-        const val NUMBER_OF_HANDLERS_EXTRA = "NUMBER_OF_HANDLERS_EXTRA"
-        const val DEFAULT_NUMBER_OF_HANDLERS = 4
+        const val NUMBER_OF_THREADS_EXTRA = "NUMBER_OF_THREADS_EXTRA"
+        const val DEFAULT_NUMBER_OF_THREADS = 4
 
         const val CALCULATIONS_TYPE_EXTRA = "CALCULATIONS_TYPE"
         val DEFAULT_CALCULATIONS_TYPE = CalculationsType.ADDITION
@@ -48,11 +48,11 @@ class CalculationsService : BaseService() {
 
         override fun getServiceClass() = CalculationsService::class.java
 
-        fun startCalculations(context: Context, type: CalculationsType, numberOfHandlers: Int, factor: Int) {
+        fun startCalculations(context: Context, type: CalculationsType, threadsAmount: Int, factor: Int) {
             val intent = getServiceIntent(context).apply {
                 action = START_CALCULATIONS_ACTION
                 putExtra(CALCULATIONS_TYPE_EXTRA, type)
-                putExtra(NUMBER_OF_HANDLERS_EXTRA, numberOfHandlers)
+                putExtra(NUMBER_OF_THREADS_EXTRA, threadsAmount)
                 putExtra(CALCULATIONS_FACTOR_EXTRA, factor)
             }
             start(context, intent)
@@ -81,8 +81,8 @@ class CalculationsService : BaseService() {
 
     private fun onCalculationResultReceived(result: CalculationsResult) {
         calculationsNotification.notify("CalculationsService notification",
-                "handlerId: ${result.handlerId} ${getDateStringWithMillis()} - variable = ${result.variable}")
-        logAndPingServer("handlerId: ${result.handlerId}, variable = ${result.variable}", tag)
+                "threadId: ${result.threadId} ${getDateStringWithMillis()} - variable = ${result.variable}")
+        logAndPingServer("threadId: ${result.threadId}, variable = ${result.variable}", tag)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -111,15 +111,15 @@ class CalculationsService : BaseService() {
         logAndPingServer("After onStartCalculationsAction", tag)
     }
 
-    private fun getAmountOfHandlers(intent: Intent): Int =
-        intent.getIntExtra(NUMBER_OF_HANDLERS_EXTRA, DEFAULT_NUMBER_OF_HANDLERS)
-
     private fun setupCalculationsOrchestrator(intent: Intent) {
-        val amountOfHandlers = getAmountOfHandlers(intent)
+        val threadsAmount = getThreadsAmount(intent)
         val calculationsType = getCalculationsType(intent)
         val factor = getCalculationsFactor(intent)
-        calculationsOrchestrator.startCalculations(calculationsType, factor, amountOfHandlers)
+        calculationsOrchestrator.startCalculations(calculationsType, factor, threadsAmount)
     }
+
+    private fun getThreadsAmount(intent: Intent): Int =
+        intent.getIntExtra(NUMBER_OF_THREADS_EXTRA, DEFAULT_NUMBER_OF_THREADS)
 
     private fun getCalculationsType(intent: Intent): CalculationsType =
         (intent.getSerializableExtra(CALCULATIONS_TYPE_EXTRA) ?: DEFAULT_CALCULATIONS_TYPE) as CalculationsType

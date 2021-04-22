@@ -13,8 +13,8 @@
     <string name="calculations">Calculations</string>
     <string name="calculations_1">Calculations 1</string>
     <string name="calculations_2">Calculations 2</string>
-    <string name="number_of_handlers">Number of handlers</string>
-    <string name="handlers">Handlers</string>
+    <string name="number_of_threads">Number of threads</string>
+    <string name="threads">Threads</string>
     <string name="factor">Factor</string>
     <string name="perform_addition_calculations">Perform addition calculations</string>
     <string name="perform_multiplication_calculations">Perform multiplication calculations</string>

@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.services.CalculationsService
 import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_CALCULATIONS_FACTOR
-import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_HANDLERS
+import com.jj.androidenergyconsumer.app.services.CalculationsService.Companion.DEFAULT_NUMBER_OF_THREADS
 import com.jj.androidenergyconsumer.app.services.MyBinder
 import com.jj.androidenergyconsumer.databinding.FragmentCalculationsLauncherBinding
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
@@ -58,7 +58,7 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun onCalculationsResultChanged(result: CalculationsResult) {
-        val labelString = "handlerId: ${result.handlerId}, variable = ${result.variable}"
+        val labelString = "threadId: ${result.threadId}, variable = ${result.variable}"
         fragmentCalculationsLauncherBinding?.calculationsResultValueLabel?.text = labelString
     }
 
@@ -76,10 +76,10 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun startCalculationsService(type: CalculationsType) {
-        val amountOfHandlers = getAmountOfHandlersFromInput()
+        val threadsAmount = getThreadsAmountFromInput()
         val factor = getFactorFromInput()
         bindToCalculationsService()
-        context?.let { context -> CalculationsService.startCalculations(context, type, amountOfHandlers, factor) }
+        context?.let { context -> CalculationsService.startCalculations(context, type, threadsAmount, factor) }
     }
 
     private fun bindToCalculationsService() {
@@ -101,14 +101,14 @@ class CalculationsFragment : BaseLauncherFragment() {
         }
     }
 
-    private fun getAmountOfHandlersFromInput() = try {
-        fragmentCalculationsLauncherBinding?.calculationsHandlersNOInput?.text.toString().toInt().apply {
+    private fun getThreadsAmountFromInput() = try {
+        fragmentCalculationsLauncherBinding?.calculationsThreadsNOInput?.text.toString().toInt().apply {
             if (this > 0) return this
-            else DEFAULT_NUMBER_OF_HANDLERS
+            else DEFAULT_NUMBER_OF_THREADS
         }
     } catch (nfe: NumberFormatException) {
         Log.e(tag, "Exception when converting input string to int", nfe)
-        DEFAULT_NUMBER_OF_HANDLERS
+        DEFAULT_NUMBER_OF_THREADS
     }
 
     private fun getFactorFromInput() = try {

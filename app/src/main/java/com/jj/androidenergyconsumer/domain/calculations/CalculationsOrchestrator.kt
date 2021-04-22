@@ -8,25 +8,26 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class CalculationsOrchestrator(private val calculationsProviderFactory: CalculationsProviderFactory,
-                               private val coroutineScopeProvider: ICoroutineScopeProvider,
-                               private val coroutineJobContainer: CoroutineJobContainer = CoroutineJobContainer(),
-                               private val handlersOrchestrator: HandlersOrchestrator = HandlersOrchestrator()) {
+class CalculationsOrchestrator(
+        private val calculationsProviderFactory: CalculationsProviderFactory,
+        private val coroutineScopeProvider: ICoroutineScopeProvider,
+        private val coroutineJobContainer: CoroutineJobContainer = CoroutineJobContainer(),
+        private val handlersOrchestrator: HandlersOrchestrator = HandlersOrchestrator(),
+) {
 
     private val calculationsResultFlow = BufferedMutableSharedFlow<CalculationsResult>()
     fun observeCalculationsResult(): SharedFlow<CalculationsResult> = calculationsResultFlow
 
-    fun startCalculations(calculationsType: CalculationsType, factor: Int, amountOfHandlers: Int) {
+    fun startCalculations(calculationsType: CalculationsType, factor: Int, threadsAmount: Int) {
         abortCalculations()
         val calculationsProvider = calculationsProviderFactory.createCalculationsProvider(calculationsType, factor)
 
         val resultsCollectingJob = coroutineScopeProvider.getIO().launch {
             calculationsProvider.observeCalculationsResult().collect { calculationsResultFlow.tryEmit(it) }
         }
-
         coroutineJobContainer.setCurrentJob(resultsCollectingJob)
 
-        handlersOrchestrator.launchInThreadsInInfiniteLoop(amountOfHandlers) { id ->
+        handlersOrchestrator.launchInThreadsInInfiniteLoop(threadsAmount) { id ->
             calculationsProvider.calculationsTask(id)
         }
     }
