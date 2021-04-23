@@ -6,11 +6,11 @@ on:
       - '*d'
 
 jobs:
-
-  build:
+  Build_debug_artifact:
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Use Java8
         uses: actions/setup-java@v1
@@ -21,9 +21,9 @@ jobs:
         run: ./gradlew clean assembleDebug
 
       - name: Rename built artifact
-        run: cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/AEC_debug_${{ github.run_number }}.apk
+        run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/AEC_debug_${{ github.run_number }}.apk
 
-      - name: Release
+      - name: Export debug apk
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
