@@ -1,4 +1,4 @@
-name: Android Gradle Build and UI Tests
+name: Android Gradle Build and Instrumentation Tests
 
 on:
   push:

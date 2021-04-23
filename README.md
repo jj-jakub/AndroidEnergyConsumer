@@ -7,6 +7,8 @@ Application for making load on chosen device modules, its purpose is to simulate
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jj-jakub_AndroidEnergyConsumer&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=jj-jakub_AndroidEnergyConsumer)
 
+![Build and UI Tests](https://github.com/jj-jakub/AndroidEnergyConsumer/actions/workflows/androidGradleBuildAndInstrumentationTests.yml/badge.svg)
+
 ## Technologies
 Dependencies and technologies used in project:
 - Koin v3.0.1
