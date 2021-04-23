@@ -9,15 +9,18 @@ Application for making load on chosen device modules, its purpose is to simulate
 
 ## Technologies
 Dependencies and technologies used in project:
-- JUnit5 v5.7.1
-- Mockito v3.8.0
-- MockitoKotlin2 v2.2.0
-- Koin v2.0.1
-- Flipper v0.76.0
+- Koin v3.0.1
 - Retrofit2 v2.9.0
-- Android Navigation v2.3.4
+- Android Navigation v2.3.5
 - Kotlin Coroutines v1.4.3
 - Kotlin Flow (Coroutines) v1.4.3
+- Flipper v0.76.0
+- JUnit5 v5.7.1
+- Mockito v3.9.0
+- MockitoKotlin2 v2.2.0
+- MockK v1.11.0
+- Espresso v3.3.0
+- UiAutomator v2.2.0
 
 ## [Latest builds](https://github.com/jj-jakub/AndroidEnergyConsumer/releases)
 
