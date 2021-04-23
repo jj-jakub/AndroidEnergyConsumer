@@ -33,6 +33,9 @@ jobs:
         with:
           java-version: 1.8
 
+      - name: Write run number to properties
+        run: echo ciBuildNumber=${{ github.run_number }} > ./local.properties
+
       - name: Build release apk
         run: ./gradlew clean assemble
 
@@ -57,6 +60,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+
+      - name: Write run number to properties
+        run: echo ciBuildNumber=${{ github.run_number }} > ./local.properties
 
       - name: Build debug apk
         run: ./gradlew clean assembleDebug

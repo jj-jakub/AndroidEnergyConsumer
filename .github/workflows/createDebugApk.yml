@@ -17,6 +17,9 @@ jobs:
         with:
           java-version: 1.8
 
+      - name: Write run number to properties
+        run: echo ciBuildNumber=${{ github.run_number }} > ./local.properties
+
       - name: Build debug apk
         run: ./gradlew clean assembleDebug
 

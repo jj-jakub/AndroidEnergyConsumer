@@ -41,8 +41,10 @@ class ChooseLauncherFragment : Fragment() {
     }
 
     private fun setCommitHashLabel() {
-        val labelText = "Revision: ${BuildConfig.currentRevisionHash}"
-        fragmentChooseLauncherBinding?.currentRevisionHashLabel?.text = labelText
+        val labelText = "Revision: ${BuildConfig.currentRevisionHash}, Build number: ${BuildConfig.ciBuildNumber}, " +
+                "Version: ${BuildConfig.VERSION_NAME}" + if (BuildConfig.DEBUG) ", Debug" else ""
+
+        fragmentChooseLauncherBinding?.appVersionInfoLabel?.text = labelText
     }
 
     private fun setButtonsListeners() {
