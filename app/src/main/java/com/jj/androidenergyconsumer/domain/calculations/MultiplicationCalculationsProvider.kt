@@ -8,6 +8,10 @@ import kotlin.math.abs
 
 class MultiplicationCalculationsProvider(factor: Int) : CalculationsProvider {
 
+    companion object {
+        private const val CALCULATIONS_SUM_THRESHOLD_VALUE = 100000000
+    }
+
     private val calculationsFactor: Int
     override var calculationsAborted: Boolean = false
     override val calculationsResultFlow: MutableSharedFlow<CalculationsResult> = BufferedMutableSharedFlow()
@@ -18,15 +22,21 @@ class MultiplicationCalculationsProvider(factor: Int) : CalculationsProvider {
     }
 
     override fun startCalculationsTask(threadId: Int) {
-        var variable = 1
+        var multiplicationsResult = 1
+
         while (true) {
             if (calculationsAborted) break
-            variable *= calculationsFactor
-            if (abs(variable) > 100000000) {
-                Log.d(tag, "threadId: $threadId variable: $variable")
-                calculationsResultFlow.tryEmit(CalculationsResult(variable, threadId))
+            multiplicationsResult *= calculationsFactor
+
+            if (abs(multiplicationsResult) > CALCULATIONS_SUM_THRESHOLD_VALUE) {
+                onThresholdAchieved(threadId, multiplicationsResult)
                 break
             }
         }
+    }
+
+    private fun onThresholdAchieved(threadId: Int, multiplicationsResult: Int) {
+        Log.d(tag, "threadId: $threadId multiplicationsResult: $multiplicationsResult")
+        calculationsResultFlow.tryEmit(CalculationsResult(multiplicationsResult, threadId))
     }
 }

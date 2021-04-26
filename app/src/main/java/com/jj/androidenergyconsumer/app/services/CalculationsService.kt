@@ -81,8 +81,8 @@ class CalculationsService : BaseService() {
 
     private fun onCalculationResultReceived(result: CalculationsResult) {
         calculationsNotification.notify("CalculationsService notification",
-                "threadId: ${result.threadId} ${getDateStringWithMillis()} - variable = ${result.variable}")
-        logAndPingServer("threadId: ${result.threadId}, variable = ${result.variable}", tag)
+                "threadId: ${result.threadId} ${getDateStringWithMillis()} - variable = ${result.numResult}")
+        logAndPingServer("threadId: ${result.threadId}, numResult = ${result.numResult}", tag)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

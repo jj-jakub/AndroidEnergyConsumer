@@ -8,6 +8,10 @@ import kotlin.math.abs
 
 class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
 
+    companion object {
+        private const val CALCULATIONS_SUM_THRESHOLD_VALUE = 100000000
+    }
+
     private val calculationsFactor: Int
     override var calculationsAborted: Boolean = false
 
@@ -20,15 +24,21 @@ class AdditionCalculationsProvider(factor: Int) : CalculationsProvider {
     }
 
     override fun startCalculationsTask(threadId: Int) {
-        var variable = 0
+        var additionSum = 0
+
         while (true) {
             if (calculationsAborted) break
-            variable += calculationsFactor
-            if (abs(variable) > 100000000) {
-                Log.d(tag, "threadId: $threadId variable: $variable")
-                calculationsResultFlow.tryEmit(CalculationsResult(variable, threadId))
+            additionSum += calculationsFactor
+
+            if (abs(additionSum) > CALCULATIONS_SUM_THRESHOLD_VALUE) {
+                onThresholdAchieved(threadId, additionSum)
                 break
             }
         }
+    }
+
+    private fun onThresholdAchieved(threadId: Int, additionSum: Int) {
+        Log.d(tag, "threadId: $threadId additionSum: $additionSum")
+        calculationsResultFlow.tryEmit(CalculationsResult(additionSum, threadId))
     }
 }

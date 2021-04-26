@@ -58,7 +58,7 @@ class CalculationsFragment : BaseLauncherFragment() {
     }
 
     private fun onCalculationsResultChanged(result: CalculationsResult) {
-        val labelString = "threadId: ${result.threadId}, variable = ${result.variable}"
+        val labelString = "threadId: ${result.threadId}, numResult = ${result.numResult}"
         fragmentCalculationsLauncherBinding?.calculationsResultValueLabel?.text = labelString
     }
 
