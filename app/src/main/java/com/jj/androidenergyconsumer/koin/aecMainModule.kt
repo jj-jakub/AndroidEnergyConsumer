@@ -13,6 +13,7 @@ import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
 import com.jj.androidenergyconsumer.data.rest.RetrofitClientFactory
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsOrchestrator
 import com.jj.androidenergyconsumer.domain.calculations.CalculationsProviderFactory
+import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainerFactory
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.internet.FileDownloader
@@ -45,5 +46,6 @@ val aecMainModule = module {
     single { BatterySettingsLauncher(get(), get()) }
 
     single { SystemServicesProvider() }
-    factory<ThreadsOrchestrator> { CoroutinesOrchestrator(get()) }
+    single { CoroutineJobContainerFactory() }
+    factory<ThreadsOrchestrator> { CoroutinesOrchestrator(get(), get()) }
 }

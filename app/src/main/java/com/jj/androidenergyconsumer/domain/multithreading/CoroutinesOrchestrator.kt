@@ -1,12 +1,16 @@
 package com.jj.androidenergyconsumer.domain.multithreading
 
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainer
+import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainerFactory
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class CoroutinesOrchestrator(private val coroutineScopeProvider: ICoroutineScopeProvider) : ThreadsOrchestrator {
+class CoroutinesOrchestrator(
+        private val coroutineScopeProvider: ICoroutineScopeProvider,
+        private val coroutineJobContainerFactory: CoroutineJobContainerFactory,
+) : ThreadsOrchestrator {
 
     private val listOfCoroutines = mutableListOf<CoroutineJobContainer>()
 
@@ -21,7 +25,7 @@ class CoroutinesOrchestrator(private val coroutineScopeProvider: ICoroutineScope
     }
 
     private fun setupCoroutineJobs(id: Int, task: (index: Int) -> Unit, looped: Boolean) {
-        val jobContainer = CoroutineJobContainer().apply {
+        val jobContainer = coroutineJobContainerFactory.create().apply {
             val coroutineJob = createCoroutineJob(id, task, looped)
             setCurrentJob(coroutineJob)
         }
