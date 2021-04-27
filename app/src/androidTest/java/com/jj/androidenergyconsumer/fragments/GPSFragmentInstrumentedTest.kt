@@ -17,7 +17,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -111,11 +110,6 @@ class GPSFragmentInstrumentedTest {
         performClick(R.id.stopGpsUpdatesButton)
 
         verify { locationManager.removeUpdates(ofType(CustomLocationListener::class)) }
-    }
-
-    @After
-    fun unloadKoin() {
-//       unloadKoinModules(mockModule)
     }
 
     private fun setupRequestIntervalInput(requestInterval: Long) {

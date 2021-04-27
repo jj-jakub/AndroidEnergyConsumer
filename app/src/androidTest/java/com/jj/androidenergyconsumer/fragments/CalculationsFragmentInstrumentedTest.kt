@@ -21,7 +21,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -125,10 +124,5 @@ class CalculationsFragmentInstrumentedTest {
     private fun setupFactorAndHandlersInputs(factor: Int, handlers: Int) {
         onView(withId(R.id.calculationsFactorInput)).perform(typeText(factor.toString()))
         onView(withId(R.id.calculationsThreadsNOInput)).perform(typeText(handlers.toString()), closeSoftKeyboard())
-    }
-
-    @After
-    fun unloadKoin() {
-//       unloadKoinModules(mockModule)
     }
 }
