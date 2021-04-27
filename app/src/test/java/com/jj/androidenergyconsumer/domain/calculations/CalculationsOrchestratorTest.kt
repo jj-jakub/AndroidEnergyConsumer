@@ -124,6 +124,7 @@ class CalculationsOrchestratorTest {
     private fun createCalculationsOrchestrator() = CalculationsOrchestrator(calculationsProviderFactory,
             coroutineScopeProvider, coroutineJobContainerMock, threadsOrchestrator)
 
+    @Suppress("unused")
     companion object {
         @JvmStatic
         private fun calculationsTypes() = CalculationsType.values().toList()
