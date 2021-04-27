@@ -29,6 +29,7 @@ class InternetFragmentInstrumentedTest {
 
     companion object {
         private const val DEFAULT_REQUEST_INTERVAL = 10L
+        private const val inputUrl = "http://0.0.0.0:10000/ping"
     }
 
     private lateinit var fileDownloader: FileDownloader
@@ -69,7 +70,6 @@ class InternetFragmentInstrumentedTest {
 
     @Test
     fun startFileDownloadShouldCallDownloadFileOnFileDownloaderWithProperUrl() {
-        val inputUrl = "http://0.0.0.0:10000/file"
         writeUrl(inputUrl)
 
         performClick(R.id.startFileDownloadButton)
@@ -90,7 +90,6 @@ class InternetFragmentInstrumentedTest {
 
     @Test
     fun startConstantInternetWorkToCustomUrl() {
-        val inputUrl = "http://0.0.0.0:10000/ping"
         writeUrl(inputUrl)
 
         performClick(R.id.constantInternetWorkButton)
@@ -123,7 +122,6 @@ class InternetFragmentInstrumentedTest {
 
     @Test
     fun startPeriodicCallsToCustomUrlWithDefaultInterval() {
-        val inputUrl = "http://0.0.0.0:10000/ping"
         writeUrl(inputUrl)
 
         performClick(R.id.periodicInternetWorkButton)
@@ -135,7 +133,6 @@ class InternetFragmentInstrumentedTest {
 
     @Test
     fun startPeriodicCallsToCustomUrlWithCustomInterval() {
-        val inputUrl = "http://0.0.0.0:10000/ping"
         writeUrl(inputUrl)
 
         val interval = 512L
@@ -167,6 +164,7 @@ class InternetFragmentInstrumentedTest {
         checkNotWorkingStatusValue()
     }
 
+    @Suppress("SameParameterValue")
     private fun writeUrl(url: String) = typeText(R.id.urlInput, url)
 
     private fun writeInterval(millis: Long) = typeText(R.id.internetIntervalInput, millis.toString())
