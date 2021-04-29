@@ -1,4 +1,4 @@
-package com.jj.androidenergyconsumer.domain.internet
+package com.jj.androidenergyconsumer.data.rest
 
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis

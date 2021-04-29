@@ -9,8 +9,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.fragments.InternetLauncherFragment
-import com.jj.androidenergyconsumer.domain.internet.FileDownloader
-import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
+import com.jj.androidenergyconsumer.data.internet.FileDownloader
+import com.jj.androidenergyconsumer.data.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.utils.performClick
 import com.jj.androidenergyconsumer.utils.typeText
 import io.mockk.MockKAnnotations

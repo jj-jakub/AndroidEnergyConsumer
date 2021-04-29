@@ -1,6 +1,7 @@
-package com.jj.androidenergyconsumer.domain.internet
+package com.jj.androidenergyconsumer.data.internet
 
 import android.util.Log
+import com.jj.androidenergyconsumer.data.streams.BufferedInputStreamFactory
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.tag
@@ -10,14 +11,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
 import java.io.IOException
-import java.net.URL
 import java.net.URLConnection
 import java.util.concurrent.atomic.AtomicBoolean
 
-data class DownloadProgress(val progressPercentage: Int, val averageDownloadSpeedKBs: Float,
-                            val downloadFinished: Boolean, val exception: Exception? = null)
+data class DownloadProgress(
+        val progressPercentage: Int, val averageDownloadSpeedKBs: Float,
+        val downloadFinished: Boolean, val exception: Exception? = null,
+)
 
-class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider) {
+class FileDownloader(
+        private val coroutineScopeProvider: ICoroutineScopeProvider,
+        private val bufferedInputStreamFactory: BufferedInputStreamFactory,
+        private val urlConnectionCreator: URLConnectionCreator = URLConnectionCreator(),
+) {
 
     companion object {
         private const val DOWNLOAD_BUFFER_SIZE = 16384
@@ -46,9 +52,9 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
         totalBytesReceived = 0L
         withContext(coroutineScopeProvider.getIODispatcher()) {
             try {
-                connection = makeConnection(sourceUrl)
+                connection = urlConnectionCreator.makeConnection(sourceUrl)
                 fileLength = connection.contentLength
-                input = BufferedInputStream(connection.getInputStream())
+                input = bufferedInputStreamFactory.create(connection.getInputStream())
                 Log.d(tag, "File requested for download has size in bytes: ${fileLength}B")
 
                 readBytesInLoop(input)
@@ -79,11 +85,6 @@ class FileDownloader(private val coroutineScopeProvider: ICoroutineScopeProvider
 
             broadcastProgressUpdate(downloadStartTime)
         }
-    }
-
-    private fun makeConnection(sourceUrl: String): URLConnection {
-        val url = URL(sourceUrl)
-        return url.openConnection().apply { connect() }
     }
 
     private fun broadcastProgressUpdate(downloadStartTime: Long) {

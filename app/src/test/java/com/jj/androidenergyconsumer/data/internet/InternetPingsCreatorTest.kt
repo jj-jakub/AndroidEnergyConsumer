@@ -1,4 +1,4 @@
-package com.jj.androidenergyconsumer.domain.internet
+package com.jj.androidenergyconsumer.data.internet
 
 import com.jj.androidenergyconsumer.TestCoroutineScopeProvider
 import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager

@@ -14,12 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import com.jj.androidenergyconsumer.R
 import com.jj.androidenergyconsumer.app.services.InternetService
 import com.jj.androidenergyconsumer.app.services.MyBinder
+import com.jj.androidenergyconsumer.data.internet.DownloadProgress
+import com.jj.androidenergyconsumer.data.internet.FileDownloader
+import com.jj.androidenergyconsumer.data.internet.InternetPingsCreator
+import com.jj.androidenergyconsumer.data.internet.InternetPingsCreator.Companion.GOOGLE_URL
 import com.jj.androidenergyconsumer.databinding.FragmentInternetLauncherBinding
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
-import com.jj.androidenergyconsumer.domain.internet.DownloadProgress
-import com.jj.androidenergyconsumer.domain.internet.FileDownloader
-import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
-import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator.Companion.GOOGLE_URL
 import com.jj.androidenergyconsumer.domain.roundAsString
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect

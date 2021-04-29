@@ -7,12 +7,12 @@ import android.util.Log
 import com.jj.androidenergyconsumer.app.notification.INTERNET_NOTIFICATION_ID
 import com.jj.androidenergyconsumer.app.notification.NotificationType.INTERNET
 import com.jj.androidenergyconsumer.app.utils.logAndPingServer
+import com.jj.androidenergyconsumer.data.internet.DownloadProgress
+import com.jj.androidenergyconsumer.data.internet.FileDownloader
+import com.jj.androidenergyconsumer.data.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider
 import com.jj.androidenergyconsumer.domain.getDateStringWithMillis
-import com.jj.androidenergyconsumer.domain.internet.DownloadProgress
-import com.jj.androidenergyconsumer.domain.internet.FileDownloader
-import com.jj.androidenergyconsumer.domain.internet.InternetPingsCreator
 import com.jj.androidenergyconsumer.domain.tag
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

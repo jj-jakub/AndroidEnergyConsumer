@@ -1,5 +1,6 @@
-package com.jj.androidenergyconsumer.domain.internet
+package com.jj.androidenergyconsumer.data.internet
 
+import com.jj.androidenergyconsumer.data.rest.CallbackWithAction
 import com.jj.androidenergyconsumer.data.rest.InternetPingCallManager
 import com.jj.androidenergyconsumer.domain.coroutines.BufferedMutableSharedFlow
 import com.jj.androidenergyconsumer.domain.coroutines.ICoroutineScopeProvider

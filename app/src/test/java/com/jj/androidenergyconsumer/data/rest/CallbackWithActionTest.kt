@@ -1,4 +1,4 @@
-package com.jj.androidenergyconsumer.domain.internet
+package com.jj.androidenergyconsumer.data.rest
 
 import okhttp3.ResponseBody
 import org.junit.jupiter.api.Assertions.assertEquals
