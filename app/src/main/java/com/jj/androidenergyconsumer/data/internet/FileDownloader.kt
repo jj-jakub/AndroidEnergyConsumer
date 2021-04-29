@@ -60,7 +60,7 @@ class FileDownloader(
                 readBytesInLoop(input)
 
             } catch (e: IOException) {
-                e.printStackTrace()
+                Log.e(tag, "Exception while downloading", e)
                 val downloadProgress = DownloadProgress(progressPercentage, avgDownloadSpeedKBs, true, e)
                 input?.close()
 
