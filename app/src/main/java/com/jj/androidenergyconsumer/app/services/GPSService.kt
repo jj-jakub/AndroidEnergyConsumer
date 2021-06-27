@@ -121,6 +121,7 @@ class GPSService : BaseService() {
         } else onServiceAlreadyRunning()
     }
 
+    // fixme cancel running job!
     private fun observeGPSResults() {
         coroutineScopeProvider.getIO().launch {
             locationListener.observeLocationInfoUpdates().collect { result ->
