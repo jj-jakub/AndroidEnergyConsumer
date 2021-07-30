@@ -10,6 +10,7 @@ import com.jj.androidenergyconsumer.domain.multithreading.ThreadsOrchestrator
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okhttp3.ResponseBody
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -67,6 +68,11 @@ class InternetPingsCreatorTest {
         internetPingCallManagerSpy = spy(InternetPingCallManager(retrofitClientFactory))
         internetPingsCreator = InternetPingsCreator(internetPingCallManagerSpy, testCoroutineScopeProvider,
                 coroutinesOrchestrator)
+    }
+
+    @AfterEach
+    fun cleanup() {
+        internetPingsCreator.stopWorking()
     }
 
     @ParameterizedTest

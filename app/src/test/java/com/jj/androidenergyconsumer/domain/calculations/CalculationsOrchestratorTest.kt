@@ -8,6 +8,7 @@ import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -49,6 +50,11 @@ class CalculationsOrchestratorTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         calculationsOrchestrator = createCalculationsOrchestrator()
+    }
+
+    @AfterEach
+    fun stopThreads() {
+        calculationsOrchestrator.abortCalculations()
     }
 
     @Test

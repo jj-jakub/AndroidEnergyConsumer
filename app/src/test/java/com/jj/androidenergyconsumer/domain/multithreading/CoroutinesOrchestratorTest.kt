@@ -6,6 +6,7 @@ import com.jj.androidenergyconsumer.domain.coroutines.CoroutineJobContainerFacto
 import com.jj.androidenergyconsumer.domain.coroutines.CoroutineScopeProvider
 import com.nhaarman.mockitokotlin2.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -37,7 +38,13 @@ class CoroutinesOrchestratorTest {
             spy(CoroutineJobContainer()).also { container -> coroutineJobContainers.add(container) }
         }
         testCoroutineScopeProvider = TestCoroutineScopeProvider()
-        coroutinesOrchestrator = CoroutinesOrchestrator(testCoroutineScopeProvider, coroutineJobContainerFactory)
+        coroutinesOrchestrator =
+            CoroutinesOrchestrator(testCoroutineScopeProvider, coroutineJobContainerFactory)
+    }
+
+    @AfterEach
+    fun cleanup() {
+        coroutinesOrchestrator.abortThreads()
     }
 
     @ParameterizedTest
@@ -69,7 +76,8 @@ class CoroutinesOrchestratorTest {
         coroutineJobContainers.clear()
         coroutinesOrchestrator.launchOnceInThreads(threadsAmount, task)
 
-        coroutineJobContainers.toList().forEach { container -> verify(container, never()).cancelJob() }
+        coroutineJobContainers.toList()
+            .forEach { container -> verify(container, never()).cancelJob() }
     }
 
 
@@ -85,7 +93,8 @@ class CoroutinesOrchestratorTest {
     @Test
     fun `running jobs should be cancelled if launchInThreadsInInfiniteLoop was executed twice`() {
         // TODO fix, Inserting testCoroutineScopeProvider to constructor will eventually cause test to block
-        coroutinesOrchestrator = CoroutinesOrchestrator(CoroutineScopeProvider(), coroutineJobContainerFactory)
+        coroutinesOrchestrator =
+            CoroutinesOrchestrator(CoroutineScopeProvider(), coroutineJobContainerFactory)
         val threadsAmount = 10
 
         coroutinesOrchestrator.launchInThreadsInInfiniteLoop(threadsAmount, task)
@@ -99,20 +108,23 @@ class CoroutinesOrchestratorTest {
 
     @Test
     fun `newly created jobs should not be cancelled if launchInThreadsInInfiniteLoop was executed twice`() {
-        coroutinesOrchestrator = CoroutinesOrchestrator(CoroutineScopeProvider(), coroutineJobContainerFactory)
+        coroutinesOrchestrator =
+            CoroutinesOrchestrator(CoroutineScopeProvider(), coroutineJobContainerFactory)
         val threadsAmount = 20
 
         coroutinesOrchestrator.launchInThreadsInInfiniteLoop(threadsAmount, task)
         coroutineJobContainers.clear()
         coroutinesOrchestrator.launchInThreadsInInfiniteLoop(threadsAmount, task)
 
-        coroutineJobContainers.toList().forEach { container -> verify(container, never()).cancelJob() }
+        coroutineJobContainers.toList()
+            .forEach { container -> verify(container, never()).cancelJob() }
     }
 
 
     @Test
     fun `calling abortThreads after launchInThreadsInInfiniteLoop should result in cancelling jobs`() {
-        coroutinesOrchestrator = CoroutinesOrchestrator(CoroutineScopeProvider(), coroutineJobContainerFactory)
+        coroutinesOrchestrator =
+            CoroutinesOrchestrator(CoroutineScopeProvider(), coroutineJobContainerFactory)
         val threadsAmount = 32
 
         coroutinesOrchestrator.launchInThreadsInInfiniteLoop(threadsAmount, task)

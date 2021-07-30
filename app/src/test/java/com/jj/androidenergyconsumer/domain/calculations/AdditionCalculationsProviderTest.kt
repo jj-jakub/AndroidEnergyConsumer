@@ -4,7 +4,6 @@ import com.jj.androidenergyconsumer.TestCoroutineScopeProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
@@ -38,12 +37,11 @@ class AdditionCalculationsProviderTest {
 
     @ParameterizedTest
     @MethodSource("factors")
-    fun `calculationsTask should eventually emit calculations result if handler was not stopped`(factor: Int) =
-        mainTestScope.runBlockingTest {
+    fun `calculationsTask should eventually emit calculations result if handler was not stopped`(factor: Int) {
             val additionCalculationsProvider = createAdditionCalculationsProvider(factor)
             val resultsList = mutableListOf<CalculationsResult>()
 
-            val collectingJob = launch {
+            val collectingJob = mainTestScope.launch {
                 additionCalculationsProvider.observeCalculationsResult().toList(resultsList)
             }
 
@@ -54,13 +52,12 @@ class AdditionCalculationsProviderTest {
 
     @ParameterizedTest
     @MethodSource("factors")
-    fun `calculationsTask should not emit calculations result if it was stopped`(factor: Int) =
-        mainTestScope.runBlockingTest {
+    fun `calculationsTask should not emit calculations result if it was stopped`(factor: Int) {
             val additionCalculationsProvider = createAdditionCalculationsProvider(factor)
             additionCalculationsProvider.abortCalculationsTask()
             val resultsList = mutableListOf<CalculationsResult>()
 
-            val collectingJob = launch {
+            val collectingJob = mainTestScope.launch {
                 additionCalculationsProvider.observeCalculationsResult().toList(resultsList)
             }
 
